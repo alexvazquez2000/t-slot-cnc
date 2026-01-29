@@ -1,5 +1,7 @@
 package com.t_slot_cnc;
 
+import java.awt.GraphicsEnvironment;
+
 import javax.swing.SwingUtilities;
 
 import org.springframework.boot.SpringApplication;
@@ -19,11 +21,14 @@ public class TSlotCNCApplication {
 		// This is needed to not be headless
 		app.setHeadless(false);
 		var context = app.run(args);
-
-		SwingUtilities.invokeLater(() -> {
-			MainController controller = context.getBean(MainController.class);
-			new MainFrame(controller).setVisible(true);
-		});
+		if (GraphicsEnvironment.isHeadless()) {
+			throw new IllegalStateException("No graphics, running in headless mode!");
+		} else {
+			SwingUtilities.invokeLater(() -> {
+				MainController controller = context.getBean(MainController.class);
+				new MainFrame(controller).setVisible(true);
+			});
+		}
 	}
 
 }
