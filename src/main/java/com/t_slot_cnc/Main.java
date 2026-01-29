@@ -15,6 +15,7 @@ public class Main {
 	static int feedRate = 30;
 	static int spindleSpeed = 12000;
 	static double cutDepthPerPass = 0.02;
+	static double accuracy = 0.02;
 	
 	//z-gap above material
 	static double zGapAbove = 0.8000;
@@ -32,9 +33,24 @@ public class Main {
 		double depthOfBore = 0.425;
 		
 		String gCode = generateCounterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore);
-		saveGCode(gCode, "1010_counter.tap");
-		
-		
+		saveGCode(gCode, "1010_counterbore.tap");
+
+		//<diameter>0.218</diameter>
+		//<yOffset>0.5</yOffset>
+		boreLocationX = 0.5;
+		boreLocationY = 0.406;
+		double accessHoleDiameter = 0.218;
+		double centeOf1010 = 0.354; //from center-bottom of 10-series/EX-1010-details.jpg
+		double topOfSlot = 1.0 - ((1.0 - centeOf1010) /2.0);
+		double depthOfAccessHole = topOfSlot + centeOf1010;
+		gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot);
+		saveGCode(gCode, "1010_accesshole.tap");
+
+		gCode = generateCombo(boreLocationX, boreLocationY,
+				boreDiameter, depthOfBore,
+				accessHoleDiameter, depthOfAccessHole);
+		saveGCode(gCode, "1010_combo.tap");
+
 	}
 
 	private static void saveGCode(String gCode, String fileName) throws IOException {
@@ -55,12 +71,36 @@ public class Main {
 			double boreDiameter, double depthOfBore) {
 		StringBuilder response = new StringBuilder();
 		response.append(header(spindleSpeed));
-		response.append(path(boreLocationX, boreLocationY, boreDiameter, depthOfBore));
+		response.append(counterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore));
 		response.append(tail());
 		System.out.println(response.toString());
 		return response.toString();
 	}
 
+	private static String generateAccessHole( double boreLocationX, double boreLocationY,
+			double accessHoleDiameter, double depthOfAccessHole, double zStart) {
+		StringBuilder response = new StringBuilder();
+		response.append(header(spindleSpeed));
+		response.append(accessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, zStart));
+		response.append(tail());
+		System.out.println(response.toString());
+		return response.toString();
+	}
+
+	private static String generateCombo( double boreLocationX, double boreLocationY,
+			double boreDiameter, double depthOfBore,
+			double accessHoleDiameter, double depthOfAccessHole) {
+		StringBuilder response = new StringBuilder();
+		response.append(header(spindleSpeed));
+		response.append(counterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore));
+		response.append("; end counterbore, start accessHole");
+		response.append(accessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, depthOfBore));
+		response.append(tail());
+		System.out.println(response.toString());
+		return response.toString();
+	}
+
+	
 	private static String header(int spindleSpeed) {
 		StringBuilder head = new StringBuilder();
 		//command sequence used to initiate a tool change.
@@ -85,45 +125,92 @@ public class Main {
 		return String.format("%." + decimals + "f", value);
 	}
 
-	private static String path( double boreLocationX, double boreLocationY,
+	private static String counterbore( double boreLocationX, double boreLocationY,
 			double boreDiameter, double depthOfBore) {
 		StringBuilder path = new StringBuilder();
 		double endMillRadius = endMillDiameter / 2.0;
+		//Start relative to the top of the Z=0 - the Z-axis moves down into negative numbers 
 		double z = - cutDepthPerPass;
 		
 		//Adjust the center of the circle
 		double centerX = boreLocationX + endMillRadius;
 		double centerY = boreLocationY - endMillRadius;
 		//go initial location on middle of track, away from the home
-		path.append("G01 Z").append(format(centerX,4))
+		path.append("G01 X").append(format(centerX,4))
 			.append("Y").append(format(centerY,4))
-			.append("F").append(format(feedRate,1)).append("\n"); //; Linear move down into the material (Z-axis)
+			.append("F").append(format(feedRate,1)).append("\n");
+		
+		//path.append("G01 Z").append(format(0.0,4));
+		//path.append(makeCircleAt(centerX, centerY, boreDiameter/2.0));
+
 		while (z > -depthOfBore) {
 			//move to the level
 			path.append("G01 Z").append(format(z,4))
 				.append("F").append(format(feedRate,1)).append("\n"); //; Linear move down into the material (Z-axis)
 			
-			double radius = slotWidth / 2 - endMillRadius;
-			// Number of points to generate
-			final int numPoints = 100;
-
-			for (int i = 0; i < numPoints; ++i) {
-				// Calculate angle in radians
-				double angle = Math.toRadians(((double) i / numPoints) * 360d);
-
-				// Calculate coordinates
-				double x = centerX + radius * Math.cos(angle);
-				double y = centerY + radius * Math.sin(angle);
-				path.append("G01X")
-					.append(format(x,4))
-					.append("Y").append(format(y,4)).append("\n");
-			}
-			
-			path.append("; " + format(z,4) + " Level done").append("\n"); 
+			double radius = (boreDiameter / 2.0) - endMillRadius;
+			path.append(makeCircleAt(centerX, centerY, radius));
+			//once it passes the initial wall then it can skip a bit, but at the bottom it needs to cut a pocket, not just the boreDiameter
 			//go down
 			z -= cutDepthPerPass;
 		}
 		return path.toString();
+	}
+
+
+	private static String accessHole( double boreLocationX, double boreLocationY,
+			double boreDiameter, double depthOfAccessHole, double startZ) {
+		StringBuilder path = new StringBuilder();
+		double endMillRadius = endMillDiameter / 2.0;
+		double z = - startZ - cutDepthPerPass;
+		
+		//Adjust the center of the circle
+		double centerX = boreLocationX + endMillRadius;
+		double centerY = boreLocationY - endMillRadius;
+		//go initial location on middle of track, away from the home
+		path.append("G01 X").append(format(centerX,4))
+			.append("Y").append(format(centerY,4))
+			.append("F").append(format(feedRate,1)).append("\n");
+		
+		//path.append("G01 Z").append(format(0.0,4));
+		//path.append(makeCircleAt(centerX, centerY, boreDiameter/2.0));
+
+		while (z > -depthOfAccessHole) {
+			//move to the level
+			path.append("G01 Z").append(format(z,4))
+				.append("F").append(format(feedRate,1)).append("\n"); //; Linear move down into the material (Z-axis)
+			
+			double radius = boreDiameter / 2 - endMillRadius;
+			path.append(makeCircleAt(centerX, centerY, radius));
+			//go down
+			z -= cutDepthPerPass;
+		}
+		return path.toString();
+	}
+
+
+	private static Object makeCircleAt(double centerX, double centerY, double radius) {
+		StringBuilder path = new StringBuilder();
+
+		// Number of points to generate - circumference divided by the accuracy
+		final int numPoints = (int)((2 * radius * Math.PI ) / accuracy);
+		path.append("; number of points = " + numPoints).append("\n"); 
+
+		for (int i = 0; i < numPoints; ++i) {
+			// Calculate angle in radians
+			double angle = Math.toRadians(((double) i / numPoints) * 360d);
+
+			// Calculate coordinates
+			double x = centerX + radius * Math.cos(angle);
+			double y = centerY + radius * Math.sin(angle);
+			path.append("G01X").append(format(x,4))
+				.append("Y").append(format(y,4))
+				.append("\n");
+		}
+		
+		path.append("; circle done").append("\n"); 
+
+		return path;
 	}
 
 	/*
