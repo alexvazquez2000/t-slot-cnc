@@ -5,6 +5,10 @@ import jakarta.xml.bind.annotation.XmlElement;
 public class Extrusion {
 	private String id;
 
+	private AccessHole accessHole;
+	private Counterbore counterbore;
+	private Combo combo;
+	
 	/**
 	 * @return the id
 	 */
@@ -18,6 +22,51 @@ public class Extrusion {
 	 */
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	/**
+	 * @return the accessHole
+	 */
+	@XmlElement
+	public AccessHole getAccessHole() {
+		return accessHole;
+	}
+
+	/**
+	 * @param accessHole the accessHole to set
+	 */
+	public void setAccessHole(AccessHole accessHole) {
+		this.accessHole = accessHole;
+	}
+
+	/**
+	 * @return the counterbore
+	 */
+	@XmlElement
+	public Counterbore getCounterbore() {
+		return counterbore;
+	}
+
+	/**
+	 * @param counterbore the counterbore to set
+	 */
+	public void setCounterbore(Counterbore counterbore) {
+		this.counterbore = counterbore;
+	}
+
+	/**
+	 * @return the combo
+	 */
+	@XmlElement
+	public Combo getCombo() {
+		return combo;
+	}
+
+	/**
+	 * @param combo the combo to set
+	 */
+	public void setCombo(Combo combo) {
+		this.combo = combo;
 	}
 	
 	

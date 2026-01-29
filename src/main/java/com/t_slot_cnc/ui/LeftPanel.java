@@ -48,7 +48,7 @@ public class LeftPanel extends JPanel {
 		//Just for kicks show all the extrusions IDs
 		List<Extrusion> exts = controller.getExtrusionSeries();
 		for (Extrusion ext : exts) {
-			System.out.println(ext.getId());
+			System.out.println(ext.getId() + " d=" + ext.getAccessHole().getDiameter());
 		}
 	}
 
