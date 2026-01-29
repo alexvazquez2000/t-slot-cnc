@@ -9,9 +9,10 @@ import org.springframework.stereotype.Service;
 public class GCodeGeneratorService {
 	public String generateText(String option) {
 		return switch (option) {
+		//OPTION 1 and 2 are gone - they were there from the sample
 		case "OPTION_1" -> "Generated text for Option 1.\nSpring-powered logic here.";
 		case "OPTION_2" -> "Generated text for Option 2.\nDifferent business logic.";
-		default -> "No option selected.";
+		default -> "other selected :" + option;
 		};
 	}
 }
