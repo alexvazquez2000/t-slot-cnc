@@ -1,8 +1,12 @@
 package com.t_slot_cnc.controller;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
+import com.t_slot_cnc.model.Extrusion;
 import com.t_slot_cnc.model.SelectionModel;
+import com.t_slot_cnc.service.ExtrusionsService;
 import com.t_slot_cnc.service.GCodeGeneratorService;
 
 /**
@@ -11,10 +15,13 @@ import com.t_slot_cnc.service.GCodeGeneratorService;
 @Component
 public class MainController {
 	private final SelectionModel model;
-	private final GCodeGeneratorService service;
+	private final GCodeGeneratorService gCodeService;
+	private final ExtrusionsService extrusionService ;
+	
 
-	public MainController(GCodeGeneratorService service) {
-		this.service = service;
+	public MainController(ExtrusionsService extrusionService, GCodeGeneratorService gCodeService) {
+		this.extrusionService = extrusionService;
+		this.gCodeService = gCodeService;
 		this.model = new SelectionModel();
 	}
 
@@ -23,7 +30,10 @@ public class MainController {
 	}
 
 	public String onOkPressed() {
-		return service.generateText(model.getSelectedOption());
+		return gCodeService.generateText(model.getSelectedOption());
 	}
 
+	public List<Extrusion> getExtrusionSeries() {
+		return extrusionService.getExtrusions().getExtrusionSeries();
+	}
 }
