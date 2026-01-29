@@ -1,5 +1,7 @@
 package com.t_slot_cnc.ui;
 
+import java.util.List;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -8,6 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import com.t_slot_cnc.controller.MainController;
+import com.t_slot_cnc.model.Extrusion;
 
 /**
  * @author Alex Vazquez <vazqueza2000@gmail.com>
@@ -41,6 +44,12 @@ public class LeftPanel extends JPanel {
 		add(option2);
 		add(Box.createVerticalStrut(10));
 		add(okButton);
+
+		//Just for kicks show all the extrusions IDs
+		List<Extrusion> exts = controller.getExtrusionSeries();
+		for (Extrusion ext : exts) {
+			System.out.println(ext.getId());
+		}
 	}
 
 }
