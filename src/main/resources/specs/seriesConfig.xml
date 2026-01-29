@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extrusions>
+    <extrusion>
+        <id>1010</id>
+        <accessHole>
+            <diameter>0.218</diameter>
+            <yOffset>0.5</yOffset><!-- style C has one hole -->
+            <!-- style D has 2 holes at 0.5 and 1.5 -->
+            <image>/10-series/EX-1010-ACCESS-HOLE.png</image>
+        </accessHole>
+        <counterbore>
+            <diameter>0.563</diameter>
+            <yOffset>0.406</yOffset>
+            <depth>0.425</depth>
+            <image>/10-series/EX-1010-Counterbore.png</image>
+        </counterbore>
+        <combo>
+            <diameter>0.257</diameter>
+            <yOffset>0.5</yOffset><!-- style C has one hole -->
+            <!-- style D has 2 holes at 0.5 and 1.5 -->
+            <depth>0.328</depth>
+            <flatBottom>0.406</flatBottom>
+            <!-- The counterbore symbol is ⌴ (Unicode U+2334), used in technical drawings
+             and engineering to represent a flat-bottomed, cylindrical enlargement of a hole,
+              allowing fasteners to sit flush or below the surface. It is typically followed 
+              by the counterbore diameter (emptyset) and depth (downarrow) -->
+            <image>/10-series/EX-1010-ACCESS-HOLE-COUNTERBORE.png</image>
+        </combo>
+    </extrusion>
+    <extrusion>
+        <id>1020</id>
+        <accessHole>
+            <diameter>0.218</diameter>
+            <yOffset>0.5</yOffset><!-- style C has one hole -->
+            <!-- style D has 2 holes at 0.5 and 1.5 -->
+            <image>/10-series/EX-1020-ACCESS-HOLE.png</image>
+        </accessHole>
+        <counterbore>
+            <diameter>0.563</diameter>
+            <yOffset>0.406</yOffset>
+            <depth>0.425</depth>
+            <image>/10-series/EX-1020-COUNTERBORE.png</image>
+        </counterbore>
+        <combo>
+            <diameter>0.257</diameter>
+            <yOffset>0.5</yOffset>
+            <depth>0.328</depth>
+            <flatBottom>0.406</flatBottom>
+            <image>/10-series/EX-1020-ACCESS-HOLE-COUNTERBORE.png</image>
+        </combo>
+    </extrusion>
+    <extrusion>
+        <id>1030</id>
+        <accessHole>
+            <diameter>0.218</diameter>
+            <yOffset>0.5</yOffset><!-- style C has one hole -->
+            <!-- style D has 2 holes at 0.5 and 1.5 -->
+            <!-- style H has 3 holes at 0.5, 1.5 and 2.5-->
+            <image>/10-series/EX-1030-ACCESS-HOLE.png</image>
+        </accessHole>
+        <counterbore>
+            <diameter>0.563</diameter>
+            <yOffset>0.406</yOffset>
+            <depth>0.425</depth>
+            <image>/10-series/EX-1030-COUNTERBORE.png</image>
+        </counterbore>
+        <combo>
+            <diameter>0.257</diameter>
+            <yOffset>0.5</yOffset><!-- style C has one hole -->
+            <!-- style D has 2 holes at 0.5 and 1.5 -->
+            <!-- style H has 3 holes at 0.5, 1.5 and 2.5-->
+            <depth>0.328</depth>
+            <flatBottom>0.406</flatBottom>
+            <image>/10-series/EX-1030-ACCESS-HOLE-COUNTERBORE.png</image>
+        </combo>
+    </extrusion>
+    <extrusion>
+        <id>2020</id>
+        <accessHole>
+            <diameter>0.218</diameter>
+            <yOffset>0.5</yOffset><!-- style C has one hole -->
+            <!-- style D has 2 holes at 0.5 and 1.5 -->
+            <image>/10-series/EX-2020-ACCESS-HOLE.png</image>
+        </accessHole>
+        <counterbore>
+            <diameter>0.563</diameter>
+            <yOffset>0.406</yOffset>
+            <depth>0.425</depth>
+            <image>/10-series/EX-2020-COUNTERBORE.png</image>
+        </counterbore>
+        <combo>
+            <diameter>0.257</diameter>
+            <yOffset>0.5</yOffset><!-- style C has one hole -->
+            <!-- style D has 2 holes at 0.5 and 1.5 -->
+            <depth>0.328</depth>
+            <flatBottom>0.406</flatBottom>
+            <image>/10-series/EX-2020-ACCESS-HOLE-COUNTERBORE.png</image>
+        </combo>
+    </extrusion>
+</extrusions>
