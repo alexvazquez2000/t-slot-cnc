@@ -15,8 +15,11 @@ import com.t_slot_cnc.ui.MainFrame;
 public class TSlotCNCApplication {
 
 	public static void main(String[] args) {
-		var context = SpringApplication.run(TSlotCNCApplication.class, args);
-		
+		SpringApplication app = new SpringApplication(TSlotCNCApplication.class);
+		// This is needed to not be headless
+		app.setHeadless(false);
+		var context = app.run(args);
+
 		SwingUtilities.invokeLater(() -> {
 			MainController controller = context.getBean(MainController.class);
 			new MainFrame(controller).setVisible(true);
