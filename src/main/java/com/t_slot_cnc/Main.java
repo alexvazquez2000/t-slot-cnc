@@ -13,12 +13,12 @@ public class Main {
 	//30–50 IPM (inches per minute) feed rate, with shallow depths of cut ( ~0.01-0.03").
 	//inches per minute
 	static int feedRate = 30;
-	static int spindleSpeed = 12000;
+	static int spindleSpeed = 2000;
 	static double cutDepthPerPass = 0.02;
 	static double accuracy = 0.02;
 	
 	//z-gap above material
-	static double zGapAbove = 0.8000;
+	static double zGapAbove = 0.2;
 
 	//These are settings for the t-track
 	static double slotWidth = 0.5;
@@ -33,23 +33,23 @@ public class Main {
 		double depthOfBore = 0.425;
 		
 		String gCode = generateCounterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore);
-		saveGCode(gCode, "1010_counterbore.tap");
+		saveGCode(gCode, "1010_counterbore.txt");
 
 		//<diameter>0.218</diameter>
 		//<yOffset>0.5</yOffset>
 		boreLocationX = 0.5;
-		boreLocationY = 0.406;
+		boreLocationY = 0.5;
 		double accessHoleDiameter = 0.218;
 		double centeOf1010 = 0.354; //from center-bottom of 10-series/EX-1010-details.jpg
-		double topOfSlot = 1.0 - ((1.0 - centeOf1010) /2.0);
-		double depthOfAccessHole = topOfSlot + centeOf1010;
+		double topOfSlot = 0.31;  //1.0 - ((1.0 - centeOf1010) /2.0);
+		double depthOfAccessHole = topOfSlot + centeOf1010 + cutDepthPerPass;
 		gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot);
-		saveGCode(gCode, "1010_accesshole.tap");
+		saveGCode(gCode, "1010_accesshole.txt");
 
 		gCode = generateCombo(boreLocationX, boreLocationY,
 				boreDiameter, depthOfBore,
 				accessHoleDiameter, depthOfAccessHole);
-		saveGCode(gCode, "1010_combo.tap");
+		saveGCode(gCode, "1010_combo.txt");
 
 	}
 
@@ -94,6 +94,11 @@ public class Main {
 		response.append(header(spindleSpeed));
 		response.append(counterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore));
 		response.append("; end counterbore, start accessHole");
+		
+		//TODO: Clear bottom of the counterbore
+		//move to material surface until we clear the bottom of the counterbore
+		response.append("G00 Z" + format(0.0,4)).append("\n");
+				
 		response.append(accessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, depthOfBore));
 		response.append(tail());
 		System.out.println(response.toString());
@@ -106,18 +111,24 @@ public class Main {
 		//command sequence used to initiate a tool change.
 		//T1: Selects Tool Number 1.
 		//M6: Executes the tool change command. 
-		head.append("T1M6").append("\n");
+		//head.append("T1M6").append("\n");
 		//G90 can set the 
 		//G20 Set units to inches  - G21 uses mm 
 		head.append("G20").append("\n");
+		
+		head.append("G90; (Set positioning to absolute mode)").append("\n");
+
 		//G17 is XY plane
 		head.append("G17").append("\n");
-		//z-gap above material
-		head.append("G0Z" + format(zGapAbove,4)).append("\n");
-		//Go home and turn on the spindle
+		
 		//M3 turns on the spindle clockwise (CW)
-		head.append("G0X0.0000Y0.0000S" + spindleSpeed + "M3").append("\n");
-		head.append("; prolog completed").append("\n");
+		head.append("M3 S" + spindleSpeed).append("\n");
+		
+		//z-gap above material
+		head.append("G00 Z" + format(zGapAbove,1) + " F10.0").append("\n");
+		//Go home and turn on the spindle
+		head.append("G00 X0.0 Y0.0 F10.0").append("\n");
+		//head.append("; prolog completed").append("\n");
 		return head.toString();
 	}
 
@@ -133,26 +144,38 @@ public class Main {
 		double z = - cutDepthPerPass;
 		
 		//Adjust the center of the circle
-		double centerX = boreLocationX + endMillRadius;
-		double centerY = boreLocationY - endMillRadius;
+		double centerX = boreLocationX - endMillRadius;
+		double centerY = boreLocationY + endMillRadius;
 		//go initial location on middle of track, away from the home
 		path.append("G01 X").append(format(centerX,4))
-			.append("Y").append(format(centerY,4))
-			.append("F").append(format(feedRate,1)).append("\n");
+			.append(" Y").append(format(centerY,4))
+			.append(" F").append(format(feedRate,1)).append("\n");
 		
 		//path.append("G01 Z").append(format(0.0,4));
 		//path.append(makeCircleAt(centerX, centerY, boreDiameter/2.0));
-
+		double radius = (boreDiameter / 2.0) - endMillRadius;
 		while (z > -depthOfBore) {
 			//move to the level
 			path.append("G01 Z").append(format(z,4))
-				.append("F").append(format(feedRate,1)).append("\n"); //; Linear move down into the material (Z-axis)
+				.append(" F").append(format(feedRate,1)).append("\n"); //; Linear move down into the material (Z-axis)
 			
-			double radius = (boreDiameter / 2.0) - endMillRadius;
 			path.append(makeCircleAt(centerX, centerY, radius));
-			//once it passes the initial wall then it can skip a bit, but at the bottom it needs to cut a pocket, not just the boreDiameter
-			//go down
 			z -= cutDepthPerPass;
+		}
+		//do a final pass
+		path.append("G01 X").append(format(centerX + radius,4))
+			.append(" Y").append(format(centerY,4))
+			.append(" Z").append(format(-depthOfBore,4))
+			.append("\n");
+
+		//move to the level
+		path.append("G01 Z").append(format(z,4)).append("\n"); //; Linear move down into the material (Z-axis)
+		for(double rr=radius; rr > cutDepthPerPass; rr-=cutDepthPerPass) {
+			//Counter clockwise full circle with center 10mm in the X direction
+			//G02 I-1.0 J0.0 F8.0; (Clockwise full circle with a center 1 inch in the negative X direction from the start point)
+			path.append("G01 X").append(format(centerX + rr,4)).append("\n");
+
+			path.append("G02 I").append(format(-rr,4)).append(" J0").append("\n");
 		}
 		return path.toString();
 	}
@@ -165,12 +188,12 @@ public class Main {
 		double z = - startZ - cutDepthPerPass;
 		
 		//Adjust the center of the circle
-		double centerX = boreLocationX + endMillRadius;
-		double centerY = boreLocationY - endMillRadius;
+		double centerX = boreLocationX - endMillRadius;
+		double centerY = boreLocationY + endMillRadius;
 		//go initial location on middle of track, away from the home
 		path.append("G01 X").append(format(centerX,4))
-			.append("Y").append(format(centerY,4))
-			.append("F").append(format(feedRate,1)).append("\n");
+			.append(" Y").append(format(centerY,4))
+			.append(" F").append(format(feedRate,1)).append("\n");
 		
 		//path.append("G01 Z").append(format(0.0,4));
 		//path.append(makeCircleAt(centerX, centerY, boreDiameter/2.0));
@@ -178,7 +201,7 @@ public class Main {
 		while (z > -depthOfAccessHole) {
 			//move to the level
 			path.append("G01 Z").append(format(z,4))
-				.append("F").append(format(feedRate,1)).append("\n"); //; Linear move down into the material (Z-axis)
+				.append(" F").append(format(feedRate,1)).append("\n"); //; Linear move down into the material (Z-axis)
 			
 			double radius = boreDiameter / 2 - endMillRadius;
 			path.append(makeCircleAt(centerX, centerY, radius));
@@ -194,7 +217,7 @@ public class Main {
 
 		// Number of points to generate - circumference divided by the accuracy
 		final int numPoints = (int)((2 * radius * Math.PI ) / accuracy);
-		path.append("; number of points = " + numPoints).append("\n"); 
+		//path.append("; number of points = " + numPoints).append("\n"); 
 
 		for (int i = 0; i < numPoints; ++i) {
 			// Calculate angle in radians
@@ -203,12 +226,12 @@ public class Main {
 			// Calculate coordinates
 			double x = centerX + radius * Math.cos(angle);
 			double y = centerY + radius * Math.sin(angle);
-			path.append("G01X").append(format(x,4))
-				.append("Y").append(format(y,4))
+			path.append("G01 X").append(format(x,4))
+				.append(" Y").append(format(y,4))
 				.append("\n");
 		}
 		
-		path.append("; circle done").append("\n"); 
+		//path.append("; circle done").append("\n"); 
 
 		return path;
 	}
@@ -257,12 +280,14 @@ N60 M30; Program end
 	 */
 	private static String tail() {
 		StringBuilder tail = new StringBuilder();
-		tail.append("; path completed").append("\n");
+		//tail.append("; path completed").append("\n");
 		//z-gap above material
-		tail.append("G0Z" + format(zGapAbove,4)).append("\n");
+		tail.append("G0 Z" + format(zGapAbove,4)).append("\n");
 		//Go home
-		tail.append("G0X0.0000Y0.0000").append("\n");
+		tail.append("G0 X0.0000 Y0.0000").append("\n");
 		
+		//M05; (Spindle off)
+
 		/*G-code M30 signifies the end of a program, resets parameters,
 		 *  and rewinds to the beginning, allowing for immediate restart,
 		 *  unlike M02 which ends but leaves the machine state potentially
