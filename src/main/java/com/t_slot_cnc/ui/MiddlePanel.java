@@ -18,7 +18,7 @@ public class MiddlePanel extends JPanel {
 	public MiddlePanel() {
 		setLayout(new BorderLayout());
 
-		URL imageUrl = getClass().getResource("/images/sample.png");
+		URL imageUrl = getClass().getResource("/10-series/EX-1010-ACCESS-HOLE-COUNTERBORE.png");
 		if (imageUrl != null) {
 			JLabel imageLabel = new JLabel(new ImageIcon(imageUrl));
 			imageLabel.setHorizontalAlignment(JLabel.CENTER);
