@@ -141,30 +141,35 @@ public class Main {
 		StringBuilder path = new StringBuilder();
 		double endMillRadius = endMillDiameter / 2.0;
 		//Start relative to the top of the Z=0 - the Z-axis moves down into negative numbers 
-		double z = - cutDepthPerPass;
+		double z = 0.0; // cutDepthPerPass;
 		
 		//Adjust the center of the circle
 		double centerX = boreLocationX - endMillRadius;
 		double centerY = boreLocationY + endMillRadius;
+		double radius = (boreDiameter / 2.0) - endMillRadius;
+
 		//go initial location on middle of track, away from the home
 		path.append("G01 X").append(format(centerX,4))
-			.append(" Y").append(format(centerY,4))
+			.append(" Y").append(format(centerY + radius,4))
+			.append(" Z").append(format(z,4))
 			.append(" F").append(format(feedRate,1)).append("\n");
 		
 		//path.append("G01 Z").append(format(0.0,4));
 		//path.append(makeCircleAt(centerX, centerY, boreDiameter/2.0));
-		double radius = (boreDiameter / 2.0) - endMillRadius;
-		while (z > -depthOfBore) {
-			//move to the level
-			path.append("G01 Z").append(format(z,4))
-				.append(" F").append(format(feedRate,1)).append("\n"); //; Linear move down into the material (Z-axis)
-			
-			path.append(makeCircleAt(centerX, centerY, radius));
+		while (z >= -depthOfBore) {
+			//J=Y-offset and I=X-offset
+			path.append("G02 I0")
+				.append(" J").append(format(-radius,4))
+				.append(" Z").append(format(z,4))
+				.append("\n");
+
 			z -= cutDepthPerPass;
 		}
+		
+		
 		//do a final pass
-		path.append("G01 X").append(format(centerX + radius,4))
-			.append(" Y").append(format(centerY,4))
+		path.append("G01 X").append(format(centerX,4))
+			.append(" Y").append(format(centerY + radius,4))
 			.append(" Z").append(format(-depthOfBore,4))
 			.append("\n");
 
@@ -173,9 +178,11 @@ public class Main {
 		for(double rr=radius; rr > cutDepthPerPass; rr-=cutDepthPerPass) {
 			//Counter clockwise full circle with center 10mm in the X direction
 			//G02 I-1.0 J0.0 F8.0; (Clockwise full circle with a center 1 inch in the negative X direction from the start point)
-			path.append("G01 X").append(format(centerX + rr,4)).append("\n");
+			path.append("G01 Y").append(format(centerY + rr,4)).append("\n");
 
-			path.append("G02 I").append(format(-rr,4)).append(" J0").append("\n");
+			path.append("G02 I0")
+				.append(" J").append(format(-rr,4))
+				.append("\n");
 		}
 		return path.toString();
 	}
