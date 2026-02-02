@@ -56,22 +56,23 @@ public class Main {
 		double centeOf1010 = 0.354; //from center-bottom of 10-series/EX-1010-details.jpg
 		double topOfSlot = 0.31;  //1.0 - ((1.0 - centeOf1010) /2.0);
 		double depthOfAccessHole = topOfSlot + centeOf1010 + cutDepthPerPass;
-		gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
-				new int[] {0});
-		saveGCode(gCode, "1010_ah_A.txt");
-
-		gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
-				new int[] {0,1});
-		saveGCode(gCode, "1010_ah_A_B.txt");
-
-		gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
-				new int[] {0,1,2});
-		saveGCode(gCode, "1010_ah_A_B_C.txt");
-
-		gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
-				new int[] {0,1,2,3});
-		saveGCode(gCode, "1010_ah_A_B_C_D.txt");
-
+		for (int rows = 1; rows <=2; rows++) {
+			gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
+					new int[] {0}, rows);
+			saveGCode(gCode, "1010_ah_A_" + rows + ".txt");
+	
+			gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
+					new int[] {0,1}, rows);
+			saveGCode(gCode, "1010_ah_A_B_" + rows + ".txt");
+	
+			gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
+					new int[] {0,1,2}, rows);
+			saveGCode(gCode, "1010_ah_A_B_C_" + rows + ".txt");
+	
+			gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
+					new int[] {0,1,2,3}, rows);
+			saveGCode(gCode, "1010_ah_A_B_C_D_" + rows + ".txt");
+		}
 		
 		gCode = generateCombo(boreLocationX, boreLocationY,
 				boreDiameter, depthOfBore,
@@ -135,15 +136,17 @@ public class Main {
 
 	private static String generateAccessHole( double boreLocationX, double boreLocationY,
 			double accessHoleDiameter, double depthOfAccessHole, double zStart,
-			int[] pattern) {
+			int[] pattern, int rows) {
 		StringBuilder response = new StringBuilder();
 		response.append(header(spindleSpeed));
-		for (int p :pattern) {
-			response.append("G00 X" + format(boreLocationX + p,4))
-				.append(" Y" + format(boreLocationY,4))
-				.append("\n");
-			response.append(accessHole(boreLocationX + p, boreLocationY, accessHoleDiameter, depthOfAccessHole, zStart));
-			response.append("G00 Z" + format(zGapAbove,4)).append("\n");
+		for (int row=0; row < rows; row++) {
+			for (int p :pattern) {
+				response.append("G00 X" + format(boreLocationX + p,4))
+					.append(" Y" + format(boreLocationY + row,4))
+					.append("\n");
+				response.append(accessHole(boreLocationX + p, boreLocationY + row, accessHoleDiameter, depthOfAccessHole, zStart));
+				response.append("G00 Z" + format(zGapAbove,4)).append("\n");
+			}
 		}
 		response.append(tail());
 		System.out.println(response.toString());
