@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 
 public class Main {
 
-	static double endMillDiameter = 0.125;
+	static double endMillDiameter = 0.25;//  0.125;
 	
 	//aluminum settings
 	//30–50 IPM (inches per minute) feed rate, with shallow depths of cut ( ~0.01-0.03").
