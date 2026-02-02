@@ -29,11 +29,16 @@ public class Main {
 		//10-series/EX-1010-Counterbore.png
 		double boreLocationX = 0.5;
 		double boreLocationY = 0.406;
-		double boreDiameter = 0.563;
+		double boreDiameter = 0.563 - 0.04; //0.563;
 		double depthOfBore = 0.425;
 		
-		String gCode = generateCounterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore);
-		saveGCode(gCode, "1010_counterbore.txt");
+		String gCode = generateCounterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore,
+				new int[] {0} );
+		saveGCode(gCode, "1010_cb_A.txt");
+
+		gCode = generateCounterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore,
+				new int[] {0,1} );
+		saveGCode(gCode, "1010_cb_A_B.txt");
 
 		//<diameter>0.218</diameter>
 		//<yOffset>0.5</yOffset>
@@ -43,14 +48,44 @@ public class Main {
 		double centeOf1010 = 0.354; //from center-bottom of 10-series/EX-1010-details.jpg
 		double topOfSlot = 0.31;  //1.0 - ((1.0 - centeOf1010) /2.0);
 		double depthOfAccessHole = topOfSlot + centeOf1010 + cutDepthPerPass;
-		gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot);
-		saveGCode(gCode, "1010_accesshole.txt");
+		gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
+				new int[] {0});
+		saveGCode(gCode, "1010_ah_A.txt");
+
+		gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
+				new int[] {0,1});
+		saveGCode(gCode, "1010_ah_A_B.txt");
 
 		gCode = generateCombo(boreLocationX, boreLocationY,
 				boreDiameter, depthOfBore,
 				accessHoleDiameter, depthOfAccessHole);
 		saveGCode(gCode, "1010_combo.txt");
 
+		//return to origin
+		gCode = generateReturnVice(122.767, 136.737, -9.3);
+		saveGCode(gCode, "returnToVice.txt");
+	}
+
+	private static String generateReturnVice(double x, double y, double z) {
+		StringBuilder head = new StringBuilder();
+		//G20 Set units to inches  - G21 uses mm 
+		head.append("G21").append("\n");
+		//G90 absolute mode -  G91 is relative positioning mode. 		
+		head.append("G91; (Set positioning to absolute mode)").append("\n");
+
+		//G17 is XY plane
+		head.append("G17").append("\n");
+		
+		//M3 turns on the spindle clockwise (CW)
+		head.append("M3 S0").append("\n");
+		
+		//z-gap above material
+		head.append("G00 Z" + format(z,1) + " F10.0").append("\n");
+		//Go home and turn on the spindle
+		head.append("G00 X" + format(x,1) + "Y" + format(y,1) + " F10.0").append("\n");
+		//M30 is end of script- It turns off the spindle
+		head.append("M30").append("\n");
+		return head.toString();
 	}
 
 	private static void saveGCode(String gCode, String fileName) throws IOException {
@@ -68,20 +103,31 @@ public class Main {
 	}
 
 	private static String generateCounterbore( double boreLocationX, double boreLocationY,
-			double boreDiameter, double depthOfBore) {
+			double boreDiameter, double depthOfBore,
+			int[] pattern) {
 		StringBuilder response = new StringBuilder();
 		response.append(header(spindleSpeed));
-		response.append(counterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore));
+		for (int p :pattern) {
+			response.append(counterbore(boreLocationX + p, boreLocationY, boreDiameter, depthOfBore));
+			response.append("G00 Z" + format(zGapAbove,4)).append("\n");
+		}
 		response.append(tail());
 		System.out.println(response.toString());
 		return response.toString();
 	}
 
 	private static String generateAccessHole( double boreLocationX, double boreLocationY,
-			double accessHoleDiameter, double depthOfAccessHole, double zStart) {
+			double accessHoleDiameter, double depthOfAccessHole, double zStart,
+			int[] pattern) {
 		StringBuilder response = new StringBuilder();
 		response.append(header(spindleSpeed));
-		response.append(accessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, zStart));
+		for (int p :pattern) {
+			response.append("G00 X" + format(boreLocationX + p,4))
+				.append(" Y" + format(boreLocationY,4))
+				.append("\n");
+			response.append(accessHole(boreLocationX + p, boreLocationY, accessHoleDiameter, depthOfAccessHole, zStart));
+			response.append("G00 Z" + format(zGapAbove,4)).append("\n");
+		}
 		response.append(tail());
 		System.out.println(response.toString());
 		return response.toString();
@@ -93,9 +139,8 @@ public class Main {
 		StringBuilder response = new StringBuilder();
 		response.append(header(spindleSpeed));
 		response.append(counterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore));
-		response.append("; end counterbore, start accessHole");
-		
-		//TODO: Clear bottom of the counterbore
+		// end counterbore, start accessHole
+	
 		//move to material surface until we clear the bottom of the counterbore
 		response.append("G00 Z" + format(0.0,4)).append("\n");
 				
@@ -112,10 +157,9 @@ public class Main {
 		//T1: Selects Tool Number 1.
 		//M6: Executes the tool change command. 
 		//head.append("T1M6").append("\n");
-		//G90 can set the 
 		//G20 Set units to inches  - G21 uses mm 
 		head.append("G20").append("\n");
-		
+		//G90 absolute mode -  G91 is relative positioning mode. 		
 		head.append("G90; (Set positioning to absolute mode)").append("\n");
 
 		//G17 is XY plane
@@ -141,7 +185,7 @@ public class Main {
 		StringBuilder path = new StringBuilder();
 		double endMillRadius = endMillDiameter / 2.0;
 		//Start relative to the top of the Z=0 - the Z-axis moves down into negative numbers 
-		double z = 0.0; // cutDepthPerPass;
+		double z = 0.0;
 		
 		//Adjust the center of the circle
 		double centerX = boreLocationX - endMillRadius;
@@ -151,12 +195,11 @@ public class Main {
 		//go initial location on middle of track, away from the home
 		path.append("G01 X").append(format(centerX,4))
 			.append(" Y").append(format(centerY + radius,4))
+			
 			.append(" Z").append(format(z,4))
 			.append(" F").append(format(feedRate,1)).append("\n");
 		
-		//path.append("G01 Z").append(format(0.0,4));
-		//path.append(makeCircleAt(centerX, centerY, boreDiameter/2.0));
-		while (z >= -depthOfBore) {
+		while (z > -depthOfBore) {
 			//J=Y-offset and I=X-offset
 			path.append("G02 I0")
 				.append(" J").append(format(-radius,4))
@@ -165,16 +208,19 @@ public class Main {
 
 			z -= cutDepthPerPass;
 		}
-		
-		
-		//do a final pass
+		//do a final spiral to the exact depth
+		z = -depthOfBore;
+		path.append("G02 I0")
+		.append(" J").append(format(-radius,4))
+		.append(" Z").append(format( -depthOfBore,4))
+		.append("\n");
+
+		//flatten the bottom of the counterbore
 		path.append("G01 X").append(format(centerX,4))
 			.append(" Y").append(format(centerY + radius,4))
 			.append(" Z").append(format(-depthOfBore,4))
 			.append("\n");
 
-		//move to the level
-		path.append("G01 Z").append(format(z,4)).append("\n"); //; Linear move down into the material (Z-axis)
 		for(double rr=radius; rr > cutDepthPerPass; rr-=cutDepthPerPass) {
 			//Counter clockwise full circle with center 10mm in the X direction
 			//G02 I-1.0 J0.0 F8.0; (Clockwise full circle with a center 1 inch in the negative X direction from the start point)
@@ -197,24 +243,35 @@ public class Main {
 		//Adjust the center of the circle
 		double centerX = boreLocationX - endMillRadius;
 		double centerY = boreLocationY + endMillRadius;
+
+		double radius = boreDiameter / 2 - endMillRadius;
+
 		//go initial location on middle of track, away from the home
 		path.append("G01 X").append(format(centerX,4))
-			.append(" Y").append(format(centerY,4))
+			.append(" Y").append(format(centerY + radius,4))
+			.append(" Z").append(format(z,4))
 			.append(" F").append(format(feedRate,1)).append("\n");
-		
+
 		//path.append("G01 Z").append(format(0.0,4));
 		//path.append(makeCircleAt(centerX, centerY, boreDiameter/2.0));
 
 		while (z > -depthOfAccessHole) {
-			//move to the level
-			path.append("G01 Z").append(format(z,4))
-				.append(" F").append(format(feedRate,1)).append("\n"); //; Linear move down into the material (Z-axis)
 			
-			double radius = boreDiameter / 2 - endMillRadius;
-			path.append(makeCircleAt(centerX, centerY, radius));
-			//go down
+			//J=Y-offset and I=X-offset
+			path.append("G02 I0")
+				.append(" J").append(format(-radius,4))
+				.append(" Z").append(format(z,4))
+				.append("\n");
+
 			z -= cutDepthPerPass;
 		}
+		//do a final spiral to the exact depth
+		z = -depthOfAccessHole;
+		path.append("G02 I0")
+		.append(" J").append(format(-radius,4))
+		.append(" Z").append(format( -depthOfAccessHole,4))
+		.append("\n");
+		
 		return path.toString();
 	}
 
