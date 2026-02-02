@@ -40,6 +40,14 @@ public class Main {
 				new int[] {0,1} );
 		saveGCode(gCode, "1010_cb_A_B.txt");
 
+		gCode = generateCounterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore,
+				new int[] {0,1} );
+		saveGCode(gCode, "1010_cb_A_B_C.txt");
+
+		gCode = generateCounterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore,
+				new int[] {0,1} );
+		saveGCode(gCode, "1010_cb_A_B_C_D.txt");
+
 		//<diameter>0.218</diameter>
 		//<yOffset>0.5</yOffset>
 		boreLocationX = 0.5;
@@ -56,6 +64,15 @@ public class Main {
 				new int[] {0,1});
 		saveGCode(gCode, "1010_ah_A_B.txt");
 
+		gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
+				new int[] {0,1,2});
+		saveGCode(gCode, "1010_ah_A_B_C.txt");
+
+		gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
+				new int[] {0,1,2,3});
+		saveGCode(gCode, "1010_ah_A_B_C_D.txt");
+
+		
 		gCode = generateCombo(boreLocationX, boreLocationY,
 				boreDiameter, depthOfBore,
 				accessHoleDiameter, depthOfAccessHole);
