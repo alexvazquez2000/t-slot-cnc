@@ -5,15 +5,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import com.t_slot_cnc.model.Counterbore;
+
 public class Main {
 
-	static double endMillDiameter = 0.25;//  0.125;
+	static double endMillDiameter = 0.125;
 	
 	//aluminum settings
 	//30–50 IPM (inches per minute) feed rate, with shallow depths of cut ( ~0.01-0.03").
 	//inches per minute
 	static int feedRate = 30;
-	static int spindleSpeed = 2000;
+	static int spindleSpeed = 2;
 	static double cutDepthPerPass = 0.02;
 	static double accuracy = 0.02;
 	
@@ -32,21 +34,22 @@ public class Main {
 		double boreDiameter = 0.563 - 0.04; //0.563;
 		double depthOfBore = 0.425;
 		
+		
 		String gCode = generateCounterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore,
 				new int[] {0} );
-		saveGCode(gCode, "1010_cb_A.txt");
+		saveGCode(gCode, "M72561_1010_cb_A.txt");
 
 		gCode = generateCounterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore,
 				new int[] {0,1} );
-		saveGCode(gCode, "1010_cb_A_B.txt");
+		saveGCode(gCode, "M72561_1020_cb_A_B.txt");
 
 		gCode = generateCounterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore,
-				new int[] {0,1} );
-		saveGCode(gCode, "1010_cb_A_B_C.txt");
+				new int[] {0,1,2} );
+		saveGCode(gCode, "M72561_1030_cb_A_B_C.txt");
 
 		gCode = generateCounterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore,
-				new int[] {0,1} );
-		saveGCode(gCode, "1010_cb_A_B_C_D.txt");
+				new int[] {0,1,2,3} );
+		saveGCode(gCode, "M72561_1040_cb_A_B_C_D.txt");
 
 		//<diameter>0.218</diameter>
 		//<yOffset>0.5</yOffset>
@@ -59,19 +62,19 @@ public class Main {
 		for (int rows = 1; rows <=2; rows++) {
 			gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
 					new int[] {0}, rows);
-			saveGCode(gCode, "1010_ah_A_" + rows + ".txt");
+			saveGCode(gCode, "M70511_1010_ah_A_" + rows + ".txt");
 	
 			gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
 					new int[] {0,1}, rows);
-			saveGCode(gCode, "1010_ah_A_B_" + rows + ".txt");
+			saveGCode(gCode, "M70511_1020_ah_A_B_" + rows + ".txt");
 	
 			gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
 					new int[] {0,1,2}, rows);
-			saveGCode(gCode, "1010_ah_A_B_C_" + rows + ".txt");
+			saveGCode(gCode, "M70511_1030_ah_A_B_C_" + rows + ".txt");
 	
 			gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
 					new int[] {0,1,2,3}, rows);
-			saveGCode(gCode, "1010_ah_A_B_C_D_" + rows + ".txt");
+			saveGCode(gCode, "M70511_1040_ah_A_B_C_D_" + rows + ".txt");
 		}
 		
 		gCode = generateCombo(boreLocationX, boreLocationY,
@@ -80,11 +83,11 @@ public class Main {
 		saveGCode(gCode, "1010_combo.txt");
 
 		//return to origin
-		gCode = generateReturnVice(122.767, 136.737, -9.3);
+		gCode = generateReturnVice(124.245, 68.406);
 		saveGCode(gCode, "returnToVice.txt");
 	}
 
-	private static String generateReturnVice(double x, double y, double z) {
+	private static String generateReturnVice(double x, double y) {
 		StringBuilder head = new StringBuilder();
 		//G20 Set units to inches  - G21 uses mm 
 		head.append("G21").append("\n");
@@ -98,7 +101,7 @@ public class Main {
 		head.append("M3 S0").append("\n");
 		
 		//z-gap above material
-		head.append("G00 Z" + format(z,1) + " F10.0").append("\n");
+		//head.append("G00 Z" + format(z,1) + " F10.0").append("\n");
 		//Go home and turn on the spindle
 		head.append("G00 X" + format(x,1) + "Y" + format(y,1) + " F10.0").append("\n");
 		//M30 is end of script- It turns off the spindle

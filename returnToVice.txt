@@ -2,6 +2,5 @@ G21
 G91; (Set positioning to absolute mode)
 G17
 M3 S0
-G00 Z-9.3 F10.0
-G00 X122.8Y136.7 F10.0
+G00 X124.2Y68.4 F10.0
 M30
