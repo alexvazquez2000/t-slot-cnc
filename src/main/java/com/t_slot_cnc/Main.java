@@ -14,8 +14,8 @@ public class Main {
 	//aluminum settings
 	//30–50 IPM (inches per minute) feed rate, with shallow depths of cut ( ~0.01-0.03").
 	//inches per minute
-	static int feedRate = 30;
-	static int spindleSpeed = 2;
+	static int feedRate = 40;
+	static int spindleSpeed = 7;
 	static double cutDepthPerPass = 0.02;
 	static double accuracy = 0.02;
 	
@@ -31,7 +31,7 @@ public class Main {
 		//10-series/EX-1010-Counterbore.png
 		double boreLocationX = 0.5;
 		double boreLocationY = 0.406;
-		double boreDiameter = 0.563 - 0.04; //0.563;
+		double boreDiameter = 0.563; //0.563;
 		double depthOfBore = 0.425;
 		
 		
@@ -224,7 +224,7 @@ public class Main {
 		
 		while (z > -depthOfBore) {
 			//J=Y-offset and I=X-offset
-			path.append("G02 I0")
+			path.append("G03 I0")
 				.append(" J").append(format(-radius,4))
 				.append(" Z").append(format(z,4))
 				.append("\n");
@@ -281,7 +281,7 @@ public class Main {
 		while (z > -depthOfAccessHole) {
 			
 			//J=Y-offset and I=X-offset
-			path.append("G02 I0")
+			path.append("G03 I0")
 				.append(" J").append(format(-radius,4))
 				.append(" Z").append(format(z,4))
 				.append("\n");
