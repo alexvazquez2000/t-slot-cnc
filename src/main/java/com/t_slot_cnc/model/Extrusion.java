@@ -5,6 +5,9 @@ import jakarta.xml.bind.annotation.XmlElement;
 public class Extrusion {
 	private String id;
 
+	private String units;
+	private double width;
+	
 	private AccessHole accessHole;
 	private Counterbore counterbore;
 	private Combo combo;
@@ -22,6 +25,34 @@ public class Extrusion {
 	 */
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	/**
+	 * @return the units
+	 */
+	public String getUnits() {
+		return units;
+	}
+
+	/**
+	 * @param units the units to set
+	 */
+	public void setUnits(String units) {
+		this.units = units;
+	}
+
+	/**
+	 * @return the width
+	 */
+	public double getWidth() {
+		return width;
+	}
+
+	/**
+	 * @param width the width to set
+	 */
+	public void setWidth(double width) {
+		this.width = width;
 	}
 
 	/**
