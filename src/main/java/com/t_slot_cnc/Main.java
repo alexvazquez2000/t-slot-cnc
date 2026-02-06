@@ -5,7 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.t_slot_cnc.model.Counterbore;
+import com.t_slot_cnc.model.Extrusion;
+import com.t_slot_cnc.service.ExtrusionsService;
 
 public class Main {
 
@@ -85,6 +86,12 @@ public class Main {
 		//return to origin
 		gCode = generateReturnVice(124.245, 68.406);
 		saveGCode(gCode, "returnToVice.txt");
+		
+		ExtrusionsService service = new ExtrusionsService();
+		service.loadSpecs();
+		for (Extrusion ext : service.getExtrusions().getExtrusionSeries()) {
+			System.out.println(ext.getId() + " units=" + ext.getUnits() + " width=" + ext.getWidth());
+		};
 	}
 
 	private static String generateReturnVice(double x, double y) {
