@@ -2,7 +2,7 @@
 <extrusions>
     <extrusion>
         <id>10-Series</id>
-        <unit>inches</unit>
+        <units>inches</units>
         <width>1</width>
         <accessHole>
             <diameter>0.218</diameter>
@@ -25,7 +25,7 @@
     </extrusion>
     <extrusion>
         <id>15-Series</id>
-        <unit>inches</unit>
+        <units>inches</units>
         <width>1.5</width>
         <accessHole>
             <diameter>0.295</diameter>
@@ -48,7 +48,7 @@
     </extrusion>
     <extrusion>
         <id>30-Series</id>
-        <unit>mm</unit>
+        <units>mm</units>
         <width>30</width>
         <accessHole>
             <diameter>8.30</diameter>
@@ -73,7 +73,7 @@
     </extrusion>
     <extrusion>
         <id>40-Series</id>
-        <unit>mm</unit>
+        <units>mm</units>
         <width>40</width>
         <accessHole>
             <!-- diameter is listed as 0.295 - converted to mm-->
@@ -90,7 +90,7 @@
     </extrusion>
     <extrusion>
         <id>45-Series</id>
-        <unit>mm</unit>
+        <units>mm</units>
         <width>45</width>
         <accessHole>
             <diameter>10</diameter>
