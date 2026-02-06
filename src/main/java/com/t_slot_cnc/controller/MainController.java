@@ -25,12 +25,16 @@ public class MainController {
 		this.model = new SelectionModel();
 	}
 
-	public void selectOption(String option) {
-		model.setSelectedOption(option);
+	public void selectSeries(String option) {
+		model.setSelectedSeries(option);
+	}
+
+	public void selectHoleType(String option) {
+		model.setSelectedHoleType(option);
 	}
 
 	public String onOkPressed() {
-		return gCodeService.generateText(model.getSelectedOption());
+		return gCodeService.generateText(model.getSelectedSeries() + model.getSelectedHoleType());
 	}
 
 	public List<Extrusion> getExtrusionSeries() {
