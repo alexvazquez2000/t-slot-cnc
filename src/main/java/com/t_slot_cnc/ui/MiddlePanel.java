@@ -15,17 +15,24 @@ public class MiddlePanel extends JPanel {
 	/** Serialize */
 	private static final long serialVersionUID = -4293176338824464453L;
 
+	private String defaultImage = "/10-series/EX-1010-ACCESS-HOLE-COUNTERBORE.png";
+	
 	public MiddlePanel() {
 		setLayout(new BorderLayout());
+		setImage(defaultImage);
+	}
 
-		URL imageUrl = getClass().getResource("/10-series/EX-1010-ACCESS-HOLE-COUNTERBORE.png");
+	public boolean setImage(String imageName) {
+		boolean imageFound = true;
+		URL imageUrl = getClass().getResource(imageName);
 		if (imageUrl != null) {
 			JLabel imageLabel = new JLabel(new ImageIcon(imageUrl));
 			imageLabel.setHorizontalAlignment(JLabel.CENTER);
 			add(imageLabel, BorderLayout.CENTER);
 		} else {
 			add(new JLabel("Image not found", JLabel.CENTER), BorderLayout.CENTER);
+			imageFound = false;
 		}
+		return imageFound;
 	}
-
 }
