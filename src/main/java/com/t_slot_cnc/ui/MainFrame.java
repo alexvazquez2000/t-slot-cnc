@@ -20,8 +20,8 @@ public class MainFrame extends JFrame {
 		setLocationRelativeTo(null);
 
 		RightPanel rightPanel = new RightPanel();
-		LeftPanel leftPanel = new LeftPanel(controller, rightPanel);
 		MiddlePanel middlePanel = new MiddlePanel();
+		LeftPanel leftPanel = new LeftPanel(controller, middlePanel, rightPanel);
 
 		JSplitPane centerSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, middlePanel, rightPanel);
 		centerSplit.setResizeWeight(0.5);

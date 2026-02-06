@@ -5,7 +5,7 @@ package com.t_slot_cnc.model;
  */
 public class SelectionModel {
 	private String selectedSeries;
-	private String selectedHoleType;
+	private HoleType holeType;
 
 	public String getSelectedSeries() {
 		return selectedSeries;
@@ -18,15 +18,15 @@ public class SelectionModel {
 	/**
 	 * @return the selectedHoleType
 	 */
-	public String getSelectedHoleType() {
-		return selectedHoleType;
+	public HoleType getHoleType() {
+		return holeType;
 	}
 
 	/**
 	 * @param selectedHoleType the selectedHoleType to set
 	 */
-	public void setSelectedHoleType(String selectedHoleType) {
-		this.selectedHoleType = selectedHoleType;
+	public void setSelectedHoleType(HoleType holeType) {
+		this.holeType = holeType;
 	}
 
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.t_slot_cnc.model.Extrusion;
+import com.t_slot_cnc.model.HoleType;
 import com.t_slot_cnc.model.SelectionModel;
 import com.t_slot_cnc.service.ExtrusionsService;
 import com.t_slot_cnc.service.GCodeGeneratorService;
@@ -29,15 +30,23 @@ public class MainController {
 		model.setSelectedSeries(option);
 	}
 
-	public void selectHoleType(String option) {
-		model.setSelectedHoleType(option);
+	public void selectHoleType(HoleType holeType) {
+		model.setSelectedHoleType(holeType);
 	}
 
 	public String onOkPressed() {
-		return gCodeService.generateText(model.getSelectedSeries() + model.getSelectedHoleType());
+		return gCodeService.generateText(model.getSelectedSeries() + model.getHoleType().getName());
 	}
 
 	public List<Extrusion> getExtrusionSeries() {
 		return extrusionService.getExtrusions().getExtrusionSeries();
+	}
+
+	public String getImageName() {
+		Extrusion extrusion= extrusionService.findExtrusionByName(model.getSelectedSeries());
+		if (model.getHoleType()== HoleType.COUNTERBORE) {
+			return extrusion.getCounterbore().getImage();
+		}
+		return extrusion.getAccessHole().getImage();
 	}
 }

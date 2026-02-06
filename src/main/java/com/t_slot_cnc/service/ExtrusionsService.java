@@ -6,6 +6,7 @@ import jakarta.xml.bind.Unmarshaller;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import com.t_slot_cnc.model.Extrusion;
 import com.t_slot_cnc.model.Extrusions;
 
 import java.io.InputStream;
@@ -39,6 +40,15 @@ public class ExtrusionsService {
 
 	public Extrusions getExtrusions() {
 		return extrusions;
+	}
+
+	public Extrusion findExtrusionByName(String selectedSeriesId) {
+		for (Extrusion ext : extrusions.getExtrusionSeries()) {
+			if (ext.getId().equals(selectedSeriesId)) {
+				return ext;
+			}
+		}
+		return null;
 	}
 
 }

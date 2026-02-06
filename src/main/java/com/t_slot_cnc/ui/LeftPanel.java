@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.t_slot_cnc.controller.MainController;
 import com.t_slot_cnc.model.Extrusion;
+import com.t_slot_cnc.model.HoleType;
 
 /**
  * @author Alex Vazquez <vazqueza2000@gmail.com>
@@ -28,12 +29,11 @@ public class LeftPanel extends JPanel implements ActionListener {
 	private static final Logger logger = LoggerFactory.getLogger(LeftPanel.class); // Get the SLF4J logger instance
 
 	private MainController controller;
+	private MiddlePanel middlePanel;
 
-	private static final String ACCESS_HOLE = "Access Hole";
-	private static final String COUNTERBORE = "Counterbore";
-
-	public LeftPanel(MainController controller, RightPanel rightPanel) {
+	public LeftPanel(MainController controller, MiddlePanel middlePanel, RightPanel rightPanel) {
 		this.controller = controller;
+		this.middlePanel = middlePanel;
 		
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
@@ -60,14 +60,15 @@ public class LeftPanel extends JPanel implements ActionListener {
 		}
 		
 		
-		JRadioButton accessHoleRadio = new JRadioButton(ACCESS_HOLE);
+		JRadioButton accessHoleRadio = new JRadioButton(HoleType.ACCESS_HOLE.getName());
 		accessHoleRadio.setSelected(true);
-		accessHoleRadio.setName(ACCESS_HOLE);
+		accessHoleRadio.setName(HoleType.ACCESS_HOLE.getName());
+		controller.selectHoleType(HoleType.ACCESS_HOLE);
 		
 		accessHoleRadio.addActionListener(this);
-		JRadioButton counterboreRadio = new JRadioButton(COUNTERBORE);
+		JRadioButton counterboreRadio = new JRadioButton(HoleType.COUNTERBORE.getName());
 		counterboreRadio.addActionListener(this);
-		counterboreRadio.setName(COUNTERBORE);
+		counterboreRadio.setName(HoleType.COUNTERBORE.getName());
 		
 		ButtonGroup holeGroup = new ButtonGroup();
 		holeGroup.add(accessHoleRadio);
@@ -91,10 +92,15 @@ public class LeftPanel extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() instanceof JRadioButton radioButton) {
-			switch (radioButton.getName()) {
-				case ACCESS_HOLE, COUNTERBORE -> controller.selectHoleType(radioButton.getName());
-				default -> controller.selectSeries(radioButton.getName());
+			if (radioButton.getName().equals(HoleType.ACCESS_HOLE.getName())) {
+				controller.selectHoleType(HoleType.ACCESS_HOLE);
+			} else if (radioButton.getName().equals(HoleType.COUNTERBORE.getName())) {
+				controller.selectHoleType(HoleType.COUNTERBORE);
+			} else {
+				controller.selectSeries(radioButton.getName());
 			}
+			middlePanel.setImage(controller.getImageName());
+			middlePanel.repaint();
 		} else {
 			logger.warn("Ignoring action {} d={}" , e.getSource(), e.getActionCommand());
 		}
