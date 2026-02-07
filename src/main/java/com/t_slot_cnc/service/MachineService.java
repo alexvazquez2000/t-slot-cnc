@@ -10,15 +10,22 @@ public class MachineService {
 	//30–50 IPM (inches per minute) feed rate, with shallow depths of cut ( ~0.01-0.03").
 	//inches per minute
 	private int feedRate = 40;
-	private int spindleSpeed = 7;
+	private int spindleSpeed = 7; //18,000 for 1/8 inch
 	private double cutDepthPerPass = 0.02;
 	private double accuracy = 0.02;
 	
-	//z-gap above material
+	//z-gap above material - inches
 	private double zGapAbove = 0.2;
 
 	public MachineService(String units) {
-		
+		if (units.equals("mm")) {
+			endMillDiameter *= 25.4;
+			//inches per minute to mm/minute
+			feedRate *= 25.4;
+			cutDepthPerPass *= 25.4;
+			accuracy *= 25.4;
+			zGapAbove *= 25.4;
+		}
 	}
 
 	/**
