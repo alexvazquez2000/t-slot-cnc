@@ -57,10 +57,10 @@
         </accessHole>
         <counterbore>
             <partNumber>M70445</partNumber>
-            <diameter>0.563</diameter>
-            <yOffset>0.406</yOffset>
-            <depth>0.425</depth>
-            <image>/10-series/EX-1030-COUNTERBORE.png</image>
+            <diameter>16</diameter>
+            <yOffset>15.9</yOffset>
+            <depth>12.7</depth>
+            <image>/30-series/EX-3030-counterbore.jpg</image>
         </counterbore>
     </extrusion>
 
@@ -78,14 +78,16 @@
             <image>/40-series/EX-4040-Access-hole.jpg</image>
         </accessHole>
         <counterbore>
-            <!--  M70402 is same for 15 and 40 series per page 291-->
+            <!--  M70402 is same for 15 and 40 series per page 291 - but using different settings-->
             <partNumber>M70402</partNumber>
-            <diameter>0.563</diameter>
-            <yOffset>0.406</yOffset>
-            <depth>0.425</depth>
-            <image>/10-series/EX-2020-COUNTERBORE.png</image>
+            <diameter>20.1168</diameter>
+            <yOffset>21.717</yOffset>
+            <depth>17.399</depth>
+            <!--  no image for the counterbore, use the access hole -->
+            <image>/40-series/EX-4040-Access-hole.jpg</image>
         </counterbore>
     </extrusion>
+
     <extrusion>
         <id>45-Series</id>
         <units>mm</units>

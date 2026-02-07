@@ -151,6 +151,7 @@ public class Main {
 		double accessHoleDiameter = accessHole.getDiameter();
 		double topOfSlot = ext.getDepthToTopOfSlot();
 		double coreWidth = ext.getWidth() - 2*topOfSlot;
+		//maybe it should be in the specs, instead of calculating it here
 		double depthOfAccessHole = topOfSlot + coreWidth + machine.getCutDepthPerPass();
 
 		response.append(header(ext.getUnits(), machine));
