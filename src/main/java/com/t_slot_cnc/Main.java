@@ -1,10 +1,12 @@
 package com.t_slot_cnc;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import com.t_slot_cnc.model.Counterbore;
 import com.t_slot_cnc.model.Extrusion;
 import com.t_slot_cnc.service.ExtrusionsService;
 
@@ -32,26 +34,39 @@ public class Main {
 		//10-series/EX-1010-Counterbore.png
 		double boreLocationX = 0.5;
 		double boreLocationY = 0.406;
-		double boreDiameter = 0.563; //0.563;
+		double boreDiameter = 0.563;
 		double depthOfBore = 0.425;
+		String gCode;
 		
+		ExtrusionsService service = new ExtrusionsService();
+		service.loadSpecs();
+		for (Extrusion ext : service.getExtrusions().getExtrusionSeries()) {
+			System.out.println(ext.getId() + " units=" + ext.getUnits() + " width=" + ext.getWidth());
+			String outputDir = "output/" + ext.getId();
+			File dir = new File(outputDir);
+			if (!dir.exists()) {
+				dir.mkdirs();
+			}
+			
+			Counterbore counterbore = ext.getCounterbore();
+			if (ext.getCounterbore() != null) {
+				
+				gCode = generateCounterbore(ext, new int[] {0} );
+				saveGCode(gCode, outputDir + "/" + counterbore.getPartNumber() +"_" + ext.getId() + "_cb_A.txt");
 		
-		String gCode = generateCounterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore,
-				new int[] {0} );
-		saveGCode(gCode, "M72561_1010_cb_A.txt");
+				gCode = generateCounterbore(ext, new int[] {0,1} );
+				saveGCode(gCode, outputDir + "/" + counterbore.getPartNumber() +"_" + ext.getId() + "_cb_A_B.txt");
+		
+				gCode = generateCounterbore(ext, new int[] {0,1,2} );
+				saveGCode(gCode, outputDir + "/" + counterbore.getPartNumber() +"_" + ext.getId() + "_cb_A_B_C.txt");
+		
+				gCode = generateCounterbore(ext, new int[] {0,1,2,3} );
+				saveGCode(gCode, outputDir + "/" + counterbore.getPartNumber() +"_" + ext.getId() + "_cb_A_B_C_D.txt");
+			}
+		}
 
-		gCode = generateCounterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore,
-				new int[] {0,1} );
-		saveGCode(gCode, "M72561_1020_cb_A_B.txt");
-
-		gCode = generateCounterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore,
-				new int[] {0,1,2} );
-		saveGCode(gCode, "M72561_1030_cb_A_B_C.txt");
-
-		gCode = generateCounterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore,
-				new int[] {0,1,2,3} );
-		saveGCode(gCode, "M72561_1040_cb_A_B_C_D.txt");
-
+		Extrusion ext = service.findExtrusionByName("10-Series");
+		
 		//<diameter>0.218</diameter>
 		//<yOffset>0.5</yOffset>
 		boreLocationX = 0.5;
@@ -61,37 +76,27 @@ public class Main {
 		double topOfSlot = 0.31;  //1.0 - ((1.0 - centeOf1010) /2.0);
 		double depthOfAccessHole = topOfSlot + centeOf1010 + cutDepthPerPass;
 		for (int rows = 1; rows <=2; rows++) {
-			gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
+			gCode = generateAccessHole(ext, boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
 					new int[] {0}, rows);
 			saveGCode(gCode, "M70511_1010_ah_A_" + rows + ".txt");
 	
-			gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
+			gCode = generateAccessHole(ext, boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
 					new int[] {0,1}, rows);
 			saveGCode(gCode, "M70511_1020_ah_A_B_" + rows + ".txt");
 	
-			gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
+			gCode = generateAccessHole(ext, boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
 					new int[] {0,1,2}, rows);
 			saveGCode(gCode, "M70511_1030_ah_A_B_C_" + rows + ".txt");
 	
-			gCode = generateAccessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
+			gCode = generateAccessHole(ext, boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
 					new int[] {0,1,2,3}, rows);
 			saveGCode(gCode, "M70511_1040_ah_A_B_C_D_" + rows + ".txt");
 		}
 		
-		gCode = generateCombo(boreLocationX, boreLocationY,
-				boreDiameter, depthOfBore,
-				accessHoleDiameter, depthOfAccessHole);
-		saveGCode(gCode, "1010_combo.txt");
-
 		//return to origin
 		gCode = generateReturnVice(124.245, 68.406);
 		saveGCode(gCode, "returnToVice.txt");
 		
-		ExtrusionsService service = new ExtrusionsService();
-		service.loadSpecs();
-		for (Extrusion ext : service.getExtrusions().getExtrusionSeries()) {
-			System.out.println(ext.getId() + " units=" + ext.getUnits() + " width=" + ext.getWidth());
-		};
 	}
 
 	private static String generateReturnVice(double x, double y) {
@@ -130,25 +135,32 @@ public class Main {
 		}
 	}
 
-	private static String generateCounterbore( double boreLocationX, double boreLocationY,
-			double boreDiameter, double depthOfBore,
+	private static String generateCounterbore(Extrusion ext,
 			int[] pattern) {
 		StringBuilder response = new StringBuilder();
-		response.append(header(spindleSpeed));
-		for (int p :pattern) {
-			response.append(counterbore(boreLocationX + p, boreLocationY, boreDiameter, depthOfBore));
-			response.append("G00 Z" + format(zGapAbove,4)).append("\n");
+		
+		Counterbore counterbore = ext.getCounterbore();
+		if (counterbore != null) {
+			double boreLocationX = ext.getWidth() / 2.0;
+			double boreLocationY = counterbore.getyOffset();
+			double boreDiameter = counterbore.getDiameter();
+			double depthOfBore = counterbore.getDepth();
+			
+			response.append(header(ext.getUnits(), spindleSpeed));
+			for (int p :pattern) {
+				response.append(counterbore(boreLocationX + p, boreLocationY, boreDiameter, depthOfBore));
+				response.append("G00 Z" + format(zGapAbove,4)).append("\n");
+			}
+			response.append(tail());
 		}
-		response.append(tail());
-		System.out.println(response.toString());
 		return response.toString();
 	}
 
-	private static String generateAccessHole( double boreLocationX, double boreLocationY,
+	private static String generateAccessHole( Extrusion ext, double boreLocationX, double boreLocationY,
 			double accessHoleDiameter, double depthOfAccessHole, double zStart,
 			int[] pattern, int rows) {
 		StringBuilder response = new StringBuilder();
-		response.append(header(spindleSpeed));
+		response.append(header(ext.getUnits(), spindleSpeed));
 		for (int row=0; row < rows; row++) {
 			for (int p :pattern) {
 				response.append("G00 X" + format(boreLocationX + p,4))
@@ -163,32 +175,28 @@ public class Main {
 		return response.toString();
 	}
 
-	private static String generateCombo( double boreLocationX, double boreLocationY,
-			double boreDiameter, double depthOfBore,
-			double accessHoleDiameter, double depthOfAccessHole) {
-		StringBuilder response = new StringBuilder();
-		response.append(header(spindleSpeed));
-		response.append(counterbore(boreLocationX, boreLocationY, boreDiameter, depthOfBore));
-		// end counterbore, start accessHole
 	
-		//move to material surface until we clear the bottom of the counterbore
-		response.append("G00 Z" + format(0.0,4)).append("\n");
-				
-		response.append(accessHole(boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, depthOfBore));
-		response.append(tail());
-		System.out.println(response.toString());
-		return response.toString();
-	}
-
-	
-	private static String header(int spindleSpeed) {
+	/**
+	 * @param units only valid values are either "inches" or "mm"
+	 * @param spindleSpeed - it is being ignored by
+	 * @return
+	 */
+	private static String header(String units, int spindleSpeed) {
 		StringBuilder head = new StringBuilder();
 		//command sequence used to initiate a tool change.
 		//T1: Selects Tool Number 1.
 		//M6: Executes the tool change command. 
-		//head.append("T1M6").append("\n");
-		//G20 Set units to inches  - G21 uses mm 
-		head.append("G20").append("\n");
+		head.append("T1M6").append("\n");
+		
+		if (units.equals("inches")) {
+			//G20 Set units to inches  - G21 uses mm 
+			head.append("G20").append("\n");
+		} else if (units.equals("mm")) {
+			head.append("G21").append("\n");
+		} else {
+			throw new RuntimeException("Unsupported units='" + units + "'");
+		}
+		
 		//G90 absolute mode -  G91 is relative positioning mode. 		
 		head.append("G90; (Set positioning to absolute mode)").append("\n");
 
