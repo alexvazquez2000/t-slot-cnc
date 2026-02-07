@@ -147,8 +147,9 @@ public class Main {
 			double depthOfBore = counterbore.getDepth();
 			
 			response.append(header(ext.getUnits(), spindleSpeed));
+			
 			for (int p :pattern) {
-				response.append(counterbore(boreLocationX + p, boreLocationY, boreDiameter, depthOfBore));
+				response.append(counterbore(boreLocationX + (p *ext.getWidth()) , boreLocationY, boreDiameter, depthOfBore));
 				response.append("G00 Z" + format(zGapAbove,4)).append("\n");
 			}
 			response.append(tail());
@@ -210,7 +211,7 @@ public class Main {
 		head.append("G00 Z" + format(zGapAbove,1) + " F10.0").append("\n");
 		//Go home and turn on the spindle
 		head.append("G00 X0.0 Y0.0 F10.0").append("\n");
-		//head.append("; prolog completed").append("\n");
+
 		return head.toString();
 	}
 
