@@ -149,6 +149,7 @@ public class Main {
 		double boreLocationX = ext.getWidth() / 2.0;
 		double boreLocationY = accessHole.getyOffset();
 		double accessHoleDiameter = accessHole.getDiameter();
+		//FIXME: These values need to come from the XML specs
 		double centeOf1010 = 0.354; //0.354 from center-bottom of 10-series/EX-1010-details.jpg
 		double topOfSlot = 0.31;  //1.0 - ((1.0 - centeOf1010) /2.0);
 		double depthOfAccessHole = topOfSlot + centeOf1010 + machine.getCutDepthPerPass();
@@ -201,9 +202,9 @@ public class Main {
 		head.append("M3 S" + machine.getSpindleSpeed()).append("\n");
 		
 		//z-gap above material
-		head.append("G00 Z" + format(machine.getzGapAbove(),1) + " F10.0").append("\n");
+		head.append("G00 Z" + format(machine.getzGapAbove(),1)).append("\n");
 		//Go home and turn on the spindle
-		head.append("G00 X0.0 Y0.0 F10.0").append("\n");
+		head.append("G00 X0.0 Y0.0").append("\n");
 
 		return head.toString();
 	}
@@ -284,9 +285,6 @@ public class Main {
 			.append(" Z").append(format(z,4))
 			.append(" F").append(format(machine.getFeedRate(),1)).append("\n");
 
-		//path.append("G01 Z").append(format(0.0,4));
-		//path.append(makeCircleAt(centerX, centerY, boreDiameter/2.0));
-
 		while (z > -depthOfAccessHole) {
 			
 			//J=Y-offset and I=X-offset
@@ -298,7 +296,6 @@ public class Main {
 			z -= machine.getCutDepthPerPass();
 		}
 		//do a final spiral to the exact depth
-		z = -depthOfAccessHole;
 		path.append("G02 I0")
 		.append(" J").append(format(-radius,4))
 		.append(" Z").append(format( -depthOfAccessHole,4))
@@ -353,9 +350,9 @@ N60 M30; Program end
 	private static String tail(MachineService machine) {
 		StringBuilder tail = new StringBuilder();
 		//z-gap above material
-		tail.append("G0 Z" + format(machine.getzGapAbove(), 4)).append("\n");
+		tail.append("G00 Z" + format(machine.getzGapAbove(), 4)).append("\n");
 		//Go home
-		tail.append("G0 X0.0000 Y0.0000").append("\n");
+		tail.append("G00 X0.0000 Y0.0000").append("\n");
 		
 		//M05; (Spindle off)
 
@@ -369,6 +366,5 @@ N60 M30; Program end
 		tail.append("M30").append("\n");
 		return tail.toString();
 	}
-
 
 }
