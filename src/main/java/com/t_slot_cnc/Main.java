@@ -149,12 +149,10 @@ public class Main {
 		double boreLocationX = ext.getWidth() / 2.0;
 		double boreLocationY = accessHole.getyOffset();
 		double accessHoleDiameter = accessHole.getDiameter();
-		//FIXME: These values need to come from the XML specs
-		double centeOf1010 = 0.354; //0.354 from center-bottom of 10-series/EX-1010-details.jpg
-		double topOfSlot = 0.31;  //1.0 - ((1.0 - centeOf1010) /2.0);
-		double depthOfAccessHole = topOfSlot + centeOf1010 + machine.getCutDepthPerPass();
+		double topOfSlot = ext.getDepthToTopOfSlot();
+		double coreWidth = ext.getWidth() - 2*topOfSlot;
+		double depthOfAccessHole = topOfSlot + coreWidth + machine.getCutDepthPerPass();
 
-		
 		response.append(header(ext.getUnits(), machine));
 		for (int row=0; row < rows; row++) {
 			for (int p :pattern) {
