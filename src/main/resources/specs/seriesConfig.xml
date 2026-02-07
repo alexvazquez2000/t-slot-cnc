@@ -15,13 +15,6 @@
             <depth>0.425</depth>
             <image>/10-series/EX-1010-Counterbore.png</image>
         </counterbore>
-        <combo>
-            <diameter>0.257</diameter>
-            <yOffset>0.5</yOffset>
-            <depth>0.328</depth>
-            <flatBottom>0.406</flatBottom>
-            <image>/10-series/EX-1010-ACCESS-HOLE-COUNTERBORE.png</image>
-        </combo>
     </extrusion>
     <extrusion>
         <id>15-Series</id>
@@ -38,13 +31,6 @@
             <depth>0.425</depth>
             <image>/10-series/EX-1020-COUNTERBORE.png</image>
         </counterbore>
-        <combo>
-            <diameter>0.257</diameter>
-            <yOffset>0.5</yOffset>
-            <depth>0.328</depth>
-            <flatBottom>0.406</flatBottom>
-            <image>/10-series/EX-1020-ACCESS-HOLE-COUNTERBORE.png</image>
-        </combo>
     </extrusion>
     <extrusion>
         <id>30-Series</id>
@@ -61,15 +47,6 @@
             <depth>0.425</depth>
             <image>/10-series/EX-1030-COUNTERBORE.png</image>
         </counterbore>
-        <combo>
-            <diameter>0.257</diameter>
-            <yOffset>0.5</yOffset><!-- style C has one hole -->
-            <!-- style D has 2 holes at 0.5 and 1.5 -->
-            <!-- style H has 3 holes at 0.5, 1.5 and 2.5-->
-            <depth>0.328</depth>
-            <flatBottom>0.406</flatBottom>
-            <image>/10-series/EX-1030-ACCESS-HOLE-COUNTERBORE.png</image>
-        </combo>
     </extrusion>
     <extrusion>
         <id>40-Series</id>
@@ -97,20 +74,6 @@
             <yOffset>22.5</yOffset>
             <image>/45-series/E45-4545-Access.jpg</image>
         </accessHole>
-        <counterbore>
-            <diameter>0.563</diameter>
-            <yOffset>0.406</yOffset>
-            <depth>0.425</depth>
-            <!-- no image for counterbore -->
-            <image>/45-series/E45-4545-Access.jpg</image>
-        </counterbore>
-        <combo>
-            <diameter>0.257</diameter>
-            <yOffset>0.5</yOffset>
-            <depth>0.328</depth>
-            <flatBottom>0.406</flatBottom>
-            <!-- no image for counterbore with access hole -->
-            <image>/45-series/E45-4545-Access.jpg</image>
-        </combo>
+        <!-- No counterbore desc per page 291-->
     </extrusion>
 </extrusions>

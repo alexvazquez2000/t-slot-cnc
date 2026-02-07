@@ -10,7 +10,6 @@ public class Extrusion {
 	
 	private AccessHole accessHole;
 	private Counterbore counterbore;
-	private Combo combo;
 	
 	/**
 	 * @return the id
@@ -85,22 +84,6 @@ public class Extrusion {
 		this.counterbore = counterbore;
 	}
 
-	/**
-	 * @return the combo
-	 */
-	@XmlElement
-	public Combo getCombo() {
-		return combo;
-	}
-
-	/**
-	 * @param combo the combo to set
-	 */
-	public void setCombo(Combo combo) {
-		this.combo = combo;
-	}
-	
-	
 }
 
 /*
@@ -118,18 +101,6 @@ public class Extrusion {
             <depth>0.425</depth>
             <image>/10-series/EX-1010-Counterbore.png</image>
         </counterbore>
-        <combo>
-            <diameter>0.257</diameter>
-            <yOffset>0.5</yOffset><!-- style C has one hole -->
-            <!-- style D has 2 holes at 0.5 and 1.5 -->
-            <depth>0.328</depth>
-            <flatBottom>0.406</flatBottom>
-            <!-- The counterbore symbol is ⌴ (Unicode U+2334), used in technical drawings
-             and engineering to represent a flat-bottomed, cylindrical enlargement of a hole,
-              allowing fasteners to sit flush or below the surface. It is typically followed 
-              by the counterbore diameter (emptyset) and depth (downarrow) -->
-            <image>/10-series/EX-1010-ACCESS-HOLE-COUNTERBORE.png</image>
-        </combo>
     </extrusion>
      
  */
