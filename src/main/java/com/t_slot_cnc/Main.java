@@ -6,24 +6,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import com.t_slot_cnc.model.AccessHole;
 import com.t_slot_cnc.model.Counterbore;
 import com.t_slot_cnc.model.Extrusion;
 import com.t_slot_cnc.service.ExtrusionsService;
+import com.t_slot_cnc.service.MachineService;
 
 public class Main {
-
-	static double endMillDiameter = 0.125;
-	
-	//aluminum settings
-	//30–50 IPM (inches per minute) feed rate, with shallow depths of cut ( ~0.01-0.03").
-	//inches per minute
-	static int feedRate = 40;
-	static int spindleSpeed = 7;
-	static double cutDepthPerPass = 0.02;
-	static double accuracy = 0.02;
-	
-	//z-gap above material
-	static double zGapAbove = 0.2;
 
 	//These are settings for the t-track
 	static double slotWidth = 0.5;
@@ -31,17 +20,11 @@ public class Main {
 	
 
 	public static void main(String[] args) throws IOException {
-		//10-series/EX-1010-Counterbore.png
-		double boreLocationX = 0.5;
-		double boreLocationY = 0.406;
-		double boreDiameter = 0.563;
-		double depthOfBore = 0.425;
 		String gCode;
 		
 		ExtrusionsService service = new ExtrusionsService();
 		service.loadSpecs();
 		for (Extrusion ext : service.getExtrusions().getExtrusionSeries()) {
-			System.out.println(ext.getId() + " units=" + ext.getUnits() + " width=" + ext.getWidth());
 			String outputDir = "output/" + ext.getId();
 			File dir = new File(outputDir);
 			if (!dir.exists()) {
@@ -63,59 +46,57 @@ public class Main {
 				gCode = generateCounterbore(ext, new int[] {0,1,2,3} );
 				saveGCode(gCode, outputDir + "/" + counterbore.getPartNumber() +"_" + ext.getId() + "_cb_A_B_C_D.txt");
 			}
+			
+
+			AccessHole accessHole = ext.getAccessHole();
+			for (int rows = 1; rows <=2; rows++) {
+				gCode = generateAccessHole(ext, new int[] {0}, rows);
+				saveGCode(gCode, outputDir + "/" + accessHole.getPartNumber() +"_" + ext.getId() + "_ah_A_" + rows + ".txt");
+		
+				gCode = generateAccessHole(ext, new int[] {0,1}, rows);
+				saveGCode(gCode, outputDir + "/" + accessHole.getPartNumber() +"_" + ext.getId() + "_ah_A_B_" + rows + ".txt");
+		
+				gCode = generateAccessHole(ext, new int[] {0,1,2}, rows);
+				saveGCode(gCode, outputDir + "/" + accessHole.getPartNumber() +"_" + ext.getId() + "_ah_A_B_C_" + rows + ".txt");
+		
+				gCode = generateAccessHole(ext, new int[] {0,1,2,3}, rows);
+				saveGCode(gCode, outputDir + "/" + accessHole.getPartNumber() +"_" + ext.getId() + "_ah_A_B_C_D_" + rows + ".txt");
+			}
 		}
 
-		Extrusion ext = service.findExtrusionByName("10-Series");
-		
-		//<diameter>0.218</diameter>
-		//<yOffset>0.5</yOffset>
-		boreLocationX = 0.5;
-		boreLocationY = 0.5;
-		double accessHoleDiameter = 0.218;
-		double centeOf1010 = 0.354; //from center-bottom of 10-series/EX-1010-details.jpg
-		double topOfSlot = 0.31;  //1.0 - ((1.0 - centeOf1010) /2.0);
-		double depthOfAccessHole = topOfSlot + centeOf1010 + cutDepthPerPass;
-		for (int rows = 1; rows <=2; rows++) {
-			gCode = generateAccessHole(ext, boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
-					new int[] {0}, rows);
-			saveGCode(gCode, "M70511_1010_ah_A_" + rows + ".txt");
-	
-			gCode = generateAccessHole(ext, boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
-					new int[] {0,1}, rows);
-			saveGCode(gCode, "M70511_1020_ah_A_B_" + rows + ".txt");
-	
-			gCode = generateAccessHole(ext, boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
-					new int[] {0,1,2}, rows);
-			saveGCode(gCode, "M70511_1030_ah_A_B_C_" + rows + ".txt");
-	
-			gCode = generateAccessHole(ext, boreLocationX, boreLocationY, accessHoleDiameter, depthOfAccessHole, topOfSlot,
-					new int[] {0,1,2,3}, rows);
-			saveGCode(gCode, "M70511_1040_ah_A_B_C_D_" + rows + ".txt");
-		}
-		
-		//return to origin
+		//return to origin - params in millimeters
 		gCode = generateReturnVice(124.245, 68.406);
 		saveGCode(gCode, "returnToVice.txt");
 		
 	}
 
+	/**
+	 * Relative move from current location - assumes it is at home
+	 * 
+	 * @param x in millimeters
+	 * @param y in millimeters
+	 * @return
+	 */
 	private static String generateReturnVice(double x, double y) {
 		StringBuilder head = new StringBuilder();
 		//G20 Set units to inches  - G21 uses mm 
 		head.append("G21").append("\n");
 		//G90 absolute mode -  G91 is relative positioning mode. 		
-		head.append("G91; (Set positioning to absolute mode)").append("\n");
+		head.append("G91; (Set positioning to relative mode)").append("\n");
 
 		//G17 is XY plane
 		head.append("G17").append("\n");
 		
 		//M3 turns on the spindle clockwise (CW)
-		head.append("M3 S0").append("\n");
+		head.append("M3 S0; NX-105 ignores the spindle speed").append("\n");
 		
 		//z-gap above material
-		//head.append("G00 Z" + format(z,1) + " F10.0").append("\n");
+		//Homing: G28 tells the machine to move to coordinate in machine space.
+		head.append("G28 Z0; (Raises Z to home first)").append("\n");
+		head.append("G28 X0 Y0; (Go home for X and Y)").append("\n");
+		
 		//Go home and turn on the spindle
-		head.append("G00 X" + format(x,1) + "Y" + format(y,1) + " F10.0").append("\n");
+		head.append("G00 X" + format(x,3) + "Y" + format(y,3) + "; Move towards the vice in mm").append("\n");
 		//M30 is end of script- It turns off the spindle
 		head.append("M30").append("\n");
 		return head.toString();
@@ -139,6 +120,8 @@ public class Main {
 			int[] pattern) {
 		StringBuilder response = new StringBuilder();
 		
+		MachineService machine = new MachineService(ext.getUnits());
+		
 		Counterbore counterbore = ext.getCounterbore();
 		if (counterbore != null) {
 			double boreLocationX = ext.getWidth() / 2.0;
@@ -146,33 +129,43 @@ public class Main {
 			double boreDiameter = counterbore.getDiameter();
 			double depthOfBore = counterbore.getDepth();
 			
-			response.append(header(ext.getUnits(), spindleSpeed));
+			response.append(header(ext.getUnits(), machine));
 			
 			for (int p :pattern) {
-				response.append(counterbore(boreLocationX + (p *ext.getWidth()) , boreLocationY, boreDiameter, depthOfBore));
-				response.append("G00 Z" + format(zGapAbove,4)).append("\n");
+				response.append(counterbore(machine, boreLocationX + (p *ext.getWidth()) , boreLocationY, boreDiameter, depthOfBore));
+				response.append("G00 Z" + format(machine.getzGapAbove(), 4)).append("\n");
 			}
-			response.append(tail());
+			response.append(tail(machine));
 		}
 		return response.toString();
 	}
 
-	private static String generateAccessHole( Extrusion ext, double boreLocationX, double boreLocationY,
-			double accessHoleDiameter, double depthOfAccessHole, double zStart,
-			int[] pattern, int rows) {
+	private static String generateAccessHole( Extrusion ext, int[] pattern, int rows) {
 		StringBuilder response = new StringBuilder();
-		response.append(header(ext.getUnits(), spindleSpeed));
+		
+		MachineService machine = new MachineService(ext.getUnits());
+		
+		AccessHole accessHole = ext.getAccessHole();
+		double boreLocationX = ext.getWidth() / 2.0;
+		double boreLocationY = accessHole.getyOffset();
+		double accessHoleDiameter = accessHole.getDiameter();
+		double centeOf1010 = 0.354; //0.354 from center-bottom of 10-series/EX-1010-details.jpg
+		double topOfSlot = 0.31;  //1.0 - ((1.0 - centeOf1010) /2.0);
+		double depthOfAccessHole = topOfSlot + centeOf1010 + machine.getCutDepthPerPass();
+
+		
+		response.append(header(ext.getUnits(), machine));
 		for (int row=0; row < rows; row++) {
 			for (int p :pattern) {
-				response.append("G00 X" + format(boreLocationX + p,4))
-					.append(" Y" + format(boreLocationY + row,4))
+				response.append("G00 X").append(format(boreLocationX +(p *ext.getWidth()), 4))
+					.append(" Y").append(format(boreLocationY + (row * ext.getWidth()), 4))
 					.append("\n");
-				response.append(accessHole(boreLocationX + p, boreLocationY + row, accessHoleDiameter, depthOfAccessHole, zStart));
-				response.append("G00 Z" + format(zGapAbove,4)).append("\n");
+				response.append(accessHole(machine, boreLocationX + (p *ext.getWidth()),
+						boreLocationY + (row * ext.getWidth()), accessHoleDiameter, depthOfAccessHole, topOfSlot));
+				response.append("G00 Z").append(format(machine.getzGapAbove(), 4)).append("\n");
 			}
 		}
-		response.append(tail());
-		System.out.println(response.toString());
+		response.append(tail(machine));
 		return response.toString();
 	}
 
@@ -182,12 +175,12 @@ public class Main {
 	 * @param spindleSpeed - it is being ignored by
 	 * @return
 	 */
-	private static String header(String units, int spindleSpeed) {
+	private static String header(String units, MachineService machine) {
 		StringBuilder head = new StringBuilder();
 		//command sequence used to initiate a tool change.
 		//T1: Selects Tool Number 1.
 		//M6: Executes the tool change command. 
-		head.append("T1M6").append("\n");
+		//head.append("T1M6").append("\n");
 		
 		if (units.equals("inches")) {
 			//G20 Set units to inches  - G21 uses mm 
@@ -205,10 +198,10 @@ public class Main {
 		head.append("G17").append("\n");
 		
 		//M3 turns on the spindle clockwise (CW)
-		head.append("M3 S" + spindleSpeed).append("\n");
+		head.append("M3 S" + machine.getSpindleSpeed()).append("\n");
 		
 		//z-gap above material
-		head.append("G00 Z" + format(zGapAbove,1) + " F10.0").append("\n");
+		head.append("G00 Z" + format(machine.getzGapAbove(),1) + " F10.0").append("\n");
 		//Go home and turn on the spindle
 		head.append("G00 X0.0 Y0.0 F10.0").append("\n");
 
@@ -219,10 +212,10 @@ public class Main {
 		return String.format("%." + decimals + "f", value);
 	}
 
-	private static String counterbore( double boreLocationX, double boreLocationY,
+	private static String counterbore(MachineService machine, double boreLocationX, double boreLocationY,
 			double boreDiameter, double depthOfBore) {
 		StringBuilder path = new StringBuilder();
-		double endMillRadius = endMillDiameter / 2.0;
+		double endMillRadius = machine.getEndMillDiameter() / 2.0;
 		//Start relative to the top of the Z=0 - the Z-axis moves down into negative numbers 
 		double z = 0.0;
 		
@@ -236,7 +229,7 @@ public class Main {
 			.append(" Y").append(format(centerY + radius,4))
 			
 			.append(" Z").append(format(z,4))
-			.append(" F").append(format(feedRate,1)).append("\n");
+			.append(" F").append(format(machine.getFeedRate(),1)).append("\n");
 		
 		while (z > -depthOfBore) {
 			//J=Y-offset and I=X-offset
@@ -245,7 +238,7 @@ public class Main {
 				.append(" Z").append(format(z,4))
 				.append("\n");
 
-			z -= cutDepthPerPass;
+			z -= machine.getCutDepthPerPass();
 		}
 		//do a final spiral to the exact depth
 		z = -depthOfBore;
@@ -260,7 +253,7 @@ public class Main {
 			.append(" Z").append(format(-depthOfBore,4))
 			.append("\n");
 
-		for(double rr=radius; rr > cutDepthPerPass; rr-=cutDepthPerPass) {
+		for(double rr=radius; rr > machine.getCutDepthPerPass(); rr -= machine.getCutDepthPerPass()) {
 			//Counter clockwise full circle with center 10mm in the X direction
 			//G02 I-1.0 J0.0 F8.0; (Clockwise full circle with a center 1 inch in the negative X direction from the start point)
 			path.append("G01 Y").append(format(centerY + rr,4)).append("\n");
@@ -273,11 +266,11 @@ public class Main {
 	}
 
 
-	private static String accessHole( double boreLocationX, double boreLocationY,
+	private static String accessHole(MachineService machine, double boreLocationX, double boreLocationY,
 			double boreDiameter, double depthOfAccessHole, double startZ) {
 		StringBuilder path = new StringBuilder();
-		double endMillRadius = endMillDiameter / 2.0;
-		double z = - startZ - cutDepthPerPass;
+		double endMillRadius = machine.getEndMillDiameter() / 2.0;
+		double z = - startZ - machine.getCutDepthPerPass();
 		
 		//Adjust the center of the circle
 		double centerX = boreLocationX - endMillRadius;
@@ -289,7 +282,7 @@ public class Main {
 		path.append("G01 X").append(format(centerX,4))
 			.append(" Y").append(format(centerY + radius,4))
 			.append(" Z").append(format(z,4))
-			.append(" F").append(format(feedRate,1)).append("\n");
+			.append(" F").append(format(machine.getFeedRate(),1)).append("\n");
 
 		//path.append("G01 Z").append(format(0.0,4));
 		//path.append(makeCircleAt(centerX, centerY, boreDiameter/2.0));
@@ -302,7 +295,7 @@ public class Main {
 				.append(" Z").append(format(z,4))
 				.append("\n");
 
-			z -= cutDepthPerPass;
+			z -= machine.getCutDepthPerPass();
 		}
 		//do a final spiral to the exact depth
 		z = -depthOfAccessHole;
@@ -314,30 +307,6 @@ public class Main {
 		return path.toString();
 	}
 
-
-	private static Object makeCircleAt(double centerX, double centerY, double radius) {
-		StringBuilder path = new StringBuilder();
-
-		// Number of points to generate - circumference divided by the accuracy
-		final int numPoints = (int)((2 * radius * Math.PI ) / accuracy);
-		//path.append("; number of points = " + numPoints).append("\n"); 
-
-		for (int i = 0; i < numPoints; ++i) {
-			// Calculate angle in radians
-			double angle = Math.toRadians(((double) i / numPoints) * 360d);
-
-			// Calculate coordinates
-			double x = centerX + radius * Math.cos(angle);
-			double y = centerY + radius * Math.sin(angle);
-			path.append("G01 X").append(format(x,4))
-				.append(" Y").append(format(y,4))
-				.append("\n");
-		}
-		
-		//path.append("; circle done").append("\n"); 
-
-		return path;
-	}
 
 	/*
 G-code uses the commands
@@ -381,11 +350,10 @@ N60 M30; Program end
 
 
 	 */
-	private static String tail() {
+	private static String tail(MachineService machine) {
 		StringBuilder tail = new StringBuilder();
-		//tail.append("; path completed").append("\n");
 		//z-gap above material
-		tail.append("G0 Z" + format(zGapAbove,4)).append("\n");
+		tail.append("G0 Z" + format(machine.getzGapAbove(), 4)).append("\n");
 		//Go home
 		tail.append("G0 X0.0000 Y0.0000").append("\n");
 		
