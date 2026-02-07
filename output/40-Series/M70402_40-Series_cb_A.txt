@@ -1,4 +1,4 @@
-G20
+G21
 G90; (Set positioning to absolute mode)
 G17
 M3 S7
