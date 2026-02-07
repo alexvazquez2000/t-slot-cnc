@@ -7,18 +7,32 @@ import jakarta.xml.bind.annotation.XmlElement;
  */
 public class AccessHole {
 	/*
-	<accessHole>
-		<diameter>0.218</diameter>
-		<yOffset>0.5</yOffset><!-- style C has one hole -->
-		<!-- style D has 2 holes at 0.5 and 1.5 -->
-		<image>/10-series/EX-1010-ACCESS-HOLE.png</image>
-	</accessHole>
-	 */
+        <accessHole>
+            <partNumber>M70511</partNumber>
+            <diameter>0.218</diameter>
+            <yOffset>0.5</yOffset>
+            <image>/10-series/EX-1010-ACCESS-HOLE.png</image>
+        </accessHole>
 
+	 */
+	
+	private String partNumber;
 	private double diameter;
 	private double yOffset;
 	private String image;
 	
+	/**
+	 * @return the partNumber
+	 */
+	public String getPartNumber() {
+		return partNumber;
+	}
+	/**
+	 * @param partNumber the partNumber to set
+	 */
+	public void setPartNumber(String partNumber) {
+		this.partNumber = partNumber;
+	}
 	/**
 	 * @return the diameter
 	 */
