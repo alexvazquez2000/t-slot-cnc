@@ -4,6 +4,8 @@
         <id>10-Series</id>
         <units>inches</units>
         <width>1</width>
+        <!-- page 40 -->
+        <depthToTopOfSlot>0.31</depthToTopOfSlot>
         <accessHole>
             <partNumber>M70511</partNumber>
             <diameter>0.218</diameter>
@@ -23,6 +25,8 @@
         <id>15-Series</id>
         <units>inches</units>
         <width>1.5</width>
+        <!-- page 42 -->
+        <depthToTopOfSlot>0.49</depthToTopOfSlot>
         <accessHole>
             <partNumber>M70502</partNumber>
             <diameter>0.295</diameter>
@@ -43,6 +47,8 @@
         <id>30-Series</id>
         <units>mm</units>
         <width>30</width>
+        <!-- page 48 -->
+        <depthToTopOfSlot>9</depthToTopOfSlot>
         <accessHole>
             <partNumber>M7246</partNumber>
             <diameter>8.30</diameter>
@@ -62,6 +68,8 @@
         <id>40-Series</id>
         <units>mm</units>
         <width>40</width>
+        <!-- page 52  12.3 and 13 on other variants-->
+        <depthToTopOfSlot>12</depthToTopOfSlot>
         <accessHole>
             <partNumber>M70503</partNumber>
             <!-- diameter is listed as 0.295 on page 288 - converted to mm-->
@@ -82,6 +90,8 @@
         <id>45-Series</id>
         <units>mm</units>
         <width>45</width>
+        <!-- page 59 14.5other variants-->
+        <depthToTopOfSlot>12.5</depthToTopOfSlot>
         <accessHole>
             <partNumber>M72486</partNumber>
             <diameter>10</diameter>

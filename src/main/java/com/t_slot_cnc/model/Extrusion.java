@@ -3,10 +3,15 @@ package com.t_slot_cnc.model;
 import jakarta.xml.bind.annotation.XmlElement;
 
 public class Extrusion {
+	//the Series name
 	private String id;
 
 	private String units;
+	//Width of a single unit - 1, 1.5, 30mm, 40mm, or 45mm
 	private double width;
+	
+	//Distance from edge to the top of the t-track (ie the center core)
+	private double depthToTopOfSlot;
 	
 	private AccessHole accessHole;
 	private Counterbore counterbore;
@@ -52,6 +57,20 @@ public class Extrusion {
 	 */
 	public void setWidth(double width) {
 		this.width = width;
+	}
+
+	/**
+	 * @return the depthToTopOfSlot
+	 */
+	public double getDepthToTopOfSlot() {
+		return depthToTopOfSlot;
+	}
+
+	/**
+	 * @param depthToTopOfSlot the depthToTopOfSlot to set
+	 */
+	public void setDepthToTopOfSlot(double depthToTopOfSlot) {
+		this.depthToTopOfSlot = depthToTopOfSlot;
 	}
 
 	/**
