@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.t_slot_cnc.model.AccessHole;
 import com.t_slot_cnc.model.Counterbore;
@@ -18,9 +20,14 @@ public class Main {
 	static double slotWidth = 0.5;
 	double depthToTopOCenter = 0.323;
 	
+	static List<String> outFileList = new ArrayList<>();
+	
 
 	public static void main(String[] args) throws IOException {
 		String gCode;
+		
+		String fileName;
+		String fileExtension = ".txt";
 		
 		ExtrusionsService service = new ExtrusionsService();
 		service.loadSpecs();
@@ -34,40 +41,87 @@ public class Main {
 			Counterbore counterbore = ext.getCounterbore();
 			if (ext.getCounterbore() != null) {
 				
-				gCode = generateCounterbore(ext, new int[] {0} );
-				saveGCode(gCode, outputDir + "/" + counterbore.getPartNumber() +"_" + ext.getId() + "_cb_A.txt");
+				fileName = outputDir + "/" + ext.getId() + "_cb_A_" + counterbore.getPartNumber() + fileExtension;
+				generateCounterbore(ext, new int[] {0}, fileName);
 		
-				gCode = generateCounterbore(ext, new int[] {0,1} );
-				saveGCode(gCode, outputDir + "/" + counterbore.getPartNumber() +"_" + ext.getId() + "_cb_A_B.txt");
+				fileName =  outputDir + "/" + ext.getId() + "_cb_A_B_" + counterbore.getPartNumber() + fileExtension;
+				generateCounterbore(ext, new int[] {0,1}, fileName );
 		
-				gCode = generateCounterbore(ext, new int[] {0,1,2} );
-				saveGCode(gCode, outputDir + "/" + counterbore.getPartNumber() +"_" + ext.getId() + "_cb_A_B_C.txt");
+				fileName = outputDir + "/" + ext.getId() + "_cb_A_B_C_" + counterbore.getPartNumber() + fileExtension;
+				generateCounterbore(ext, new int[] {0,1,2}, fileName );
 		
-				gCode = generateCounterbore(ext, new int[] {0,1,2,3} );
-				saveGCode(gCode, outputDir + "/" + counterbore.getPartNumber() +"_" + ext.getId() + "_cb_A_B_C_D.txt");
+				fileName = outputDir + "/" +  ext.getId() + "_cb_A_B_C_D_" + counterbore.getPartNumber() + fileExtension;
+				generateCounterbore(ext, new int[] {0,1,2,3}, fileName );
 			}
 			
 
 			AccessHole accessHole = ext.getAccessHole();
 			for (int rows = 1; rows <=2; rows++) {
-				gCode = generateAccessHole(ext, new int[] {0}, rows);
-				saveGCode(gCode, outputDir + "/" + accessHole.getPartNumber() +"_" + ext.getId() + "_ah_A_" + rows + ".txt");
+				fileName = outputDir + "/" + ext.getId() + "_ah_A_" + rows + "_" + accessHole.getPartNumber()+ ".txt";
+				gCode = generateAccessHole(ext, new int[] {0}, rows, fileName);
 		
-				gCode = generateAccessHole(ext, new int[] {0,1}, rows);
-				saveGCode(gCode, outputDir + "/" + accessHole.getPartNumber() +"_" + ext.getId() + "_ah_A_B_" + rows + ".txt");
+				fileName = outputDir + "/" + ext.getId() + "_ah_A_B_" + rows + "_" + accessHole.getPartNumber()+ ".txt";
+				gCode = generateAccessHole(ext, new int[] {0,1}, rows, fileName);
 		
-				gCode = generateAccessHole(ext, new int[] {0,1,2}, rows);
-				saveGCode(gCode, outputDir + "/" + accessHole.getPartNumber() +"_" + ext.getId() + "_ah_A_B_C_" + rows + ".txt");
+				fileName = outputDir + "/" + ext.getId() + "_ah_A_B_C_" + rows + "_" + accessHole.getPartNumber()+ ".txt";
+				gCode = generateAccessHole(ext, new int[] {0,1,2}, rows, fileName);
 		
-				gCode = generateAccessHole(ext, new int[] {0,1,2,3}, rows);
-				saveGCode(gCode, outputDir + "/" + accessHole.getPartNumber() +"_" + ext.getId() + "_ah_A_B_C_D_" + rows + ".txt");
+				fileName = outputDir + "/" + ext.getId() + "_ah_A_B_C_D_" + rows + "_" + accessHole.getPartNumber() + ".txt";
+				gCode = generateAccessHole(ext, new int[] {0,1,2,3}, rows, fileName);
 			}
 		}
 
+		StringBuilder parts = new StringBuilder();
+		for (String line : outFileList) {
+			System.out.println(line);
+			parts.append(line).append("\n");
+		}
+		saveGCode(parts.toString(), "output/parts.txt");
+		
 		//return to origin - params in millimeters
 		gCode = generateReturnVice(124.245, 68.406);
 		saveGCode(gCode, "returnToVice.txt");
 		
+	}
+
+	private static String partDesc(Extrusion ext, String fileName, MachineService machine) {
+		StringBuilder part = new StringBuilder();
+		part.append(ext.getId()).append("\t")
+			.append(fileName).append("\t")
+			.append(ext.getUnits()).append("\t");
+			
+		if (fileName.contains("_cb_")) {
+			Counterbore counterbore = ext.getCounterbore();
+			if (counterbore != null) {
+				part.append("Counterbore").append("\t")
+					.append(counterbore.getyOffset()).append("\t")
+					.append(ext.getWidth()/2.0).append("\t")
+					.append(counterbore.getDiameter() + " x " + counterbore.getDepth() + " deep").append("\t")
+					.append(ext.getWidth());
+				if (ext.getUnits().equals("mm")) {
+					part.append("\n-\t-\t-\t-\t")
+					.append(format(counterbore.getyOffset() /25.4, 3)).append("\"\t")
+					.append(format((ext.getWidth()/2.0) /25.4, 3)).append("\"\t")
+					.append(format((counterbore.getDiameter() /25.4), 3) 
+							+ "\" x " + format(counterbore.getDepth()/25.4, 3) + "\" deep").append("\t")
+					.append(ext.getWidth());
+				}
+			}
+		} else {
+			double topOfSlot = ext.getDepthToTopOfSlot();
+			double coreWidth = ext.getWidth() - 2*topOfSlot;
+			//maybe it should be in the specs, instead of calculating it here
+			double depthOfAccessHole = topOfSlot + coreWidth + machine.getCutDepthPerPass();
+			
+			AccessHole accessHole = ext.getAccessHole();
+			part.append("Access Hole").append("\t")
+			.append(accessHole.getyOffset()).append("\t")
+			.append(ext.getWidth()/2.0).append("\t")
+			.append(accessHole.getDiameter() + " x through " + depthOfAccessHole + " deep").append("\t")
+			.append(ext.getWidth()).append("\t");
+		}
+
+		return part.toString();
 	}
 
 	/**
@@ -117,7 +171,7 @@ public class Main {
 	}
 
 	private static String generateCounterbore(Extrusion ext,
-			int[] pattern) {
+			int[] pattern, String fileName) throws IOException {
 		StringBuilder response = new StringBuilder();
 		
 		MachineService machine = new MachineService(ext.getUnits());
@@ -130,17 +184,20 @@ public class Main {
 			double depthOfBore = counterbore.getDepth();
 			
 			response.append(header(ext.getUnits(), machine));
-			
+
+			outFileList.add(partDesc(ext, fileName, machine));
+
 			for (int p :pattern) {
 				response.append(counterbore(machine, boreLocationX + (p *ext.getWidth()) , boreLocationY, boreDiameter, depthOfBore));
 				response.append("G00 Z" + format(machine.getzGapAbove(), 4)).append("\n");
 			}
 			response.append(tail(machine));
 		}
+		saveGCode(response.toString(), fileName);
 		return response.toString();
 	}
 
-	private static String generateAccessHole( Extrusion ext, int[] pattern, int rows) {
+	private static String generateAccessHole( Extrusion ext, int[] pattern, int rows, String fileName) throws IOException {
 		StringBuilder response = new StringBuilder();
 		
 		MachineService machine = new MachineService(ext.getUnits());
@@ -154,6 +211,8 @@ public class Main {
 		//maybe it should be in the specs, instead of calculating it here
 		double depthOfAccessHole = topOfSlot + coreWidth + machine.getCutDepthPerPass();
 
+		outFileList.add(partDesc(ext, fileName, machine));
+		
 		response.append(header(ext.getUnits(), machine));
 		for (int row=0; row < rows; row++) {
 			for (int p :pattern) {
@@ -166,6 +225,8 @@ public class Main {
 			}
 		}
 		response.append(tail(machine));
+		
+		saveGCode(response.toString(), fileName);
 		return response.toString();
 	}
 
