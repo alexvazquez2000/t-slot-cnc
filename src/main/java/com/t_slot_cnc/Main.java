@@ -314,7 +314,7 @@ public class Main {
 		.append(" Z").append(format(-depthOfBore,4))
 		.append("\n");
 
-		for(double rr=radius; rr > machine.getAccuracy(); rr -= machine.getAccuracy()) {
+		for(double rr=radius; rr > machine.getEndMillDiameter()/2; rr -= machine.getAccuracy()) {
 			//Counter clockwise full circle with center 10mm in the X direction
 			//G02 I-1.0 J0.0 F8.0; (Clockwise full circle with a center 1 inch in the negative X direction from the start point)
 			path.append("G01 Y").append(format(centerY + rr,4)).append("\n");
