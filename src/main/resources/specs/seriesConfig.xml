@@ -4,11 +4,12 @@
         <id>10-Series</id>
         <units>inches</units>
         <width>1</width>
-        <!-- page 40 -->
-        <depthToTopOfSlot>0.31</depthToTopOfSlot>
+        <!-- page 40 0.31-->
+        <depthToTopOfSlot>0.29</depthToTopOfSlot>
         <accessHole>
             <partNumber>M70511</partNumber>
-            <diameter>0.218</diameter>
+            <!--  Terry wants it wider increased from 0.218 -->
+            <diameter>0.257</diameter>
             <yOffset>0.5</yOffset>
             <image>/10-series/EX-1010-ACCESS-HOLE.png</image>
         </accessHole>
@@ -16,7 +17,7 @@
             <partNumber>M70421</partNumber>
             <diameter>0.563</diameter>
             <yOffset>0.412</yOffset>
-            <depth>0.463</depth>
+            <depth>0.425</depth>
             <image>/10-series/EX-1010-Counterbore.png</image>
         </counterbore>
     </extrusion>
@@ -70,7 +71,7 @@
         <units>mm</units>
         <width>40</width>
         <!-- page 52  12.3 and 13 on other variants-->
-        <depthToTopOfSlot>12</depthToTopOfSlot>
+        <depthToTopOfSlot>11.5</depthToTopOfSlot>
         <accessHole>
             <partNumber>M70503</partNumber>
             <!-- diameter is listed as 0.295 on page 288 - converted to mm-->
