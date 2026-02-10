@@ -1,0 +1,64 @@
+10-Series	output/10-Series/10-Series_cb_A_M70421.txt	inches	Counterbore	0.412	0.5	0.563 x 0.425 deep	1.0
+10-Series	output/10-Series/10-Series_cb_A_B_M70421.txt	inches	Counterbore	0.412	0.5	0.563 x 0.425 deep	1.0
+10-Series	output/10-Series/10-Series_cb_A_B_C_M70421.txt	inches	Counterbore	0.412	0.5	0.563 x 0.425 deep	1.0
+10-Series	output/10-Series/10-Series_cb_A_B_C_D_M70421.txt	inches	Counterbore	0.412	0.5	0.563 x 0.425 deep	1.0
+10-Series	output/10-Series/10-Series_ah_A_1_M70511.txt	inches	Access Hole	0.5	0.5	0.257 x through 0.76 deep	1.0	
+10-Series	output/10-Series/10-Series_ah_A_B_1_M70511.txt	inches	Access Hole	0.5	0.5	0.257 x through 0.76 deep	1.0	
+10-Series	output/10-Series/10-Series_ah_A_B_C_1_M70511.txt	inches	Access Hole	0.5	0.5	0.257 x through 0.76 deep	1.0	
+10-Series	output/10-Series/10-Series_ah_A_B_C_D_1_M70511.txt	inches	Access Hole	0.5	0.5	0.257 x through 0.76 deep	1.0	
+10-Series	output/10-Series/10-Series_ah_A_2_M70511.txt	inches	Access Hole	0.5	0.5	0.257 x through 0.76 deep	1.0	
+10-Series	output/10-Series/10-Series_ah_A_B_2_M70511.txt	inches	Access Hole	0.5	0.5	0.257 x through 0.76 deep	1.0	
+10-Series	output/10-Series/10-Series_ah_A_B_C_2_M70511.txt	inches	Access Hole	0.5	0.5	0.257 x through 0.76 deep	1.0	
+10-Series	output/10-Series/10-Series_ah_A_B_C_D_2_M70511.txt	inches	Access Hole	0.5	0.5	0.257 x through 0.76 deep	1.0	
+15-Series	output/15-Series/15-Series_cb_A_M70402.txt	inches	Counterbore	0.855	0.75	0.792 x 0.68 deep	1.5
+15-Series	output/15-Series/15-Series_cb_A_B_M70402.txt	inches	Counterbore	0.855	0.75	0.792 x 0.68 deep	1.5
+15-Series	output/15-Series/15-Series_cb_A_B_C_M70402.txt	inches	Counterbore	0.855	0.75	0.792 x 0.68 deep	1.5
+15-Series	output/15-Series/15-Series_cb_A_B_C_D_M70402.txt	inches	Counterbore	0.855	0.75	0.792 x 0.68 deep	1.5
+15-Series	output/15-Series/15-Series_ah_A_1_M70502.txt	inches	Access Hole	0.75	0.75	0.295 x through 1.06 deep	1.5	
+15-Series	output/15-Series/15-Series_ah_A_B_1_M70502.txt	inches	Access Hole	0.75	0.75	0.295 x through 1.06 deep	1.5	
+15-Series	output/15-Series/15-Series_ah_A_B_C_1_M70502.txt	inches	Access Hole	0.75	0.75	0.295 x through 1.06 deep	1.5	
+15-Series	output/15-Series/15-Series_ah_A_B_C_D_1_M70502.txt	inches	Access Hole	0.75	0.75	0.295 x through 1.06 deep	1.5	
+15-Series	output/15-Series/15-Series_ah_A_2_M70502.txt	inches	Access Hole	0.75	0.75	0.295 x through 1.06 deep	1.5	
+15-Series	output/15-Series/15-Series_ah_A_B_2_M70502.txt	inches	Access Hole	0.75	0.75	0.295 x through 1.06 deep	1.5	
+15-Series	output/15-Series/15-Series_ah_A_B_C_2_M70502.txt	inches	Access Hole	0.75	0.75	0.295 x through 1.06 deep	1.5	
+15-Series	output/15-Series/15-Series_ah_A_B_C_D_2_M70502.txt	inches	Access Hole	0.75	0.75	0.295 x through 1.06 deep	1.5	
+30-Series	output/30-Series/30-Series_cb_A_M70445.txt	mm	Counterbore	15.9	15.0	16.0 x 13.97 deep	30.0
+-	-	-	-	0.626"	0.591"	0.630" x 0.550" deep	30.0
+30-Series	output/30-Series/30-Series_cb_A_B_M70445.txt	mm	Counterbore	15.9	15.0	16.0 x 13.97 deep	30.0
+-	-	-	-	0.626"	0.591"	0.630" x 0.550" deep	30.0
+30-Series	output/30-Series/30-Series_cb_A_B_C_M70445.txt	mm	Counterbore	15.9	15.0	16.0 x 13.97 deep	30.0
+-	-	-	-	0.626"	0.591"	0.630" x 0.550" deep	30.0
+30-Series	output/30-Series/30-Series_cb_A_B_C_D_M70445.txt	mm	Counterbore	15.9	15.0	16.0 x 13.97 deep	30.0
+-	-	-	-	0.626"	0.591"	0.630" x 0.550" deep	30.0
+30-Series	output/30-Series/30-Series_ah_A_1_M7246.txt	mm	Access Hole	15.0	15.0	8.3 x through 22.27 deep	30.0	
+30-Series	output/30-Series/30-Series_ah_A_B_1_M7246.txt	mm	Access Hole	15.0	15.0	8.3 x through 22.27 deep	30.0	
+30-Series	output/30-Series/30-Series_ah_A_B_C_1_M7246.txt	mm	Access Hole	15.0	15.0	8.3 x through 22.27 deep	30.0	
+30-Series	output/30-Series/30-Series_ah_A_B_C_D_1_M7246.txt	mm	Access Hole	15.0	15.0	8.3 x through 22.27 deep	30.0	
+30-Series	output/30-Series/30-Series_ah_A_2_M7246.txt	mm	Access Hole	15.0	15.0	8.3 x through 22.27 deep	30.0	
+30-Series	output/30-Series/30-Series_ah_A_B_2_M7246.txt	mm	Access Hole	15.0	15.0	8.3 x through 22.27 deep	30.0	
+30-Series	output/30-Series/30-Series_ah_A_B_C_2_M7246.txt	mm	Access Hole	15.0	15.0	8.3 x through 22.27 deep	30.0	
+30-Series	output/30-Series/30-Series_ah_A_B_C_D_2_M7246.txt	mm	Access Hole	15.0	15.0	8.3 x through 22.27 deep	30.0	
+40-Series	output/40-Series/40-Series_cb_A_M70402.txt	mm	Counterbore	21.717	20.0	20.1168 x 17.399 deep	40.0
+-	-	-	-	0.855"	0.787"	0.792" x 0.685" deep	40.0
+40-Series	output/40-Series/40-Series_cb_A_B_M70402.txt	mm	Counterbore	21.717	20.0	20.1168 x 17.399 deep	40.0
+-	-	-	-	0.855"	0.787"	0.792" x 0.685" deep	40.0
+40-Series	output/40-Series/40-Series_cb_A_B_C_M70402.txt	mm	Counterbore	21.717	20.0	20.1168 x 17.399 deep	40.0
+-	-	-	-	0.855"	0.787"	0.792" x 0.685" deep	40.0
+40-Series	output/40-Series/40-Series_cb_A_B_C_D_M70402.txt	mm	Counterbore	21.717	20.0	20.1168 x 17.399 deep	40.0
+-	-	-	-	0.855"	0.787"	0.792" x 0.685" deep	40.0
+40-Series	output/40-Series/40-Series_ah_A_1_M70503.txt	mm	Access Hole	20.0	20.0	7.493 x through 29.77 deep	40.0	
+40-Series	output/40-Series/40-Series_ah_A_B_1_M70503.txt	mm	Access Hole	20.0	20.0	7.493 x through 29.77 deep	40.0	
+40-Series	output/40-Series/40-Series_ah_A_B_C_1_M70503.txt	mm	Access Hole	20.0	20.0	7.493 x through 29.77 deep	40.0	
+40-Series	output/40-Series/40-Series_ah_A_B_C_D_1_M70503.txt	mm	Access Hole	20.0	20.0	7.493 x through 29.77 deep	40.0	
+40-Series	output/40-Series/40-Series_ah_A_2_M70503.txt	mm	Access Hole	20.0	20.0	7.493 x through 29.77 deep	40.0	
+40-Series	output/40-Series/40-Series_ah_A_B_2_M70503.txt	mm	Access Hole	20.0	20.0	7.493 x through 29.77 deep	40.0	
+40-Series	output/40-Series/40-Series_ah_A_B_C_2_M70503.txt	mm	Access Hole	20.0	20.0	7.493 x through 29.77 deep	40.0	
+40-Series	output/40-Series/40-Series_ah_A_B_C_D_2_M70503.txt	mm	Access Hole	20.0	20.0	7.493 x through 29.77 deep	40.0	
+45-Series	output/45-Series/45-Series_ah_A_1_M72486.txt	mm	Access Hole	22.5	22.5	10.0 x through 33.77 deep	45.0	
+45-Series	output/45-Series/45-Series_ah_A_B_1_M72486.txt	mm	Access Hole	22.5	22.5	10.0 x through 33.77 deep	45.0	
+45-Series	output/45-Series/45-Series_ah_A_B_C_1_M72486.txt	mm	Access Hole	22.5	22.5	10.0 x through 33.77 deep	45.0	
+45-Series	output/45-Series/45-Series_ah_A_B_C_D_1_M72486.txt	mm	Access Hole	22.5	22.5	10.0 x through 33.77 deep	45.0	
+45-Series	output/45-Series/45-Series_ah_A_2_M72486.txt	mm	Access Hole	22.5	22.5	10.0 x through 33.77 deep	45.0	
+45-Series	output/45-Series/45-Series_ah_A_B_2_M72486.txt	mm	Access Hole	22.5	22.5	10.0 x through 33.77 deep	45.0	
+45-Series	output/45-Series/45-Series_ah_A_B_C_2_M72486.txt	mm	Access Hole	22.5	22.5	10.0 x through 33.77 deep	45.0	
+45-Series	output/45-Series/45-Series_ah_A_B_C_D_2_M72486.txt	mm	Access Hole	22.5	22.5	10.0 x through 33.77 deep	45.0	
