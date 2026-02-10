@@ -303,7 +303,7 @@ public class Main {
 		}
 		//do a final spiral to the exact depth
 		z = -depthOfBore;
-		path.append("G02 I0")
+		path.append("G03 I0")
 		.append(" J").append(format(-radius,4))
 		.append(" Z").append(format( -depthOfBore,4))
 		.append("\n");
@@ -314,7 +314,7 @@ public class Main {
 			.append(" Z").append(format(-depthOfBore,4))
 			.append("\n");
 
-		for(double rr=radius; rr > machine.getCutDepthPerPass(); rr -= machine.getCutDepthPerPass()) {
+		for(double rr=radius; rr > machine.getAccuracy(); rr -= machine.getAccuracy()) {
 			//Counter clockwise full circle with center 10mm in the X direction
 			//G02 I-1.0 J0.0 F8.0; (Clockwise full circle with a center 1 inch in the negative X direction from the start point)
 			path.append("G01 Y").append(format(centerY + rr,4)).append("\n");
@@ -322,6 +322,7 @@ public class Main {
 			path.append("G02 I0")
 				.append(" J").append(format(-rr,4))
 				.append("\n");
+
 		}
 		return path.toString();
 	}
@@ -356,11 +357,14 @@ public class Main {
 			z -= machine.getCutDepthPerPass();
 		}
 		//do a final spiral to the exact depth
-		path.append("G02 I0")
+		path.append("G03 I0")
 		.append(" J").append(format(-radius,4))
 		.append(" Z").append(format( -depthOfAccessHole,4))
 		.append("\n");
-		
+
+		//This is a through hole, no need to do a last cut at the bottom - but this would work
+		//path.append("G03 I0").append(" J").append(format(-radius,4)).append("\n")
+
 		return path.toString();
 	}
 
