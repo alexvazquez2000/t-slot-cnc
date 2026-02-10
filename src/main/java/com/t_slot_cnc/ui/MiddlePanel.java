@@ -32,6 +32,10 @@ public class MiddlePanel extends JPanel {
 	}
 
 	public void setImage(String imageName) {
+		if (imageName == null) {
+			logger.warn("Image file is null, skipping");
+			return;
+		}
 		try {
 			URL imageUrl = getClass().getResource(imageName);
 			if (imageUrl != null) {
