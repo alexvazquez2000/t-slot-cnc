@@ -45,7 +45,11 @@ public class MainController {
 	public String getImageName() {
 		Extrusion extrusion= extrusionService.findExtrusionByName(model.getSelectedSeries());
 		if (model.getHoleType()== HoleType.COUNTERBORE) {
-			return extrusion.getCounterbore().getImage();
+			if (extrusion.getCounterbore() == null) {
+				return null;
+			} else {
+				return extrusion.getCounterbore().getImage();
+			}
 		}
 		return extrusion.getAccessHole().getImage();
 	}
