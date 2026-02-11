@@ -9,12 +9,12 @@ public class MachineService {
 	//aluminum settings
 	//30–50 IPM (inches per minute) feed rate, with shallow depths of cut ( ~0.01-0.03").
 	//inches per minute
-	private int feedRate = 40;
+	private int feedRate = 50;
 	//recommended is betwee 10k and 24K.  Speed 7 is 18,000 RPMs
 	//Speed is actually being ignored
 	private int spindleSpeed = 7; 
 	// Recommended Depth of Cut (DOC): 0.01" - 0.03" (10-30% of diameter)
-	private double cutDepthPerPass = 0.05;
+	private double cutDepthPerPass = 0.03;
 	
 	private double accuracy = 0.02;
 	
