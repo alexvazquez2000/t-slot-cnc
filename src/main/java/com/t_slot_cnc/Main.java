@@ -41,32 +41,32 @@ public class Main {
 			Counterbore counterbore = ext.getCounterbore();
 			if (ext.getCounterbore() != null) {
 
-				fileName = outputDir + "/" + ext.getId() + "_cb_A_" + counterbore.getPartNumber() + fileExtension;
+				fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_cb_A_" + counterbore.getPartNumber() + fileExtension;
 				generateCounterbore(ext, new int[] {0}, fileName);
 
-				fileName =  outputDir + "/" + ext.getId() + "_cb_A_B_" + counterbore.getPartNumber() + fileExtension;
+				fileName =  outputDir + "/" + ext.getId().substring(0,2) + "X_cb_A_B_" + counterbore.getPartNumber() + fileExtension;
 				generateCounterbore(ext, new int[] {0,1}, fileName );
 
-				fileName = outputDir + "/" + ext.getId() + "_cb_A_B_C_" + counterbore.getPartNumber() + fileExtension;
+				fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_cb_A_B_C_" + counterbore.getPartNumber() + fileExtension;
 				generateCounterbore(ext, new int[] {0,1,2}, fileName );
 
-				fileName = outputDir + "/" +  ext.getId() + "_cb_A_B_C_D_" + counterbore.getPartNumber() + fileExtension;
+				fileName = outputDir + "/" +  ext.getId().substring(0,2) + "X_cb_A_B_C_D_" + counterbore.getPartNumber() + fileExtension;
 				generateCounterbore(ext, new int[] {0,1,2,3}, fileName );
 			}
 
 
 			AccessHole accessHole = ext.getAccessHole();
 			for (int rows = 1; rows <=2; rows++) {
-				fileName = outputDir + "/" + ext.getId() + "_ah_A_" + rows + "_" + accessHole.getPartNumber()+ ".txt";
+				fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_ah_A_" + rows + "_" + accessHole.getPartNumber()+ ".txt";
 				gCode = generateAccessHole(ext, new int[] {0}, rows, fileName);
 
-				fileName = outputDir + "/" + ext.getId() + "_ah_A_B_" + rows + "_" + accessHole.getPartNumber()+ ".txt";
+				fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_ah_A_B_" + rows + "_" + accessHole.getPartNumber()+ ".txt";
 				gCode = generateAccessHole(ext, new int[] {0,1}, rows, fileName);
 
-				fileName = outputDir + "/" + ext.getId() + "_ah_A_B_C_" + rows + "_" + accessHole.getPartNumber()+ ".txt";
+				fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_ah_A_B_C_" + rows + "_" + accessHole.getPartNumber()+ ".txt";
 				gCode = generateAccessHole(ext, new int[] {0,1,2}, rows, fileName);
 
-				fileName = outputDir + "/" + ext.getId() + "_ah_A_B_C_D_" + rows + "_" + accessHole.getPartNumber() + ".txt";
+				fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_ah_A_B_C_D_" + rows + "_" + accessHole.getPartNumber() + ".txt";
 				gCode = generateAccessHole(ext, new int[] {0,1,2,3}, rows, fileName);
 			}
 		}
@@ -87,7 +87,7 @@ public class Main {
 	private static String partDesc(Extrusion ext, String fileName, MachineService machine) {
 		StringBuilder part = new StringBuilder();
 		part.append(ext.getId()).append("\t")
-		.append(fileName).append("\t")
+		.append(fileName.substring(fileName.lastIndexOf("/")+1)).append("\t")
 		.append(ext.getUnits()).append("\t");
 
 		if (fileName.contains("_cb_")) {
@@ -188,7 +188,7 @@ public class Main {
 			outFileList.add(partDesc(ext, fileName, machine));
 
 			for (int p :pattern) {
-				response.append(counterbore(machine, boreLocationX + (p *ext.getWidth()) , boreLocationY, boreDiameter, depthOfBore));
+				response.append(counterbore(ext, machine, boreLocationX + (p *ext.getWidth()) , boreLocationY, boreDiameter, depthOfBore));
 				response.append("G00 Z" + format(machine.getzGapAbove(), 4)).append("\n");
 			}
 			response.append(tail(machine));
@@ -273,7 +273,7 @@ public class Main {
 		return String.format("%." + decimals + "f", value);
 	}
 
-	private static String counterbore(MachineService machine, double boreLocationX, double boreLocationY,
+	private static String counterbore(Extrusion ext, MachineService machine, double boreLocationX, double boreLocationY,
 			double boreDiameter, double depthOfBore) {
 		StringBuilder path = new StringBuilder();
 		double endMillRadius = machine.getEndMillDiameter() / 2.0;
@@ -308,25 +308,47 @@ public class Main {
 		.append(" Z").append(format( -depthOfBore,4))
 		.append("\n");
 
-		//flatten the bottom of the counterbore
-		path.append("G01 X").append(format(centerX,4))
-		.append(" Y").append(format(centerY + radius,4))
-		.append(" Z").append(format(-depthOfBore,4))
-		.append("\n");
-
-		for(double rr=radius; rr > machine.getEndMillDiameter()/2; rr -= machine.getAccuracy()) {
-			//Counter clockwise full circle with center 10mm in the X direction
-			//G02 I-1.0 J0.0 F8.0; (Clockwise full circle with a center 1 inch in the negative X direction from the start point)
-			path.append("G01 Y").append(format(centerY + rr,4)).append("\n");
-
-			path.append("G02 I0")
-			.append(" J").append(format(-rr,4))
-			.append("\n");
+	
+		if (ext.getId().startsWith("15")) {
+			//it is too thick, go up and do 3 passess at the floor
+			z = -depthOfBore + (3 * machine.getCutDepthPerPass());
+			path.append("G01 Z").append(format(z,4)).append("\n");
+			while (round(z) >= -depthOfBore) {
+				for(double rr=radius; rr > machine.getEndMillDiameter()/2; rr -= machine.getAccuracy()) {
+					//Counter clockwise full circle with center 10mm in the X direction
+					//G02 I-1.0 J0.0 F8.0; (Clockwise full circle with a center 1 inch in the negative X direction from the start point)
+					path.append("G01 Y").append(format(centerY + rr,4))
+					.append(" Z").append(format(z,4)).append("\n");
+					
+					path.append("G02 I0")
+					.append(" J").append(format(-rr,4))
+					.append("\n");
+				}
+				path.append("G01 Y").append(format(centerY + radius,4))
+				.append("Z").append(format(z,4)).append("\n");
+				z -= machine.getCutDepthPerPass();
+			}
+		} else {	
+			for(double rr=radius; rr > machine.getEndMillDiameter()/2; rr -= machine.getAccuracy()) {
+				//Counter clockwise full circle with center 10mm in the X direction
+				//G02 I-1.0 J0.0 F8.0; (Clockwise full circle with a center 1 inch in the negative X direction from the start point)
+				path.append("G01 Y").append(format(centerY + rr,4)).append("\n");
+	
+				path.append("G02 I0")
+				.append(" J").append(format(-rr,4))
+				.append("\n");
+			}
 		}
 
 		return path.toString();
 	}
 
+
+	private static double round(double value) {
+		double dd = Math.round(value * 1000.0) / 1000.0;
+		System.out.println(value + " -->" + dd);
+		return dd;
+	}
 
 	private static String accessHole(MachineService machine, double boreLocationX, double boreLocationY,
 			double boreDiameter, double depthOfAccessHole, double startZ) {
