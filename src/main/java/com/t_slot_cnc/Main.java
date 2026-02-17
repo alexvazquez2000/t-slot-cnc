@@ -57,6 +57,35 @@ public class Main {
 
 			AccessHole accessHole = ext.getAccessHole();
 			for (int rows = 1; rows <=2; rows++) {
+				
+				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_dh_A_" + rows + ".txt";
+				gCode = generateDrillHole(ext, new int[] {0}, rows, fileName, 1);
+
+				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_2020_dh_A_" + rows + ".txt";
+				gCode = generateDrillHole(ext, new int[] {0}, rows, fileName, 2);
+
+				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_dh_A_B_" + rows + ".txt";
+				gCode = generateDrillHole(ext, new int[] {0,1}, rows, fileName, 1);
+
+				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_2020_dh_A_B" + rows + ".txt";
+				gCode = generateDrillHole(ext, new int[] {0,1}, rows, fileName, 2);
+
+				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_dh_A_B_C_" + rows + ".txt";
+				gCode = generateDrillHole(ext, new int[] {0,1,2}, rows, fileName, 1);
+
+				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_2020_dh_A_B_C" + rows + ".txt";
+				gCode = generateDrillHole(ext, new int[] {0,1,2}, rows, fileName, 2);
+
+				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_dh_A_B_C_D" + rows + ".txt";
+				gCode = generateDrillHole(ext, new int[] {0,1,2,3}, rows, fileName, 1);
+
+				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_2020_dh_A_B_C_D" + rows + ".txt";
+				gCode = generateDrillHole(ext, new int[] {0,1,2,3}, rows, fileName, 2);
+
+				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_2020_dh_A_" + rows + ".txt";
+				gCode = generateDrillHole(ext, new int[] {0}, rows, fileName, 2);
+
+				//Access holes
 				fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_ah_A_" + rows + "_" + accessHole.getPartNumber()+ ".txt";
 				gCode = generateAccessHole(ext, new int[] {0}, rows, fileName);
 
@@ -230,6 +259,45 @@ public class Main {
 		return response.toString();
 	}
 
+	private static String generateDrillHole(Extrusion ext, int[] pattern, int rows, String fileName, int multipier) throws IOException {
+		StringBuilder response = new StringBuilder();
+
+		MachineService machine = new MachineService(ext.getUnits());
+
+		AccessHole accessHole = ext.getAccessHole();
+		double boreLocationX = ext.getWidth() / 2.0;
+		double boreLocationY = accessHole.getyOffset();
+		double accessHoleDiameter = accessHole.getDiameter();
+		
+		//maybe it should be in the specs, instead of calculating it here
+		double depthOfAccessHole;
+		if (multipier == 1) {
+			depthOfAccessHole = (ext.getWidth() * 0.8)  + machine.getCutDepthPerPass();
+		} else if (multipier == 2) {
+			depthOfAccessHole = ext.getWidth() + (ext.getWidth() * 0.8)  + machine.getCutDepthPerPass();
+		} else {
+			throw new RuntimeException("multiplier can only be 1 or 2");
+		}
+
+		outFileList.add(partDesc(ext, fileName, machine));
+
+		response.append(header(ext.getUnits(), machine));
+		for (int row=0; row < rows; row++) {
+			for (int p :pattern) {
+				response.append("G00 X").append(format(boreLocationX +(p *ext.getWidth()), 4))
+				.append(" Y").append(format(boreLocationY + (row * ext.getWidth()), 4))
+				.append("\n");
+				response.append(drillHole(machine, boreLocationX + (p *ext.getWidth()),
+						boreLocationY + (row * ext.getWidth()), accessHoleDiameter, depthOfAccessHole));
+				response.append("G00 Z").append(format(machine.getzGapAbove(), 4)).append("\n");
+			}
+		}
+		response.append(tail(machine));
+
+		saveGCode(response.toString(), fileName);
+		return response.toString();
+	}
+
 
 	/**
 	 * @param units only valid values are either "inches" or "mm"
@@ -391,6 +459,29 @@ public class Main {
 	}
 
 
+	private static String drillHole(MachineService machine, double boreLocationX, double boreLocationY,
+			double boreDiameter, double depthOfAccessHole) {
+		StringBuilder path = new StringBuilder();
+		double endMillRadius = 0.25 / 2.0;
+		//the final depth
+		double z = - depthOfAccessHole - machine.getCutDepthPerPass();
+
+		//Adjust the center of the circle
+		double centerX = boreLocationX - endMillRadius;
+		double centerY = boreLocationY + endMillRadius;
+
+
+		//go initial location on middle of track, away from the home
+		path.append("G01 X").append(format(centerX,4))
+		.append(" Y").append(format(centerY,4))
+		.append(" F30\n");
+
+		path.append("G01 Z").append(format(z, 4)).append("\n");
+		//This is a through hole, no need to do a last cut at the bottom
+
+		return path.toString();
+	}
+
 	/*
 G-code uses the commands
 G02 for clockwise (CW) and G03 for counter-clockwise (CCW) circular interpolation. These commands define
@@ -435,12 +526,13 @@ N60 M30; Program end
 	 */
 	private static String tail(MachineService machine) {
 		StringBuilder tail = new StringBuilder();
+		
 		//z-gap above material
-		tail.append("G00 Z" + format(machine.getzGapAbove(), 4)).append("\n");
+		tail.append("G00 Z" + format(machine.getzGapAbove(), 4)).append(" ; (Move to safe clearance)\n");
 		//Go home
-		tail.append("G00 X0.0000 Y0.0000").append("\n");
-
-		//M05; (Spindle off)
+		tail.append("G00 X0 Y0 ; (Return to home or loading position)").append("\n");
+		//tail.append("M05 ; (Spindle stop)").append("\n");
+		//tail.append("G00 Z0 ; (Move down to zero)\n");
 
 		/*G-code M30 signifies the end of a program, resets parameters,
 		 *  and rewinds to the beginning, allowing for immediate restart,
@@ -449,7 +541,7 @@ N60 M30; Program end
 		 *  machines, turning off coolant, stopping the spindle, and
 		 *  setting default conditions like absolute mode and XY plane selection. */
 		//Turn off the spindle
-		tail.append("M30").append("\n");
+		tail.append("M30 ; (End Program)").append("\n");
 		return tail.toString();
 	}
 
