@@ -362,7 +362,7 @@ public class Main {
 
 		while (z > -depthOfBore) {
 			//J=Y-offset and I=X-offset
-			path.append("G03 I0")
+			path.append("G02 I0")
 			.append(" J").append(format(-radius,4))
 			.append(" Z").append(format(z,4))
 			.append("\n");
@@ -371,7 +371,7 @@ public class Main {
 		}
 		//do a final spiral to the exact depth
 		z = -depthOfBore;
-		path.append("G03 I0")
+		path.append("G02 I0")
 		.append(" J").append(format(-radius,4))
 		.append(" Z").append(format( -depthOfBore,4))
 		.append("\n");
@@ -388,7 +388,7 @@ public class Main {
 					path.append("G01 Y").append(format(centerY + rr,4))
 					.append(" Z").append(format(z,4)).append("\n");
 					
-					path.append("G02 I0")
+					path.append("G03 I0")
 					.append(" J").append(format(-rr,4))
 					.append("\n");
 				}
@@ -402,7 +402,7 @@ public class Main {
 				//G02 I-1.0 J0.0 F8.0; (Clockwise full circle with a center 1 inch in the negative X direction from the start point)
 				path.append("G01 Y").append(format(centerY + rr,4)).append("\n");
 	
-				path.append("G02 I0")
+				path.append("G03 I0")
 				.append(" J").append(format(-rr,4))
 				.append("\n");
 			}

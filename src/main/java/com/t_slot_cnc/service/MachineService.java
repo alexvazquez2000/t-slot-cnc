@@ -15,7 +15,7 @@ public class MachineService {
 	//Speed is actually being ignored
 	private int spindleSpeed = 7; 
 	// Recommended Depth of Cut (DOC): 0.01" - 0.03" (10-30% of diameter)
-	private double cutDepthPerPass = 0.03;
+	private double cutDepthPerPass = 0.01;
 	
 	private double accuracy = 0.02;
 	
