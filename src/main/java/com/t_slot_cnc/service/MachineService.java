@@ -5,6 +5,7 @@ package com.t_slot_cnc.service;
  */
 public class MachineService {
 	private double endMillDiameter = 0.125;
+	//private double endMillDiameter = 0.25;
 	
 	//aluminum settings
 	//30–50 IPM (inches per minute) feed rate, with shallow depths of cut ( ~0.01-0.03").
