@@ -6,7 +6,7 @@ import com.t_slot_cnc.model.Extrusion;
 
 public class FileNameService {
 
-	private static String fileExtension = ".txt";
+	private static String fileExtension = ".nc";
 
 	public static String nameCounterbore(Extrusion ext, Counterbore counterbore, int numColumns) {
 		//fileName +=  "X_cb_A_" + counterbore.getPartNumber() + fileExtension
