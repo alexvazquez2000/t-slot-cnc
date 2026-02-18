@@ -71,17 +71,13 @@ public class Main {
 
 
 				//Access holes
-				fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_ah_A_" + rows + "_" + accessHole.getPartNumber()+ ".txt";
-				generateAccessHole(ext, new int[] {0}, rows, fileName);
+				generateAccessHole(ext, new int[] {0}, rows);
 
-				fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_ah_A_B_" + rows + "_" + accessHole.getPartNumber()+ ".txt";
-				generateAccessHole(ext, new int[] {0,1}, rows, fileName);
+				generateAccessHole(ext, new int[] {0,1}, rows);
 
-				fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_ah_A_B_C_" + rows + "_" + accessHole.getPartNumber()+ ".txt";
-				generateAccessHole(ext, new int[] {0,1,2}, rows, fileName);
+				generateAccessHole(ext, new int[] {0,1,2}, rows);
 
-				fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_ah_A_B_C_D_" + rows + "_" + accessHole.getPartNumber() + ".txt";
-				generateAccessHole(ext, new int[] {0,1,2,3}, rows, fileName);
+				generateAccessHole(ext, new int[] {0,1,2,3}, rows);
 			}
 		}
 
@@ -213,7 +209,7 @@ public class Main {
 		return response.toString();
 	}
 
-	private static String generateAccessHole( Extrusion ext, int[] pattern, int rows, String fileName) throws IOException {
+	private static String generateAccessHole( Extrusion ext, int[] pattern, int rows) throws IOException {
 		StringBuilder response = new StringBuilder();
 
 		MachineService machine = new MachineService(ext.getUnits());
@@ -227,6 +223,7 @@ public class Main {
 		//maybe it should be in the specs, instead of calculating it here
 		double depthOfAccessHole = topOfSlot + coreWidth + machine.getCutDepthPerPass();
 
+		String fileName = FileNameService.nameAccessHole(ext, accessHole, pattern.length, rows);
 		outFileList.add(partDesc(ext, fileName, machine));
 
 		response.append(header(ext.getUnits(), machine));
