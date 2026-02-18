@@ -2,7 +2,8 @@ package com.t_slot_cnc.model;
 
 public enum HoleType {
 	ACCESS_HOLE ("Access Hole"),
-	COUNTERBORE("Counterbore");
+	COUNTERBORE("Counterbore"),
+	DILLED_HOLE("Drilled Hole");
 	
 	String name;
 	

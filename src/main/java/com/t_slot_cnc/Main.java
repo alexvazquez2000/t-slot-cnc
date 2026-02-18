@@ -12,6 +12,7 @@ import com.t_slot_cnc.model.AccessHole;
 import com.t_slot_cnc.model.Counterbore;
 import com.t_slot_cnc.model.Extrusion;
 import com.t_slot_cnc.service.ExtrusionsService;
+import com.t_slot_cnc.service.FileNameService;
 import com.t_slot_cnc.service.MachineService;
 
 public class Main {
@@ -27,7 +28,6 @@ public class Main {
 		String gCode;
 
 		String fileName;
-		String fileExtension = ".txt";
 
 		ExtrusionsService service = new ExtrusionsService();
 		service.loadSpecs();
@@ -38,65 +38,50 @@ public class Main {
 				dir.mkdirs();
 			}
 
-			Counterbore counterbore = ext.getCounterbore();
 			if (ext.getCounterbore() != null) {
 
-				fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_cb_A_" + counterbore.getPartNumber() + fileExtension;
-				generateCounterbore(ext, new int[] {0}, fileName);
+				generateCounterbore(ext, new int[] {0});
 
-				fileName =  outputDir + "/" + ext.getId().substring(0,2) + "X_cb_A_B_" + counterbore.getPartNumber() + fileExtension;
-				generateCounterbore(ext, new int[] {0,1}, fileName );
+				generateCounterbore(ext, new int[] {0,1});
 
-				fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_cb_A_B_C_" + counterbore.getPartNumber() + fileExtension;
-				generateCounterbore(ext, new int[] {0,1,2}, fileName );
+				generateCounterbore(ext, new int[] {0,1,2});
 
-				fileName = outputDir + "/" +  ext.getId().substring(0,2) + "X_cb_A_B_C_D_" + counterbore.getPartNumber() + fileExtension;
-				generateCounterbore(ext, new int[] {0,1,2,3}, fileName );
+				generateCounterbore(ext, new int[] {0,1,2,3});
 			}
 
 
 			AccessHole accessHole = ext.getAccessHole();
 			for (int rows = 1; rows <=2; rows++) {
 				
-				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_dh_A_" + rows + ".txt";
-				gCode = generateDrillHole(ext, new int[] {0}, rows, fileName, 1);
+				generateDrillHole(ext, new int[] {0}, rows, 1);
 
-				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_2020_dh_A_" + rows + ".txt";
-				gCode = generateDrillHole(ext, new int[] {0}, rows, fileName, 2);
+				generateDrillHole(ext, new int[] {0}, rows, 2);
 
-				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_dh_A_B_" + rows + ".txt";
-				gCode = generateDrillHole(ext, new int[] {0,1}, rows, fileName, 1);
+				generateDrillHole(ext, new int[] {0,1}, rows, 1);
 
-				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_2020_dh_A_B" + rows + ".txt";
-				gCode = generateDrillHole(ext, new int[] {0,1}, rows, fileName, 2);
+				generateDrillHole(ext, new int[] {0,1}, rows, 2);
 
-				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_dh_A_B_C_" + rows + ".txt";
-				gCode = generateDrillHole(ext, new int[] {0,1,2}, rows, fileName, 1);
+				generateDrillHole(ext, new int[] {0,1,2}, rows, 1);
 
-				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_2020_dh_A_B_C" + rows + ".txt";
-				gCode = generateDrillHole(ext, new int[] {0,1,2}, rows, fileName, 2);
+				generateDrillHole(ext, new int[] {0,1,2}, rows, 2);
 
-				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_dh_A_B_C_D" + rows + ".txt";
-				gCode = generateDrillHole(ext, new int[] {0,1,2,3}, rows, fileName, 1);
+				generateDrillHole(ext, new int[] {0,1,2,3}, rows, 1);
 
-				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_2020_dh_A_B_C_D" + rows + ".txt";
-				gCode = generateDrillHole(ext, new int[] {0,1,2,3}, rows, fileName, 2);
+				generateDrillHole(ext, new int[] {0,1,2,3}, rows, 2);
 
-				fileName = outputDir + "/" + ext.getId().substring(0,2) + "_2020_dh_A_" + rows + ".txt";
-				gCode = generateDrillHole(ext, new int[] {0}, rows, fileName, 2);
 
 				//Access holes
 				fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_ah_A_" + rows + "_" + accessHole.getPartNumber()+ ".txt";
-				gCode = generateAccessHole(ext, new int[] {0}, rows, fileName);
+				generateAccessHole(ext, new int[] {0}, rows, fileName);
 
 				fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_ah_A_B_" + rows + "_" + accessHole.getPartNumber()+ ".txt";
-				gCode = generateAccessHole(ext, new int[] {0,1}, rows, fileName);
+				generateAccessHole(ext, new int[] {0,1}, rows, fileName);
 
 				fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_ah_A_B_C_" + rows + "_" + accessHole.getPartNumber()+ ".txt";
-				gCode = generateAccessHole(ext, new int[] {0,1,2}, rows, fileName);
+				generateAccessHole(ext, new int[] {0,1,2}, rows, fileName);
 
 				fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_ah_A_B_C_D_" + rows + "_" + accessHole.getPartNumber() + ".txt";
-				gCode = generateAccessHole(ext, new int[] {0,1,2,3}, rows, fileName);
+				generateAccessHole(ext, new int[] {0,1,2,3}, rows, fileName);
 			}
 		}
 
@@ -199,13 +184,15 @@ public class Main {
 		}
 	}
 
-	private static String generateCounterbore(Extrusion ext,
-			int[] pattern, String fileName) throws IOException {
+	private static String generateCounterbore(Extrusion ext, int[] pattern) throws IOException {
 		StringBuilder response = new StringBuilder();
 
 		MachineService machine = new MachineService(ext.getUnits());
-
 		Counterbore counterbore = ext.getCounterbore();
+
+		String fileName = FileNameService.nameCounterbore(ext, counterbore, pattern.length); 
+	
+		
 		if (counterbore != null) {
 			double boreLocationX = ext.getWidth() / 2.0;
 			double boreLocationY = counterbore.getyOffset();
@@ -259,7 +246,7 @@ public class Main {
 		return response.toString();
 	}
 
-	private static String generateDrillHole(Extrusion ext, int[] pattern, int rows, String fileName, int multipier) throws IOException {
+	private static String generateDrillHole(Extrusion ext, int[] pattern, int rows, int multipier) throws IOException {
 		StringBuilder response = new StringBuilder();
 
 		MachineService machine = new MachineService(ext.getUnits());
@@ -278,6 +265,8 @@ public class Main {
 		} else {
 			throw new RuntimeException("multiplier can only be 1 or 2");
 		}
+
+		String fileName = FileNameService.nameDrillHole(ext, pattern.length, rows, multipier);
 
 		outFileList.add(partDesc(ext, fileName, machine));
 
