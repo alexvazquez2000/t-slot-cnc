@@ -85,7 +85,7 @@ public class Main {
 
 		//return to origin - params in millimeters
 		gCode = generateReturnVice(124.245, 68.406);
-		saveGCode(gCode, "returnToVice.txt");
+		saveGCode(gCode, "output/returnToVice.nc");
 
 	}
 
