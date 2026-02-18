@@ -12,7 +12,7 @@ public class FileNameService {
 		//fileName +=  "X_cb_A_" + counterbore.getPartNumber() + fileExtension
 		//fileName += "X_cb_A_B_C_D_" + counterbore.getPartNumber() + fileExtension
 		
-		return "output/" + ext.getId() + "/" + ext.getId().substring(0,2) + "X_cb" + columnPattern(numColumns) + counterbore.getPartNumber() + fileExtension;
+		return "output/" + ext.getId() + "/" + ext.getId().substring(0,2) + "X_cb" + columnPattern(numColumns) + fileExtension;
 	}
 
 	private static String columnPattern(int pattern) {
@@ -28,9 +28,6 @@ public class FileNameService {
 	}
 
 	public static String nameDrillHole(Extrusion ext, int numColumns, int rows, int multipier) {
-		//fileName = outputDir + "/" + ext.getId().substring(0,2) + "_dh_A_" + rows + ".txt"
-		//fileName = outputDir + "/" + ext.getId().substring(0,2) + "_2020_dh_A_" + rows + ".txt"
-		//fileName = outputDir + "/" + ext.getId().substring(0,2) + "_dh_A_B_C_D" + rows + ".txt"
 		
 		if (multipier == 2) {
 			return "output/" + ext.getId() + "/"  + ext.getId().substring(0,2) + "_2020_dh" + columnPattern(numColumns) + rows + fileExtension;
@@ -39,11 +36,7 @@ public class FileNameService {
 	}
 
 	public static String nameAccessHole(Extrusion ext, AccessHole accessHole, int numColumns, int rows) {
-		//fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_ah_A_" + rows + "_" + accessHole.getPartNumber()+ ".txt"
-		//fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_ah_A_B_" + rows + "_" + accessHole.getPartNumber()+ ".txt"
-		//fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_ah_A_B_C_" + rows + "_" + accessHole.getPartNumber()+ ".txt"
-		//fileName = outputDir + "/" + ext.getId().substring(0,2) + "X_ah_A_B_C_D_" + rows + "_" + accessHole.getPartNumber() + ".txt"
-		return "output/" + ext.getId() + "/"  + ext.getId().substring(0,2) + "X_ah" + columnPattern(numColumns) + rows + "_" + accessHole.getPartNumber() + fileExtension;
+		return "output/" + ext.getId() + "/"  + ext.getId().substring(0,2) + "X_ah" + columnPattern(numColumns) + rows +  fileExtension;
 	}
 
 }
