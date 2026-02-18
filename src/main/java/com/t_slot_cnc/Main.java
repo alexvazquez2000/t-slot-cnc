@@ -27,16 +27,11 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		String gCode;
 
-		String fileName;
-
 		ExtrusionsService service = new ExtrusionsService();
 		service.loadSpecs();
+
+		//Generate all the files
 		for (Extrusion ext : service.getExtrusions().getExtrusionSeries()) {
-			String outputDir = "output/" + ext.getId();
-			File dir = new File(outputDir);
-			if (!dir.exists()) {
-				dir.mkdirs();
-			}
 
 			if (ext.getCounterbore() != null) {
 
@@ -169,13 +164,18 @@ public class Main {
 	private static void saveGCode(String gCode, String fileName) throws IOException {
 		try {
 			Path file = Paths.get(fileName);
+			
+			//Make sure the directory exists
+			File parentDir = file.toFile().getParentFile();
+			if (parentDir!= null && !parentDir.exists()) {
+				parentDir.mkdirs();
+			}
+
 			// This will create a new file or overwrite an existing one
 			Files.writeString(file, gCode); 
-			System.out.println("Successfully wrote the string to the file.");
+			System.out.println("Successfully wrote the string to the file " + file.toString());
 
 		} catch (IOException e) {
-			System.err.println("An error occurred: " + e.getMessage());
-			e.printStackTrace();
 			throw e;
 		}
 	}
