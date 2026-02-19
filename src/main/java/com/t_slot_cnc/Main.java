@@ -123,7 +123,7 @@ public class Main {
 			.append(accessHole.getyOffset()).append("\t")
 			.append(ext.getWidth()/2.0).append("\t")
 			.append(accessHole.getDiameter() + " x through " + depthOfAccessHole + " deep").append("\t")
-			.append(ext.getWidth()).append("\t");
+			.append(ext.getWidth());
 		}
 
 		return part.toString();
