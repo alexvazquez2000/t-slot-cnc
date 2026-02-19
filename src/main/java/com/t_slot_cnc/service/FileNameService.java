@@ -23,11 +23,11 @@ public class FileNameService {
 	}
 
 	public static String nameDrillHole(Extrusion ext, int numColumns, int rows, int multipier) {
-		
+		String series = ext.getId().substring(0,2);
 		if (multipier == 2) {
-			return "output/" + ext.getId() + "/drill_hole/"  + ext.getId().substring(0,2) + "_2020_dh" + columnPattern(numColumns) + rows + fileExtension;
+			series = (Integer.valueOf(series) * 2 ) + "";
 		}
-		return "output/" + ext.getId() + "/drill_hole/" + ext.getId().substring(0,2) + "_dh" + columnPattern(numColumns) + rows + fileExtension;
+		return "output/" + ext.getId() + "/drill_hole/" + series + "_dh" + columnPattern(numColumns) + rows + fileExtension;
 	}
 
 	public static String nameAccessHole(Extrusion ext, AccessHole accessHole, int numColumns, int rows) {
