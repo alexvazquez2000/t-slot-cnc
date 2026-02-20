@@ -15,14 +15,12 @@ import com.t_slot_cnc.service.ExtrusionsService;
 import com.t_slot_cnc.service.FileNameService;
 import com.t_slot_cnc.service.MachineService;
 
+/**
+ * @author Alex Vazquez <vazqueza2000@gmail.com>
+ */
 public class Main {
 
-	//These are settings for the t-track
-	static double slotWidth = 0.5;
-	double depthToTopOCenter = 0.323;
-
 	static List<String> outFileList = new ArrayList<>();
-
 
 	public static void main(String[] args) throws IOException {
 		String gCode;
@@ -44,8 +42,6 @@ public class Main {
 				generateCounterbore(ext, new int[] {0,1,2,3});
 			}
 
-
-			AccessHole accessHole = ext.getAccessHole();
 			for (int rows = 1; rows <=2; rows++) {
 				
 				generateDrillHole(ext, new int[] {0}, rows, 1);
@@ -66,19 +62,18 @@ public class Main {
 
 
 				//Access holes
-				generateAccessHole(ext, new int[] {0}, rows);
-
-				generateAccessHole(ext, new int[] {0,1}, rows);
-
-				generateAccessHole(ext, new int[] {0,1,2}, rows);
-
-				generateAccessHole(ext, new int[] {0,1,2,3}, rows);
+//				generateAccessHole(ext, new int[] {0}, rows);
+//
+//				generateAccessHole(ext, new int[] {0,1}, rows);
+//
+//				generateAccessHole(ext, new int[] {0,1,2}, rows);
+//
+//				generateAccessHole(ext, new int[] {0,1,2,3}, rows);
 			}
 		}
 
 		StringBuilder parts = new StringBuilder();
 		for (String line : outFileList) {
-			System.out.println(line);
 			parts.append(line).append("\n");
 		}
 		saveGCode(parts.toString(), "output/parts.txt");
@@ -139,15 +134,15 @@ public class Main {
 	private static String generateReturnVice(double x, double y) {
 		StringBuilder head = new StringBuilder();
 		//G20 Set units to inches  - G21 uses mm 
-		head.append("G21").append("\n");
+		head.append("G21; (G20  inches - G21 uses mm the machine uses mm)").append("\n");
 		//G90 absolute mode -  G91 is relative positioning mode. 		
 		head.append("G91; (Set positioning to relative mode)").append("\n");
 
 		//G17 is XY plane
-		head.append("G17").append("\n");
+		head.append("G17; (XY plane)").append("\n");
 
 		//M3 turns on the spindle clockwise (CW)
-		head.append("M3 S0; NX-105 ignores the spindle speed").append("\n");
+		head.append("M3 S0; (NX-105 ignores the spindle speed)").append("\n");
 
 		//z-gap above material
 		//Homing: G28 tells the machine to move to coordinate in machine space.
@@ -155,29 +150,24 @@ public class Main {
 		head.append("G28 X0 Y0; (Go home for X and Y)").append("\n");
 
 		//Go home and turn on the spindle
-		head.append("G00 X" + format(x,3) + "Y" + format(y,3) + "; Move towards the vice in mm").append("\n");
+		head.append("G00 X" + format(x,3) + "Y" + format(y,3) + "; (Move towards the vice in mm - get this while at the vice)").append("\n");
 		//M30 is end of script- It turns off the spindle
-		head.append("M30").append("\n");
+		head.append("M30; (End script - turns off the spindle)").append("\n");
 		return head.toString();
 	}
 
 	private static void saveGCode(String gCode, String fileName) throws IOException {
-		try {
-			Path file = Paths.get(fileName);
-			
-			//Make sure the directory exists
-			File parentDir = file.toFile().getParentFile();
-			if (parentDir!= null && !parentDir.exists()) {
-				parentDir.mkdirs();
-			}
-
-			// This will create a new file or overwrite an existing one
-			Files.writeString(file, gCode); 
-			System.out.println("Successfully wrote the string to the file " + file.toString());
-
-		} catch (IOException e) {
-			throw e;
+		Path file = Paths.get(fileName);
+		
+		//Make sure the directory exists
+		File parentDir = file.toFile().getParentFile();
+		if (parentDir!= null && !parentDir.exists()) {
+			parentDir.mkdirs();
 		}
+
+		// This will create a new file or overwrite an existing one
+		Files.writeString(file, gCode); 
+		System.out.println("Successfully wrote the string to the file " + file.toString());
 	}
 
 	private static String generateCounterbore(Extrusion ext, int[] pattern) throws IOException {
@@ -295,7 +285,7 @@ public class Main {
 		//command sequence used to initiate a tool change.
 		//T1: Selects Tool Number 1.
 		//M6: Executes the tool change command. 
-		//head.append("T1M6").append("\n");
+		//head.append("T1M6; ()").append("\n");
 
 		if (units.equals("inches")) {
 			//G20 Set units to inches  - G21 uses mm 
