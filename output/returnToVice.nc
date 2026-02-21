@@ -1,8 +1,8 @@
-G21
+G21; (G20  inches - G21 uses mm the machine uses mm)
 G91; (Set positioning to relative mode)
-G17
-M3 S0; NX-105 ignores the spindle speed
+G17; (XY plane)
+M3 S0; (NX-105 ignores the spindle speed)
 G28 Z0; (Raises Z to home first)
 G28 X0 Y0; (Go home for X and Y)
-G00 X124.245Y68.406; Move towards the vice in mm
-M30
+G00 X124.245Y68.406; (Move towards the vice in mm - get this while at the vice)
+M30; (End script - turns off the spindle)
