@@ -189,9 +189,33 @@ public class Main {
 
 			outFileList.add(partDesc(ext, fileName, machine));
 
+			double finishCut = 0.008;
+			
 			for (int p :pattern) {
-				response.append(counterbore(ext, machine, boreLocationX + (p *ext.getWidth()) , boreLocationY, boreDiameter, depthOfBore));
-				response.append("G00 Z" + format(machine.getzGapAbove(), 4)).append("\n");
+				//rough cut
+				response.append(counterbore(ext, machine, boreLocationX + (p *ext.getWidth()) , boreLocationY, 
+						boreDiameter - (machine.getCutDepthPerPass() * 4),
+						depthOfBore - (machine.getCutDepthPerPass() * 3) ));
+				response.append("G00 Z" + format(machine.getzGapAbove(), 4)).append("; (end of first rough pass)\n");
+				
+
+				//rough cut
+				response.append(counterbore(ext, machine, boreLocationX + (p *ext.getWidth()) , boreLocationY, 
+						boreDiameter - machine.getCutDepthPerPass(),
+						depthOfBore - machine.getCutDepthPerPass() ));
+				response.append("G00 Z" + format(machine.getzGapAbove(), 4)).append("; (end of second rough pass)\n");
+				
+//				//semi-final cut
+//				response.append(counterbore(ext, machine, boreLocationX + (p *ext.getWidth()) , boreLocationY,
+//						boreDiameter - finishCut,
+//						depthOfBore - finishCut ));
+//				response.append("G00 Z" + format(machine.getzGapAbove(), 4)).append("; (end of semi-final pass)\n");
+				
+				//final cut
+				response.append(counterbore(ext, machine, boreLocationX + (p *ext.getWidth()), boreLocationY,
+						boreDiameter,
+						depthOfBore ));
+				response.append("G00 Z" + format(machine.getzGapAbove(), 4)).append("; (end of finish pass at 0.008)\n");
 			}
 			response.append(tail(machine));
 		}
@@ -352,36 +376,14 @@ public class Main {
 		.append(" Z").append(format( -depthOfBore,4))
 		.append("\n");
 
-	
-		if (ext.getId().startsWith("15")) {
-			//it is too thick, go up and do 3 passess at the floor
-			z = -depthOfBore + (3 * machine.getCutDepthPerPass());
-			path.append("G01 Z").append(format(z,4)).append("\n");
-			while (round(z) >= -depthOfBore) {
-				for(double rr=radius; rr > machine.getEndMillDiameter()/2; rr -= machine.getAccuracy()) {
-					//Counter clockwise full circle with center 10mm in the X direction
-					//G02 I-1.0 J0.0 F8.0; (Clockwise full circle with a center 1 inch in the negative X direction from the start point)
-					path.append("G01 Y").append(format(centerY + rr,4))
-					.append(" Z").append(format(z,4)).append("\n");
-					
-					path.append("G03 I0")
-					.append(" J").append(format(-rr,4))
-					.append("\n");
-				}
-				path.append("G01 Y").append(format(centerY + radius,4))
-				.append("Z").append(format(z,4)).append("\n");
-				z -= machine.getCutDepthPerPass();
-			}
-		} else {	
-			for(double rr=radius; rr > machine.getEndMillDiameter()/2; rr -= machine.getAccuracy()) {
-				//Counter clockwise full circle with center 10mm in the X direction
-				//G02 I-1.0 J0.0 F8.0; (Clockwise full circle with a center 1 inch in the negative X direction from the start point)
-				path.append("G01 Y").append(format(centerY + rr,4)).append("\n");
-	
-				path.append("G03 I0")
-				.append(" J").append(format(-rr,4))
-				.append("\n");
-			}
+		for(double rr=radius; rr > machine.getEndMillDiameter()/2; rr -= machine.getAccuracy()) {
+			//Counter clockwise full circle with center 10mm in the X direction
+			//G02 I-1.0 J0.0 F8.0; (Clockwise full circle with a center 1 inch in the negative X direction from the start point)
+			path.append("G01 Y").append(format(centerY + rr,4)).append("\n");
+
+			path.append("G03 I0")
+			.append(" J").append(format(-rr,4))
+			.append("\n");
 		}
 
 		return path.toString();
