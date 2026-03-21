@@ -187,11 +187,19 @@ public class Main {
 			outFileList.add(partDesc(ext, fileName, machine));
 
 			for (int p :pattern) {
+				if (ext.getId().startsWith("15-")) {
+					//rough cut
+					response.append(counterbore(ext, machine, boreLocationX + (p *ext.getWidth()) , boreLocationY, 
+							boreDiameter - (machine.getCutDepthPerPass() * 4),
+							depthOfBore - (machine.getCutDepthPerPass() * 3) ));
+					response.append("G00 Z" + format(machine.getzGapAbove(), 4)).append("; (15- series end of first rough pass x3)\n");
+					
+				}
 				//rough cut
 				response.append(counterbore(ext, machine, boreLocationX + (p *ext.getWidth()) , boreLocationY, 
-						boreDiameter - (machine.getCutDepthPerPass() * 4),
-						depthOfBore - (machine.getCutDepthPerPass() * 3) ));
-				response.append("G00 Z" + format(machine.getzGapAbove(), 4)).append("; (end of first rough pass)\n");
+						boreDiameter - (machine.getCutDepthPerPass() * 2),
+						depthOfBore - (machine.getCutDepthPerPass() * 2) ));
+				response.append("G00 Z" + format(machine.getzGapAbove(), 4)).append("; (end of rough pass x2)\n");
 				
 
 				//rough cut
