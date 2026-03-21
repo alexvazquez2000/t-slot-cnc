@@ -11,6 +11,7 @@ import java.util.List;
 import com.t_slot_cnc.model.AccessHole;
 import com.t_slot_cnc.model.Counterbore;
 import com.t_slot_cnc.model.Extrusion;
+import com.t_slot_cnc.service.ExcelService;
 import com.t_slot_cnc.service.ExtrusionsService;
 import com.t_slot_cnc.service.FileNameService;
 import com.t_slot_cnc.service.MachineService;
@@ -61,7 +62,7 @@ public class Main {
 				generateDrillHole(ext, new int[] {0,1,2,3}, rows, 2);
 
 
-				//Access holes
+//				//Access holes
 //				generateAccessHole(ext, new int[] {0}, rows);
 //
 //				generateAccessHole(ext, new int[] {0,1}, rows);
@@ -72,11 +73,7 @@ public class Main {
 			}
 		}
 
-		StringBuilder parts = new StringBuilder();
-		for (String line : outFileList) {
-			parts.append(line).append("\n");
-		}
-		saveGCode(parts.toString(), "output/parts.txt");
+		new ExcelService().save(outFileList, "output/parts.xlsx");
 
 		//return to origin - params in millimeters
 		gCode = generateReturnVice(124.245, 68.406);
@@ -189,8 +186,6 @@ public class Main {
 
 			outFileList.add(partDesc(ext, fileName, machine));
 
-			double finishCut = 0.008;
-			
 			for (int p :pattern) {
 				//rough cut
 				response.append(counterbore(ext, machine, boreLocationX + (p *ext.getWidth()) , boreLocationY, 
