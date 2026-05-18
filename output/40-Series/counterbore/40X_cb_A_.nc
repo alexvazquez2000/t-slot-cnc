@@ -1,9 +1,35 @@
-G21
+G21; (G20  inches - G21 uses mm)
 G90; (Set positioning to absolute mode)
-G17
-M3 S7
-G00 Z0.8
-G00 X0.0 Y0.0
+G17; (XY plane)
+M3 S7; (M3 turns spindle on, S=speed being ignored)
+G00 Z2.54; (gap above the material=2.54)
+G00 X0.0 Y0.0; (start to user home)
+G01 X16.8250 Y29.7434 Z0.0000 F889.0
+G02 I0 J-4.8514 Z0.0000
+G02 I0 J-4.8514 Z-1.0160
+G02 I0 J-4.8514 Z-2.0320
+G02 I0 J-4.8514 Z-3.0480
+G02 I0 J-4.8514 Z-4.0640
+G02 I0 J-4.8514 Z-5.0800
+G02 I0 J-4.8514 Z-6.0960
+G02 I0 J-4.8514 Z-7.1120
+G02 I0 J-4.8514 Z-8.1280
+G02 I0 J-4.8514 Z-9.1440
+G02 I0 J-4.8514 Z-10.1600
+G02 I0 J-4.8514 Z-11.1760
+G02 I0 J-4.8514 Z-12.1920
+G02 I0 J-4.8514 Z-13.2080
+G02 I0 J-4.8514 Z-14.2240
+G02 I0 J-4.8514 Z-14.3510
+G01 Y29.7434
+G03 I0 J-4.8514
+G01 Y29.2354
+G03 I0 J-4.3434
+G01 Y28.7274
+G03 I0 J-3.8354
+G01 Y28.2194
+G03 I0 J-3.3274
+G00 Z2.5400; (15X or 40X series end of first rough pass x3)
 G01 X16.8250 Y30.7594 Z0.0000 F889.0
 G02 I0 J-5.8674 Z0.0000
 G02 I0 J-5.8674 Z-1.0160
@@ -34,7 +60,7 @@ G01 Y28.7274
 G03 I0 J-3.8354
 G01 Y28.2194
 G03 I0 J-3.3274
-G00 Z0.7620; (end of rough pass x2)
+G00 Z2.5400; (end of rough pass x2)
 G01 X16.8250 Y31.2674 Z0.0000 F889.0
 G02 I0 J-6.3754 Z0.0000
 G02 I0 J-6.3754 Z-1.0160
@@ -68,7 +94,7 @@ G01 Y28.7274
 G03 I0 J-3.8354
 G01 Y28.2194
 G03 I0 J-3.3274
-G00 Z0.7620; (end of second rough pass)
+G00 Z2.5400; (end of second rough pass)
 G01 X16.8250 Y31.7754 Z0.0000 F889.0
 G02 I0 J-6.8834 Z0.0000
 G02 I0 J-6.8834 Z-1.0160
@@ -105,7 +131,7 @@ G01 Y28.7274
 G03 I0 J-3.8354
 G01 Y28.2194
 G03 I0 J-3.3274
-G00 Z0.7620; (end of finish pass at 0.008)
-G00 Z0.7620 ; (Move to safe clearance)
+G00 Z2.5400; (end of finish pass at 0.008)
+G00 Z2.5400 ; (Move to safe clearance)
 G00 X0 Y0 ; (Return to home or loading position)
 M30 ; (End Program)
