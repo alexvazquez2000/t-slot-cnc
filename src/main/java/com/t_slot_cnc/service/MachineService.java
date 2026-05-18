@@ -11,6 +11,7 @@ public class MachineService {
 	//30–50 IPM (inches per minute) feed rate, with shallow depths of cut ( ~0.01-0.03").
 	//inches per minute
 	private int feedRate = 40;
+	private int drillFeedRate = 15;
 	//recommended is betwee 10k and 24K.  Speed 7 is 18,000 RPMs
 	//Speed is actually being ignored
 	private int spindleSpeed = 7; 
@@ -27,7 +28,7 @@ public class MachineService {
 			feedRate = 35;
 			cutDepthPerPass = 0.04;
 			accuracy = 0.02;
-			zGapAbove = 0.03;
+			zGapAbove = 0.1;
 		}
 		
 		if (units.equals("mm")) {
@@ -37,6 +38,7 @@ public class MachineService {
 			cutDepthPerPass *= 25.4;
 			accuracy *= 25.4;
 			zGapAbove *= 25.4;
+			drillFeedRate *= 25.4;
 		}
 	}
 
@@ -80,6 +82,10 @@ public class MachineService {
 	 */
 	public double getzGapAbove() {
 		return zGapAbove;
+	}
+
+	public double getDrillFeedRate() {
+		return drillFeedRate;
 	}
 
 }

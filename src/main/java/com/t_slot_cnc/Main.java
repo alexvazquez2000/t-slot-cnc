@@ -187,12 +187,12 @@ public class Main {
 			outFileList.add(partDesc(ext, fileName, machine));
 
 			for (int p :pattern) {
-				if (ext.getId().startsWith("15-")) {
+				if (ext.getId().startsWith("15-") || ext.getId().startsWith("40-")) {
 					//rough cut
 					response.append(counterbore(ext, machine, boreLocationX + (p *ext.getWidth()) , boreLocationY, 
 							boreDiameter - (machine.getCutDepthPerPass() * 4),
 							depthOfBore - (machine.getCutDepthPerPass() * 3) ));
-					response.append("G00 Z" + format(machine.getzGapAbove(), 4)).append("; (15- series end of first rough pass x3)\n");
+					response.append("G00 Z" + format(machine.getzGapAbove(), 4)).append("; (15X or 40X series end of first rough pass x3)\n");
 					
 				}
 				//rough cut
@@ -316,9 +316,9 @@ public class Main {
 
 		if (units.equals("inches")) {
 			//G20 Set units to inches  - G21 uses mm 
-			head.append("G20").append("\n");
+			head.append("G20; (G20  inches - G21 uses mm)").append("\n");
 		} else if (units.equals("mm")) {
-			head.append("G21").append("\n");
+			head.append("G21; (G20  inches - G21 uses mm)").append("\n");
 		} else {
 			throw new RuntimeException("Unsupported units='" + units + "'");
 		}
@@ -327,15 +327,15 @@ public class Main {
 		head.append("G90; (Set positioning to absolute mode)").append("\n");
 
 		//G17 is XY plane
-		head.append("G17").append("\n");
+		head.append("G17; (XY plane)").append("\n");
 
 		//M3 turns on the spindle clockwise (CW)
-		head.append("M3 S" + machine.getSpindleSpeed()).append("\n");
+		head.append("M3 S" + machine.getSpindleSpeed()).append("; (M3 turns spindle on, S=speed being ignored)\n");
 
 		//z-gap above material
-		head.append("G00 Z" + format(machine.getzGapAbove(),1)).append("\n");
+		head.append("G00 Z" + format(machine.getzGapAbove(),2)).append("; (gap above the material=" + machine.getzGapAbove() +")\n");
 		//Go home and turn on the spindle
-		head.append("G00 X0.0 Y0.0").append("\n");
+		head.append("G00 X0.0 Y0.0; (start to user home)").append("\n");
 
 		return head.toString();
 	}
@@ -445,7 +445,7 @@ public class Main {
 		StringBuilder path = new StringBuilder();
 		double endMillRadius = 0.25 / 2.0;
 		//the final depth
-		double z = - depthOfAccessHole - machine.getCutDepthPerPass();
+		double z = - depthOfAccessHole + machine.getCutDepthPerPass();
 
 		//Adjust the center of the circle
 		double centerX = boreLocationX - endMillRadius;
@@ -455,7 +455,7 @@ public class Main {
 		//go initial location on middle of track, away from the home
 		path.append("G01 X").append(format(centerX,4))
 		.append(" Y").append(format(centerY,4))
-		.append(" F30\n");
+		.append(" F" + machine.getDrillFeedRate() + "\n");
 
 		path.append("G01 Z").append(format(z, 4)).append("\n");
 		//This is a through hole, no need to do a last cut at the bottom
