@@ -14,7 +14,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelService {
 
-	private static final String[] HEADERS = {"ID", "File", "Units", "Type", "Y Offset", "X Center", "Size", "Width"};
+	private static final String[] HEADERS = {"ID", "File", "Units", "Type",
+			"Y Offset", "X Center", "Size", "Width",
+			"Y Offset", "X Center", "Size", "Width"
+			};
 
 	public void save(List<String> rows, String fileName) throws IOException {
 		Path file = Paths.get(fileName);
@@ -33,6 +36,9 @@ public class ExcelService {
 
 			int rowNum = 1;
 			for (String line : rows) {
+				if (line.contains("mm")) {
+					System.out.println(line);
+				}
 				String[] cols = line.split("\t");
 				Row row = sheet.createRow(rowNum++);
 				for (int i = 0; i < cols.length; i++) {

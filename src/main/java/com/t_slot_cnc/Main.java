@@ -96,7 +96,7 @@ public class Main {
 				.append(counterbore.getDiameter() + " x " + counterbore.getDepth() + " deep").append("\t")
 				.append(ext.getWidth());
 				if (ext.getUnits().equals("mm")) {
-					part.append("\n-\t-\t-\t-\t")
+					part.append("\t")
 					.append(format(counterbore.getyOffset() /25.4, 3)).append("\"\t")
 					.append(format((ext.getWidth()/2.0) /25.4, 3)).append("\"\t")
 					.append(format((counterbore.getDiameter() /25.4), 3) 
