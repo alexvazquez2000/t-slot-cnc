@@ -36,9 +36,6 @@ public class ExcelService {
 
 			int rowNum = 1;
 			for (String line : rows) {
-				if (line.contains("mm")) {
-					System.out.println(line);
-				}
 				String[] cols = line.split("\t");
 				Row row = sheet.createRow(rowNum++);
 				for (int i = 0; i < cols.length; i++) {
