@@ -260,6 +260,14 @@ public class Main {
 		return response.toString();
 	}
 
+	/**
+	 * @param ext
+	 * @param pattern
+	 * @param rows
+	 * @param multipier How tall is it?  1 or 2 
+	 * @return
+	 * @throws IOException
+	 */
 	private static String generateDrillHole(Extrusion ext, int[] pattern, int rows, int multipier) throws IOException {
 		StringBuilder response = new StringBuilder();
 
@@ -271,14 +279,24 @@ public class Main {
 		double accessHoleDiameter = accessHole.getDiameter();
 		
 		//maybe it should be in the specs, instead of calculating it here
+		double percentOfWidth = 0.85;
 		double depthOfAccessHole;
 		if (multipier == 1) {
-			depthOfAccessHole = (ext.getWidth() * 0.8)  + machine.getCutDepthPerPass();
+			depthOfAccessHole = (ext.getWidth() * percentOfWidth)  + machine.getCutDepthPerPass();
+			if (depthOfAccessHole > ext.getWidth()) {
+				//make sure it is less than the width
+				depthOfAccessHole = ext.getWidth() * 0.85;
+			}
 		} else if (multipier == 2) {
-			depthOfAccessHole = ext.getWidth() + (ext.getWidth() * 0.8)  + machine.getCutDepthPerPass();
+			depthOfAccessHole = ext.getWidth() + (ext.getWidth() * percentOfWidth)  + machine.getCutDepthPerPass();
+			if (depthOfAccessHole > multipier * ext.getWidth()) {
+				//make sure it is less than the width
+				depthOfAccessHole = multipier* ext.getWidth() * 0.85;
+			}
 		} else {
 			throw new RuntimeException("multiplier can only be 1 or 2");
 		}
+
 
 		String fileName = FileNameService.nameDrillHole(ext, pattern.length, rows, multipier);
 

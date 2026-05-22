@@ -6,11 +6,11 @@ G00 Z0.10; (gap above the material=0.1)
 G00 X0.0 Y0.0; (start to user home)
 G00 X0.5000 Y0.5000
 G01 X0.3750 Y0.6250 F15.0
-G01 Z-0.8000
+G01 Z-0.8500
 G00 Z0.1000
 G00 X0.5000 Y1.5000
 G01 X0.3750 Y1.6250 F15.0
-G01 Z-0.8000
+G01 Z-0.8500
 G00 Z0.1000
 G00 Z0.1000 ; (Move to safe clearance)
 G00 X0 Y0 ; (Return to home or loading position)
