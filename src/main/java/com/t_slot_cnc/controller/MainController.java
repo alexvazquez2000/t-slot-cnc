@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.t_slot_cnc.model.Extrusion;
 import com.t_slot_cnc.model.HoleType;
 import com.t_slot_cnc.model.MachineSettings;
+import com.t_slot_cnc.model.PartSelection;
 import com.t_slot_cnc.model.SelectionModel;
 import com.t_slot_cnc.service.ExtrusionsService;
 import com.t_slot_cnc.service.GCodeGeneratorService;
@@ -40,6 +41,18 @@ public class MainController {
 		model.setSelectedHoleType(holeType);
 	}
 
+	public void selectColumns(int numColumns) {
+		model.setNumColumns(numColumns);
+	}
+
+	public void selectRows(int numRows) {
+		model.setNumRows(numRows);
+	}
+
+	public void selectHeightMultiplier(int heightMultiplier) {
+		model.setHeightMultiplier(heightMultiplier);
+	}
+
 	public String onOkPressed() {
 		return gCodeService.generateText(model.getSelectedSeries() + model.getHoleType().getName());
 	}
@@ -48,16 +61,10 @@ public class MainController {
 		return extrusionService.getExtrusions().getExtrusionSeries();
 	}
 
-	public String getImageName() {
-		Extrusion extrusion= extrusionService.findExtrusionByName(model.getSelectedSeries());
-		if (model.getHoleType()== HoleType.COUNTERBORE) {
-			if (extrusion.getCounterbore() == null) {
-				return null;
-			} else {
-				return extrusion.getCounterbore().getImage();
-			}
-		}
-		return extrusion.getAccessHole().getImage();
+	public PartSelection getPartSelection() {
+		Extrusion extrusion = extrusionService.findExtrusionByName(model.getSelectedSeries());
+		return new PartSelection(extrusion, model.getHoleType(), model.getNumColumns(), model.getNumRows(),
+				model.getHeightMultiplier());
 	}
 
 	public MachineSettings getMachineSettings() {
