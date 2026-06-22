@@ -1,27 +1,44 @@
 package com.t_slot_cnc.service;
 
+import com.t_slot_cnc.model.MachineSettings;
+
 /**
+ * Cutting parameters for a single units system, derived from the values in
+ * specs/machine.properties (see {@link MachineSettingsService}).
+ *
  * @author Alex Vazquez <vazqueza2000@gmail.com>
  */
 public class MachineService {
-	private double endMillDiameter = 0.25;
-	
+
+	private static final MachineSettingsService SETTINGS_SERVICE = new MachineSettingsService();
+
 	//aluminum settings
 	//30–50 IPM (inches per minute) feed rate, with shallow depths of cut ( ~0.01-0.03").
 	//inches per minute
-	private int feedRate = 35;
-	private int drillFeedRate = 15;
+	private double endMillDiameter;
+	private int feedRate;
+	private int drillFeedRate;
 	//recommended is betwee 10k and 24K.  Speed 7 is 18,000 RPMs
 	//Speed is actually being ignored
-	private int spindleSpeed = 7; 
+	private int spindleSpeed;
 	// Recommended Depth of Cut (DOC): 0.01" - 0.03" (10-30% of diameter)
-	private double cutDepthPerPass = 0.04;
-	private double accuracy = 0.02;
-	
+	private double cutDepthPerPass;
+	private double accuracy;
+
 	//z-gap above material - inches
-	private double zGapAbove = 0.1;
+	private double zGapAbove;
 
 	public MachineService(String units) {
+		MachineSettings settings = SETTINGS_SERVICE.load();
+
+		endMillDiameter = settings.getEndMillDiameter();
+		feedRate = settings.getFeedRate();
+		drillFeedRate = settings.getDrillFeedRate();
+		spindleSpeed = settings.getSpindleSpeed();
+		cutDepthPerPass = settings.getCutDepthPerPass();
+		accuracy = settings.getAccuracy();
+		zGapAbove = settings.getzGapAbove();
+
 		if (units.equals("mm")) {
 			endMillDiameter *= 25.4;
 			//inches per minute to mm/minute

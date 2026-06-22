@@ -2,6 +2,7 @@ package com.t_slot_cnc.ui;
 
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 
 import com.t_slot_cnc.controller.MainController;
 
@@ -29,7 +30,14 @@ public class MainFrame extends JFrame {
 		JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, centerSplit);
 		mainSplit.setResizeWeight(0.2);
 
-		add(mainSplit);
+		MachineSettingsPanel machineSettingsPanel = new MachineSettingsPanel(
+				controller.getMachineSettings(), controller::saveMachineSettings);
+
+		JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane.addTab("Generate Parts", mainSplit);
+		tabbedPane.addTab("Machine Settings", machineSettingsPanel);
+
+		add(tabbedPane);
 	}
 
 }
