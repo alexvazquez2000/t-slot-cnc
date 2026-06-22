@@ -4,33 +4,24 @@ package com.t_slot_cnc.service;
  * @author Alex Vazquez <vazqueza2000@gmail.com>
  */
 public class MachineService {
-	//private double endMillDiameter = 0.125;
 	private double endMillDiameter = 0.25;
 	
 	//aluminum settings
 	//30–50 IPM (inches per minute) feed rate, with shallow depths of cut ( ~0.01-0.03").
 	//inches per minute
-	private int feedRate = 40;
+	private int feedRate = 35;
 	private int drillFeedRate = 15;
 	//recommended is betwee 10k and 24K.  Speed 7 is 18,000 RPMs
 	//Speed is actually being ignored
 	private int spindleSpeed = 7; 
 	// Recommended Depth of Cut (DOC): 0.01" - 0.03" (10-30% of diameter)
-	private double cutDepthPerPass = 0.02;
+	private double cutDepthPerPass = 0.04;
 	private double accuracy = 0.02;
 	
 	//z-gap above material - inches
-	private double zGapAbove = 0.2;
+	private double zGapAbove = 0.1;
 
 	public MachineService(String units) {
-		if (endMillDiameter == 0.25) {
-			//inches per minute to mm/minute
-			feedRate = 35;
-			cutDepthPerPass = 0.04;
-			accuracy = 0.02;
-			zGapAbove = 0.1;
-		}
-		
 		if (units.equals("mm")) {
 			endMillDiameter *= 25.4;
 			//inches per minute to mm/minute
