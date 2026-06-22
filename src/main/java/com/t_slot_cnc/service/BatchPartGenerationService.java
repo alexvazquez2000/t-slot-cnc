@@ -53,10 +53,10 @@ public class BatchPartGenerationService {
 				partDescriptions.add(partProgramService.generateDrillHole(ext, new int[] {0,1,2,3}, rows, 2));
 
 				//Access holes
-				partDescriptions.add(partProgramService.generateAccessHole(ext, new int[] {0}, rows));
-				partDescriptions.add(partProgramService.generateAccessHole(ext, new int[] {0,1}, rows));
-				partDescriptions.add(partProgramService.generateAccessHole(ext, new int[] {0,1,2}, rows));
-				partDescriptions.add(partProgramService.generateAccessHole(ext, new int[] {0,1,2,3}, rows));
+				//partDescriptions.add(partProgramService.generateAccessHole(ext, new int[] {0}, rows));
+				//partDescriptions.add(partProgramService.generateAccessHole(ext, new int[] {0,1}, rows));
+				//partDescriptions.add(partProgramService.generateAccessHole(ext, new int[] {0,1,2}, rows));
+				//partDescriptions.add(partProgramService.generateAccessHole(ext, new int[] {0,1,2,3}, rows));
 			}
 		}
 
