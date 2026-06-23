@@ -2,6 +2,7 @@ package com.t_slot_cnc.ui;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -41,7 +42,8 @@ public class LeftPanel extends JPanel implements ActionListener {
 		this.middlePanel = middlePanel;
 
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-
+		setPreferredSize(new Dimension(80, getPreferredSize().height));
+		
 		ButtonGroup group = new ButtonGroup();
 		List<Extrusion> exts = controller.getExtrusionSeries();
 		//Create radio buttons for each extrusion
