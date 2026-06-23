@@ -8,7 +8,7 @@ public class SelectionModel {
 	private HoleType holeType;
 	private int numColumns;
 	private int numRows;
-	private int heightMultiplier;
+	private int heightMultiplier = 1;
 
 	public String getSelectedSeries() {
 		return selectedSeries;
