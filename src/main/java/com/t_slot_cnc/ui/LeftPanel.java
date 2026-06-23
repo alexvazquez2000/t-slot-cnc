@@ -35,11 +35,13 @@ public class LeftPanel extends JPanel implements ActionListener {
 
 	private MainController controller;
 	private MiddlePanel middlePanel;
+	private RightPanel rightPanel;
 	private JPanel heightMultiplierPanel;
 
 	public LeftPanel(MainController controller, MiddlePanel middlePanel, RightPanel rightPanel) {
 		this.controller = controller;
 		this.middlePanel = middlePanel;
+		this.rightPanel = rightPanel;
 
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setPreferredSize(new Dimension(80, getPreferredSize().height));
@@ -99,10 +101,7 @@ public class LeftPanel extends JPanel implements ActionListener {
 		setEnabledRecursively(heightMultiplierPanel, true);
 
 		JButton okButton = new JButton("OK");
-		okButton.addActionListener(e -> {
-			String text = controller.onOkPressed();
-			rightPanel.setText(text);
-		});
+		okButton.addActionListener(e -> controller.onOkPressed());
 
 		add(Box.createVerticalStrut(10));
 		add(okButton);
@@ -131,6 +130,8 @@ public class LeftPanel extends JPanel implements ActionListener {
 	private void refreshDiagram() {
 		middlePanel.updateDiagram(controller.getPartSelection());
 		middlePanel.repaint();
+		rightPanel.setFileName(controller.getRecommendedFileName());
+		rightPanel.setText(controller.generateGCode());
 	}
 
 	/**

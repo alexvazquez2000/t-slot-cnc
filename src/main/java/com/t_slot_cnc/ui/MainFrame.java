@@ -20,7 +20,7 @@ public class MainFrame extends JFrame {
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 
-		RightPanel rightPanel = new RightPanel();
+		RightPanel rightPanel = new RightPanel(controller::saveGCode);
 		MiddlePanel middlePanel = new MiddlePanel();
 		LeftPanel leftPanel = new LeftPanel(controller, middlePanel, rightPanel);
 

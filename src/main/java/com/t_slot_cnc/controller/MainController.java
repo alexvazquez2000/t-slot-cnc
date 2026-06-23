@@ -11,8 +11,10 @@ import com.t_slot_cnc.model.MachineSettings;
 import com.t_slot_cnc.model.PartSelection;
 import com.t_slot_cnc.model.SelectionModel;
 import com.t_slot_cnc.service.ExtrusionsService;
+import com.t_slot_cnc.service.FileNameService;
 import com.t_slot_cnc.service.GCodeGeneratorService;
 import com.t_slot_cnc.service.MachineSettingsService;
+import com.t_slot_cnc.service.PartProgramService;
 
 /**
  * @author Alex Vazquez <vazqueza2000@gmail.com>
@@ -21,15 +23,17 @@ import com.t_slot_cnc.service.MachineSettingsService;
 public class MainController {
 	private final SelectionModel model;
 	private final GCodeGeneratorService gCodeService;
-	private final ExtrusionsService extrusionService ;
+	private final ExtrusionsService extrusionService;
 	private final MachineSettingsService machineSettingsService;
+	private final PartProgramService partProgramService;
 
 
 	public MainController(ExtrusionsService extrusionService, GCodeGeneratorService gCodeService,
-			MachineSettingsService machineSettingsService) {
+			MachineSettingsService machineSettingsService, PartProgramService partProgramService) {
 		this.extrusionService = extrusionService;
 		this.gCodeService = gCodeService;
 		this.machineSettingsService = machineSettingsService;
+		this.partProgramService = partProgramService;
 		this.model = new SelectionModel();
 	}
 
@@ -65,6 +69,47 @@ public class MainController {
 		Extrusion extrusion = extrusionService.findExtrusionByName(model.getSelectedSeries());
 		return new PartSelection(extrusion, model.getHoleType(), model.getNumColumns(), model.getNumRows(),
 				model.getHeightMultiplier());
+	}
+
+	public String getRecommendedFileName() {
+		Extrusion ext = extrusionService.findExtrusionByName(model.getSelectedSeries());
+		if (ext == null) return "";
+		int[] pattern = buildPattern(model.getNumColumns());
+		if (model.getHoleType() == HoleType.COUNTERBORE) {
+			return FileNameService.nameCounterbore(ext, ext.getCounterbore(), pattern.length);
+		}
+		return FileNameService.nameDrillHole(ext, pattern.length, model.getNumRows(), model.getHeightMultiplier());
+	}
+
+	public String generateGCode() {
+		Extrusion ext = extrusionService.findExtrusionByName(model.getSelectedSeries());
+		if (ext == null) return "";
+		int[] pattern = buildPattern(model.getNumColumns());
+		if (model.getHoleType() == HoleType.COUNTERBORE) {
+			return partProgramService.buildCounterboreText(ext, pattern);
+		}
+		return partProgramService.buildDrillHoleText(ext, pattern, model.getNumRows(), model.getHeightMultiplier());
+	}
+
+	public void saveGCode() {
+		Extrusion ext = extrusionService.findExtrusionByName(model.getSelectedSeries());
+		if (ext == null) return;
+		int[] pattern = buildPattern(model.getNumColumns());
+		try {
+			if (model.getHoleType() == HoleType.COUNTERBORE) {
+				partProgramService.generateCounterbore(ext, pattern);
+			} else {
+				partProgramService.generateDrillHole(ext, pattern, model.getNumRows(), model.getHeightMultiplier());
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to save G-code", e);
+		}
+	}
+
+	private int[] buildPattern(int numColumns) {
+		int[] pattern = new int[numColumns];
+		for (int i = 0; i < numColumns; i++) pattern[i] = i;
+		return pattern;
 	}
 
 	public MachineSettings getMachineSettings() {
