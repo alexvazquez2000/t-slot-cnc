@@ -97,9 +97,8 @@ public class PartProgramService {
 		double boreLocationY = accessHole.getyOffset();
 		double accessHoleDiameter = accessHole.getDiameter();
 		double topOfSlot = ext.getDepthToTopOfSlot();
-		double coreWidth = ext.getWidth() - 2*topOfSlot;
-		//maybe it should be in the specs, instead of calculating it here
-		double depthOfAccessHole = topOfSlot + coreWidth + machine.getCutDepthPerPass();
+		//FIXME: We need to add the parameter if we need the double height - hardcoded one for now
+		double depthOfAccessHole = computeHoleDepth(ext, machine, 1);
 
 		String fileName = FileNameService.nameAccessHole(ext, accessHole, pattern.length, rows);
 		String description = partDescriptionService.describe(ext, fileName, machine);
@@ -133,25 +132,7 @@ public class PartProgramService {
 		double boreLocationX = ext.getWidth() / 2.0;
 		double boreLocationY = accessHole.getyOffset();
 		double accessHoleDiameter = accessHole.getDiameter();
-
-		//maybe it should be in the specs, instead of calculating it here
-		double percentOfWidth = 0.85;
-		double depthOfAccessHole;
-		if (multiplier == 1) {
-			depthOfAccessHole = (ext.getWidth() * percentOfWidth)  + machine.getCutDepthPerPass();
-			if (depthOfAccessHole > ext.getWidth()) {
-				//make sure it is less than the width
-				depthOfAccessHole = ext.getWidth() * 0.85;
-			}
-		} else if (multiplier == 2) {
-			depthOfAccessHole = ext.getWidth() + (ext.getWidth() * percentOfWidth)  + machine.getCutDepthPerPass();
-			if (depthOfAccessHole > multiplier * ext.getWidth()) {
-				//make sure it is less than the width
-				depthOfAccessHole = multiplier* ext.getWidth() * 0.85;
-			}
-		} else {
-			throw new RuntimeException("multiplier can only be 1 or 2");
-		}
+		double depthOfAccessHole = computeHoleDepth(ext, machine, multiplier);
 
 		String fileName = FileNameService.nameDrillHole(ext, pattern.length, rows, multiplier);
 		String description = partDescriptionService.describe(ext, fileName, machine);
@@ -171,5 +152,32 @@ public class PartProgramService {
 
 		gCodeFileService.write(response.toString(), fileName);
 		return description;
+	}
+
+	/**
+	 * Depth of an axial access/drill hole, drilled in from the end of the extrusion.
+	 *
+	 * @param multiplier How tall is it?  1 or 2
+	 */
+	public static double computeHoleDepth(Extrusion ext, MachineService machine, int multiplier) {
+		//maybe it should be in the specs, instead of calculating it here
+		double percentOfWidth = 0.85;
+		double depthOfHole;
+		if (multiplier == 1) {
+			depthOfHole = (ext.getWidth() * percentOfWidth) + machine.getCutDepthPerPass();
+			if (depthOfHole > ext.getWidth()) {
+				//make sure it is less than the width
+				depthOfHole = ext.getWidth() * 0.85;
+			}
+		} else if (multiplier == 2) {
+			depthOfHole = ext.getWidth() + (ext.getWidth() * percentOfWidth) + machine.getCutDepthPerPass();
+			if (depthOfHole > multiplier * ext.getWidth()) {
+				//make sure it is less than the width
+				depthOfHole = multiplier * ext.getWidth() * 0.85;
+			}
+		} else {
+			throw new RuntimeException("multiplier can only be 1 or 2");
+		}
+		return depthOfHole;
 	}
 }

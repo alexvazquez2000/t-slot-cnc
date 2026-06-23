@@ -19,6 +19,8 @@ import com.t_slot_cnc.model.Counterbore;
 import com.t_slot_cnc.model.Extrusion;
 import com.t_slot_cnc.model.HoleType;
 import com.t_slot_cnc.model.PartSelection;
+import com.t_slot_cnc.service.MachineService;
+import com.t_slot_cnc.service.PartProgramService;
 
 /**
  * Draws a dimensioned diagram of a single extrusion piece: a length view showing the
@@ -92,7 +94,9 @@ public class MiddlePanel extends JPanel {
 			AccessHole accessHole = extrusion.getAccessHole();
 			diameter = accessHole.getDiameter();
 			yOffset = accessHole.getyOffset();
-			calloutText = "Ø" + diameter + units + " TYP.";
+			MachineService machine = new MachineService(extrusion.getUnits());
+			double depthOfAccessHole = PartProgramService.computeHoleDepth(extrusion, machine, heightMultiplier);
+			calloutText = "Ø" + diameter + units + " TYP. x " + depthOfAccessHole + units + " deep";
 		}
 
 		double unitWidth = extrusion.getWidth();
@@ -182,7 +186,25 @@ public class MiddlePanel extends JPanel {
 			g2.setColor(Color.LIGHT_GRAY);
 			g2.draw(new Line2D.Double(x, top, x, top + thicknessPx));
 		}
-
+		
+		//Draw the X on the extrusion
+		g2.setColor(Color.LIGHT_GRAY);
+		g2.setStroke(new BasicStroke(2.5f));
+		for (int c = 0; c < columns; c++) {
+			int x1 = barX + (int) Math.round(c * unitWidth * scale);
+			int x2 = barX + (int) Math.round( (c+1) * unitWidth * scale);
+			
+			g2.draw(new Line2D.Double(x1, top, x2, top + unitWidth* scale));
+			g2.draw(new Line2D.Double(x2, top, x1, top + unitWidth* scale));
+			
+			if (heightMultiplier == 2) {
+				double tempTop = top + unitWidth* scale;
+				g2.draw(new Line2D.Double(x1, tempTop, x2, tempTop + unitWidth* scale));
+				g2.draw(new Line2D.Double(x2, tempTop, x1, tempTop + unitWidth* scale));
+			}
+		}
+		
+		g2.setStroke(new BasicStroke(1.5f));
 		drawVerticalDimension(g2, barX - DIMENSION_OFFSET, top, top + thicknessPx, thicknessInches);
 		drawHorizontalDimension(g2, barX, barX + pieceWidthPx, top + thicknessPx + DIMENSION_OFFSET, pieceWidthInches);
 	}
