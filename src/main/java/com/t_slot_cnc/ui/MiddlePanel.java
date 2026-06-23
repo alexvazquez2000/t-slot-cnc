@@ -133,15 +133,19 @@ public class MiddlePanel extends JPanel {
 		int pieceHeightPx = (int) Math.round(pieceLengthInches * scale);
 		int barX = (getWidth() - pieceWidthPx) / 2;
 
+		int bottom = top + pieceHeightPx;
+
 		g2.setStroke(new BasicStroke(1.5f));
 		g2.setColor(Color.DARK_GRAY);
 		g2.draw(new Rectangle2D.Double(barX, top, pieceWidthPx, pieceHeightPx));
-		drawBreak(g2, barX, top + pieceHeightPx, pieceWidthPx);
+		//Break at the top: the extrusion continues beyond this end (the drill entry is at the bottom)
+		drawBreak(g2, barX, top, pieceWidthPx);
 
 		double holeDiameterPx = Math.max(4, diameter * scale);
 		boolean calloutDrawn = false;
 		for (int r = 0; r < rows; r++) {
-			int holeY = top + (int) Math.round((yOffset + r * unitWidth) * scale);
+			//Holes measured from the bottom (drill-entry end) upward
+			int holeY = bottom - (int) Math.round((yOffset + r * unitWidth) * scale);
 
 			for (int c = 0; c < columns; c++) {
 				int holeX = barX + (int) Math.round((c + 0.5) * unitWidth * scale);
@@ -152,7 +156,7 @@ public class MiddlePanel extends JPanel {
 
 				if (r == 0 && c == 1) {
 					drawHorizontalDimension(g2, barX, barX + (int) Math.round(unitWidth * scale),
-							top - DIMENSION_OFFSET, unitWidth);
+							bottom + DIMENSION_OFFSET, unitWidth);
 				}
 
 				if (!calloutDrawn) {
@@ -162,8 +166,8 @@ public class MiddlePanel extends JPanel {
 			}
 
 			double fromInches = (r == 0) ? yOffset : unitWidth;
-			int fromY = (r == 0) ? top : top + (int) Math.round((yOffset + (r - 1) * unitWidth) * scale);
-			drawVerticalDimension(g2, barX - DIMENSION_OFFSET, fromY, holeY, fromInches);
+			int fromY = (r == 0) ? bottom : bottom - (int) Math.round((yOffset + (r - 1) * unitWidth) * scale);
+			drawVerticalDimension(g2, barX - DIMENSION_OFFSET, holeY, fromY, fromInches);
 		}
 	}
 
@@ -285,9 +289,9 @@ public class MiddlePanel extends JPanel {
 
 	private void drawCallout(Graphics2D g2, int x, int y, double holeDiameter, String text) {
 		g2.setColor(Color.BLACK);
-		int yOffset = (int) (holeDiameter * 1.2);
-		g2.draw(new Line2D.Double(x, y, x + 20, y + yOffset));
-		g2.drawString(text, x + 24, y + 4 + yOffset);
+		int yOffset = (int) (holeDiameter * 0.8);
+		g2.draw(new Line2D.Double(x, y, x + 20, y - yOffset));
+		g2.drawString(text, x + 24, y - 4 - yOffset);
 	}
 
 	private void drawCenteredMessage(Graphics2D g2, String message) {
