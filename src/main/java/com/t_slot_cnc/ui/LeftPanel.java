@@ -36,6 +36,7 @@ public class LeftPanel extends JPanel implements ActionListener {
 	private MainController controller;
 	private MiddlePanel middlePanel;
 	private RightPanel rightPanel;
+	private JPanel rowsPanel;
 	private JPanel heightMultiplierPanel;
 
 	public LeftPanel(MainController controller, MiddlePanel middlePanel, RightPanel rightPanel) {
@@ -91,8 +92,9 @@ public class LeftPanel extends JPanel implements ActionListener {
 		add(Box.createVerticalStrut(10));
 		add(createIntChoicePanel("Columns:", new int[] {1,2,3,4}, 1,
 				value -> { controller.selectColumns(value); refreshDiagram(); }));
-		add(createIntChoicePanel("Rows:", new int[] {1,2}, 1,
-				value -> { controller.selectRows(value); refreshDiagram(); }));
+		rowsPanel = createIntChoicePanel("Rows:", new int[] {1,2}, 1,
+				value -> { controller.selectRows(value); refreshDiagram(); });
+		add(rowsPanel);
 
 		heightMultiplierPanel = createIntChoicePanel("Height Multiplier:", new int[] {1,2}, 1,
 				value -> { controller.selectHeightMultiplier(value); refreshDiagram(); });
@@ -114,10 +116,14 @@ public class LeftPanel extends JPanel implements ActionListener {
 		if (e.getSource() instanceof JRadioButton radioButton) {
 			if (radioButton.getName().equals(HoleType.ACCESS_HOLE.getName())) {
 				controller.selectHoleType(HoleType.ACCESS_HOLE);
+				setEnabledRecursively(rowsPanel, true);
 				setEnabledRecursively(heightMultiplierPanel, true);
 			} else if (radioButton.getName().equals(HoleType.COUNTERBORE.getName())) {
 				controller.selectHoleType(HoleType.COUNTERBORE);
+				setEnabledRecursively(rowsPanel, false);
 				setEnabledRecursively(heightMultiplierPanel, false);
+				selectInPanel(rowsPanel, "1");
+				controller.selectRows(1);
 			} else {
 				controller.selectSeries(radioButton.getName());
 			}
@@ -160,6 +166,15 @@ public class LeftPanel extends JPanel implements ActionListener {
 		if (component instanceof Container container) {
 			for (Component child : container.getComponents()) {
 				setEnabledRecursively(child, enabled);
+			}
+		}
+	}
+
+	private void selectInPanel(JPanel panel, String label) {
+		for (Component c : panel.getComponents()) {
+			if (c instanceof JRadioButton radio && radio.getText().equals(label)) {
+				radio.setSelected(true);
+				break;
 			}
 		}
 	}
