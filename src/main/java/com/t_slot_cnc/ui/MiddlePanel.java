@@ -34,12 +34,12 @@ public class MiddlePanel extends JPanel {
 	/** Serialize */
 	private static final long serialVersionUID = -4293176338824464453L;
 
-	private static final int MARGIN = 40;
+	private static final int MARGIN = 60;
 	private static final int TITLE_HEIGHT = 30;
 	private static final int SECTION_LABEL_HEIGHT = 18;
 	private static final int SECTION_GAP = 20;
 	private static final int DIMENSION_OFFSET = 18;
-	private static final double MIN_SCALE = 8;
+	private static final double MIN_SCALE = 1;
 	private static final double MAX_SCALE = 150;
 	private static final double END_VIEW_HEIGHT_FRACTION = 0.3;
 
@@ -76,6 +76,7 @@ public class MiddlePanel extends JPanel {
 		int columns = Math.max(1, selection.getNumColumns());
 		int rows = Math.max(1, selection.getNumRows());
 		int heightMultiplier = Math.max(1, selection.getHeightMultiplier());
+		double depthOfAccessHole = 0.0d;
 
 		String units = extrusion.getUnits().equals("inches")?"\"":"mm";
 		double diameter;
@@ -95,7 +96,7 @@ public class MiddlePanel extends JPanel {
 			diameter = accessHole.getDiameter();
 			yOffset = accessHole.getyOffset();
 			MachineService machine = new MachineService(extrusion.getUnits());
-			double depthOfAccessHole = PartProgramService.computeHoleDepth(extrusion, machine, heightMultiplier);
+			depthOfAccessHole = PartProgramService.computeHoleDepth(extrusion, machine, heightMultiplier);
 			calloutText = "Ø" + diameter + units + " TYP. x " + depthOfAccessHole + units + " deep";
 		}
 
@@ -115,7 +116,7 @@ public class MiddlePanel extends JPanel {
 		int endViewLabelTop = lengthViewTop + lengthViewHeight + SECTION_GAP;
 		int endViewTop = endViewLabelTop + SECTION_LABEL_HEIGHT;
 		drawSectionLabel(g2, "End View (cross-section thickness)", endViewLabelTop);
-		drawEndView(g2, columns, unitWidth, heightMultiplier, endViewTop, endViewHeight);
+		drawEndView(g2, columns, unitWidth, heightMultiplier, endViewTop, endViewHeight, diameter, depthOfAccessHole);
 	}
 
 	private void drawLengthView(Graphics2D g2, int columns, int rows, double unitWidth, double yOffset,
@@ -165,7 +166,7 @@ public class MiddlePanel extends JPanel {
 	}
 
 	private void drawEndView(Graphics2D g2, int columns, double unitWidth, int heightMultiplier, int top,
-			int availableHeight) {
+			int availableHeight, double diameter, double depthOfAccessHole) {
 		double pieceWidthInches = columns * unitWidth;
 		double thicknessInches = unitWidth * heightMultiplier;
 
@@ -202,6 +203,13 @@ public class MiddlePanel extends JPanel {
 				g2.draw(new Line2D.Double(x1, tempTop, x2, tempTop + unitWidth* scale));
 				g2.draw(new Line2D.Double(x2, tempTop, x1, tempTop + unitWidth* scale));
 			}
+		
+			//Draw the hole from the side view
+			int width = (int) Math.round(diameter*scale);
+			int topCenter = (int)((x1 + x2) /2 - (width/2)); 
+			g2.setColor(Color.GRAY);
+			g2.fillRect(topCenter, top, width, (int) Math.round(depthOfAccessHole* scale) );
+			g2.setColor(Color.LIGHT_GRAY);
 		}
 		
 		g2.setStroke(new BasicStroke(1.5f));
@@ -214,7 +222,10 @@ public class MiddlePanel extends JPanel {
 		double scaleByHeight = availableHeight / lengthInches;
 
 		double scale = Math.min(scaleByWidth, scaleByHeight);
-		return Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
+		double finalScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
+		System.out.println("Scale is " + finalScale);
+		return finalScale;
+		
 	}
 
 	private void drawTitle(Graphics2D g2, String title) {
