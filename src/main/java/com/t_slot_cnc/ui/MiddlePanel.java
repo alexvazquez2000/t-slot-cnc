@@ -19,6 +19,7 @@ import com.t_slot_cnc.model.Counterbore;
 import com.t_slot_cnc.model.Extrusion;
 import com.t_slot_cnc.model.HoleType;
 import com.t_slot_cnc.model.PartSelection;
+import com.t_slot_cnc.service.GCodeFormat;
 import com.t_slot_cnc.service.MachineService;
 import com.t_slot_cnc.service.PartProgramService;
 
@@ -76,7 +77,7 @@ public class MiddlePanel extends JPanel {
 		int columns = Math.max(1, selection.getNumColumns());
 		int rows = Math.max(1, selection.getNumRows());
 		int heightMultiplier = Math.max(1, selection.getHeightMultiplier());
-		double depthOfAccessHole = 0.0d;
+		double depthOfHole = 0.0d;
 
 		String units = extrusion.getUnits().equals("inches")?"\"":"mm";
 		double diameter;
@@ -91,13 +92,14 @@ public class MiddlePanel extends JPanel {
 			diameter = counterbore.getDiameter();
 			yOffset = counterbore.getyOffset();
 			calloutText = "Ø" + diameter + units +" x " + counterbore.getDepth() + units + " deep";
+			depthOfHole = counterbore.getDepth();
 		} else {
 			AccessHole accessHole = extrusion.getAccessHole();
 			diameter = accessHole.getDiameter();
 			yOffset = accessHole.getyOffset();
 			MachineService machine = new MachineService(extrusion.getUnits());
-			depthOfAccessHole = PartProgramService.computeHoleDepth(extrusion, machine, heightMultiplier);
-			calloutText = "Ø" + diameter + units + " TYP. x " + depthOfAccessHole + units + " deep";
+			depthOfHole = PartProgramService.computeHoleDepth(extrusion, machine, heightMultiplier);
+			calloutText = "Ø" + diameter + units + " TYP. x " + GCodeFormat.format(depthOfHole,4) + units + " deep";
 		}
 
 		double unitWidth = extrusion.getWidth();
@@ -116,13 +118,13 @@ public class MiddlePanel extends JPanel {
 		int endViewLabelTop = lengthViewTop + lengthViewHeight + SECTION_GAP;
 		int endViewTop = endViewLabelTop + SECTION_LABEL_HEIGHT;
 		drawSectionLabel(g2, "End View (cross-section thickness)", endViewLabelTop);
-		drawEndView(g2, columns, unitWidth, heightMultiplier, endViewTop, endViewHeight, diameter, depthOfAccessHole);
+		drawEndView(g2, columns, unitWidth, heightMultiplier, endViewTop, endViewHeight, diameter, depthOfHole);
 	}
 
 	private void drawLengthView(Graphics2D g2, int columns, int rows, double unitWidth, double yOffset,
 			double diameter, String calloutText, int top, int availableHeight) {
 		double pieceWidthInches = columns * unitWidth;
-		double pieceLengthInches = yOffset * 2 + (rows - 1) * unitWidth;
+		double pieceLengthInches = yOffset * 3 + (rows - 1) * unitWidth;
 
 		int availableWidth = getWidth() - 2 * MARGIN;
 		double scale = computeScale(availableWidth, availableHeight, pieceWidthInches, pieceLengthInches);
@@ -154,7 +156,7 @@ public class MiddlePanel extends JPanel {
 				}
 
 				if (!calloutDrawn) {
-					drawCallout(g2, holeX + (int) (holeDiameterPx / 2), holeY, calloutText);
+					drawCallout(g2, holeX + (int) (holeDiameterPx / 2), holeY, holeDiameterPx, calloutText);
 					calloutDrawn = true;
 				}
 			}
@@ -166,7 +168,7 @@ public class MiddlePanel extends JPanel {
 	}
 
 	private void drawEndView(Graphics2D g2, int columns, double unitWidth, int heightMultiplier, int top,
-			int availableHeight, double diameter, double depthOfAccessHole) {
+			int availableHeight, double diameter, double depthOfHole) {
 		double pieceWidthInches = columns * unitWidth;
 		double thicknessInches = unitWidth * heightMultiplier;
 
@@ -208,7 +210,7 @@ public class MiddlePanel extends JPanel {
 			int width = (int) Math.round(diameter*scale);
 			int topCenter = (int)((x1 + x2) /2 - (width/2)); 
 			g2.setColor(Color.GRAY);
-			g2.fillRect(topCenter, top, width, (int) Math.round(depthOfAccessHole* scale) );
+			g2.fillRect(topCenter, top, width, (int) Math.round(depthOfHole* scale) );
 			g2.setColor(Color.LIGHT_GRAY);
 		}
 		
@@ -222,10 +224,7 @@ public class MiddlePanel extends JPanel {
 		double scaleByHeight = availableHeight / lengthInches;
 
 		double scale = Math.min(scaleByWidth, scaleByHeight);
-		double finalScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
-		System.out.println("Scale is " + finalScale);
-		return finalScale;
-		
+		return Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
 	}
 
 	private void drawTitle(Graphics2D g2, String title) {
@@ -284,9 +283,9 @@ public class MiddlePanel extends JPanel {
 		g2.drawString(label, (fromX + toX - fm.stringWidth(label)) / 2, y - 6);
 	}
 
-	private void drawCallout(Graphics2D g2, int x, int y, String text) {
+	private void drawCallout(Graphics2D g2, int x, int y, double holeDiameter, String text) {
 		g2.setColor(Color.BLACK);
-		int yOffset = 10;
+		int yOffset = (int) (holeDiameter * 1.2);
 		g2.draw(new Line2D.Double(x, y, x + 20, y + yOffset));
 		g2.drawString(text, x + 24, y + 4 + yOffset);
 	}
