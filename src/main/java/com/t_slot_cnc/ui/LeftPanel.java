@@ -13,6 +13,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
@@ -102,11 +103,19 @@ public class LeftPanel extends JPanel implements ActionListener {
 		//Height multiplier only applies to Access Hole - Counterbore is unaffected by stacked extrusions
 		setEnabledRecursively(heightMultiplierPanel, true);
 
-		JButton okButton = new JButton("OK");
-		okButton.addActionListener(e -> controller.onOkPressed());
+		JButton generateAllButton = new JButton("Generate all toolpaths");
+		generateAllButton.addActionListener(e -> {
+			try {
+				controller.generateAllToolpaths();
+				JOptionPane.showMessageDialog(this, "All toolpaths generated successfully.");
+			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(this, "Generation failed: " + ex.getMessage(),
+						"Error", JOptionPane.ERROR_MESSAGE);
+			}
+		});
 
 		add(Box.createVerticalStrut(10));
-		add(okButton);
+		add(generateAllButton);
 
 		refreshDiagram();
 	}

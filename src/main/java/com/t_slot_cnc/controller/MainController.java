@@ -10,6 +10,7 @@ import com.t_slot_cnc.model.HoleType;
 import com.t_slot_cnc.model.MachineSettings;
 import com.t_slot_cnc.model.PartSelection;
 import com.t_slot_cnc.model.SelectionModel;
+import com.t_slot_cnc.service.BatchPartGenerationService;
 import com.t_slot_cnc.service.ExtrusionsService;
 import com.t_slot_cnc.service.FileNameService;
 import com.t_slot_cnc.service.GCodeGeneratorService;
@@ -26,14 +27,17 @@ public class MainController {
 	private final ExtrusionsService extrusionService;
 	private final MachineSettingsService machineSettingsService;
 	private final PartProgramService partProgramService;
+	private final BatchPartGenerationService batchPartGenerationService;
 
 
 	public MainController(ExtrusionsService extrusionService, GCodeGeneratorService gCodeService,
-			MachineSettingsService machineSettingsService, PartProgramService partProgramService) {
+			MachineSettingsService machineSettingsService, PartProgramService partProgramService,
+			BatchPartGenerationService batchPartGenerationService) {
 		this.extrusionService = extrusionService;
 		this.gCodeService = gCodeService;
 		this.machineSettingsService = machineSettingsService;
 		this.partProgramService = partProgramService;
+		this.batchPartGenerationService = batchPartGenerationService;
 		this.model = new SelectionModel();
 	}
 
@@ -69,6 +73,14 @@ public class MainController {
 		Extrusion extrusion = extrusionService.findExtrusionByName(model.getSelectedSeries());
 		return new PartSelection(extrusion, model.getHoleType(), model.getNumColumns(), model.getNumRows(),
 				model.getHeightMultiplier());
+	}
+
+	public void generateAllToolpaths() {
+		try {
+			batchPartGenerationService.generateAll(extrusionService.getExtrusions().getExtrusionSeries());
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to generate all toolpaths", e);
+		}
 	}
 
 	public String getRecommendedFileName() {
