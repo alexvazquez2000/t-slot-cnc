@@ -1,66 +1,71 @@
 package com.t_slot_cnc.ui;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.util.function.Consumer;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-
 import com.t_slot_cnc.model.MachineSettings;
+
+import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 
 /**
  * Lets the user view and edit the machine cutting parameters (specs/machine.properties).
  *
  * @author Alex Vazquez <vazqueza2000@gmail.com>
  */
-public class MachineSettingsPanel extends JPanel {
+public class MachineSettingsPanel extends GridPane {
 
-	/** Serialize */
-	private static final long serialVersionUID = 1L;
-
-	private final JTextField endMillDiameterField;
-	private final JTextField feedRateField;
-	private final JTextField drillFeedRateField;
-	private final JTextField spindleSpeedField;
-	private final JTextField cutDepthPerPassField;
-	private final JTextField accuracyField;
-	private final JTextField zGapAboveField;
+	private final TextField endMillDiameterField;
+	private final TextField feedRateField;
+	private final TextField drillFeedRateField;
+	private final TextField spindleSpeedField;
+	private final TextField cutDepthPerPassField;
+	private final TextField accuracyField;
+	private final TextField zGapAboveField;
 
 	public MachineSettingsPanel(MachineSettings settings, Consumer<MachineSettings> onSave) {
-		setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.insets = new Insets(6, 6, 6, 6);
-		c.anchor = GridBagConstraints.WEST;
+		setHgap(8);
+		setVgap(6);
+		setPadding(new Insets(10));
 
-		endMillDiameterField = new JTextField(String.valueOf(settings.getEndMillDiameter()), 10);
-		feedRateField = new JTextField(String.valueOf(settings.getFeedRate()), 10);
-		drillFeedRateField = new JTextField(String.valueOf(settings.getDrillFeedRate()), 10);
-		spindleSpeedField = new JTextField(String.valueOf(settings.getSpindleSpeed()), 10);
-		cutDepthPerPassField = new JTextField(String.valueOf(settings.getCutDepthPerPass()), 10);
-		accuracyField = new JTextField(String.valueOf(settings.getAccuracy()), 10);
-		zGapAboveField = new JTextField(String.valueOf(settings.getzGapAbove()), 10);
+		ColumnConstraints labelCol = new ColumnConstraints();
+		labelCol.setHgrow(Priority.NEVER);
+		ColumnConstraints fieldCol = new ColumnConstraints();
+		fieldCol.setHgrow(Priority.ALWAYS);
+		fieldCol.setFillWidth(true);
+		getColumnConstraints().addAll(labelCol, fieldCol);
+
+		endMillDiameterField = new TextField(String.valueOf(settings.getEndMillDiameter()));
+		feedRateField = new TextField(String.valueOf(settings.getFeedRate()));
+		drillFeedRateField = new TextField(String.valueOf(settings.getDrillFeedRate()));
+		spindleSpeedField = new TextField(String.valueOf(settings.getSpindleSpeed()));
+		cutDepthPerPassField = new TextField(String.valueOf(settings.getCutDepthPerPass()));
+		accuracyField = new TextField(String.valueOf(settings.getAccuracy()));
+		zGapAboveField = new TextField(String.valueOf(settings.getzGapAbove()));
 
 		int row = 0;
-		row = addRow(c, row, "End Mill Diameter (in):", endMillDiameterField);
-		row = addRow(c, row, "Feed Rate (in/min):", feedRateField);
-		row = addRow(c, row, "Drill Feed Rate (in/min):", drillFeedRateField);
-		row = addRow(c, row, "Spindle Speed:", spindleSpeedField);
-		row = addRow(c, row, "Cut Depth Per Pass (in):", cutDepthPerPassField);
-		row = addRow(c, row, "Accuracy (in):", accuracyField);
-		row = addRow(c, row, "Z Gap Above (in):", zGapAboveField);
+		row = addRow(row, "End Mill Diameter (in):", endMillDiameterField);
+		row = addRow(row, "Feed Rate (in/min):", feedRateField);
+		row = addRow(row, "Drill Feed Rate (in/min):", drillFeedRateField);
+		row = addRow(row, "Spindle Speed:", spindleSpeedField);
+		row = addRow(row, "Cut Depth Per Pass (in):", cutDepthPerPassField);
+		row = addRow(row, "Accuracy (in):", accuracyField);
+		row = addRow(row, "Z Gap Above (in):", zGapAboveField);
 
-		JButton saveButton = new JButton("Save");
-		saveButton.addActionListener(e -> save(onSave));
+		Button saveButton = new Button("Save");
+		saveButton.setOnAction(e -> save(onSave));
+		add(saveButton, 0, row, 2, 1);
+	}
 
-		c.gridx = 0;
-		c.gridy = row;
-		c.gridwidth = 2;
-		add(saveButton, c);
+	private int addRow(int row, String label, TextField field) {
+		add(new Label(label), 0, row);
+		add(field, 1, row);
+		return row + 1;
 	}
 
 	private void save(Consumer<MachineSettings> onSave) {
@@ -75,23 +80,10 @@ public class MachineSettingsPanel extends JPanel {
 			updated.setzGapAbove(Double.parseDouble(zGapAboveField.getText().trim()));
 
 			onSave.accept(updated);
-			JOptionPane.showMessageDialog(this, "Machine settings saved.");
+			new Alert(Alert.AlertType.INFORMATION, "Machine settings saved.").showAndWait();
 		} catch (NumberFormatException ex) {
-			JOptionPane.showMessageDialog(this, "Please enter valid numbers for all fields.",
-					"Invalid input", JOptionPane.ERROR_MESSAGE);
+			new Alert(Alert.AlertType.ERROR, "Please enter valid numbers for all fields.").showAndWait();
 		}
-	}
-
-	private int addRow(GridBagConstraints c, int row, String label, JTextField field) {
-		c.gridx = 0;
-		c.gridy = row;
-		c.gridwidth = 1;
-		add(new JLabel(label), c);
-
-		c.gridx = 1;
-		add(field, c);
-
-		return row + 1;
 	}
 
 }

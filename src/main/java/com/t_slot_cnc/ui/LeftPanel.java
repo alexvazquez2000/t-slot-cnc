@@ -1,191 +1,146 @@
 package com.t_slot_cnc.ui;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.function.IntConsumer;
-
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.t_slot_cnc.controller.MainController;
 import com.t_slot_cnc.model.Extrusion;
 import com.t_slot_cnc.model.HoleType;
 
+import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.Separator;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+
 /**
  * @author Alex Vazquez <vazqueza2000@gmail.com>
  */
-public class LeftPanel extends JPanel implements ActionListener {
+public class LeftPanel extends VBox {
 
-	/** Serialize */
-	private static final long serialVersionUID = 8978598811708208648L;
-
-	private static final Logger logger = LoggerFactory.getLogger(LeftPanel.class); // Get the SLF4J logger instance
-
-	private MainController controller;
-	private MiddlePanel middlePanel;
-	private RightPanel rightPanel;
-	private JPanel rowsPanel;
-	private JPanel heightMultiplierPanel;
+	private HBox rowsBox;
+	private HBox heightMultiplierBox;
+	private ToggleGroup rowsGroup;
 
 	public LeftPanel(MainController controller, MiddlePanel middlePanel, RightPanel rightPanel) {
-		this.controller = controller;
-		this.middlePanel = middlePanel;
-		this.rightPanel = rightPanel;
+		setSpacing(4);
+		setPadding(new Insets(6));
+		setPrefWidth(170);
 
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		setPreferredSize(new Dimension(80, getPreferredSize().height));
-		
-		ButtonGroup group = new ButtonGroup();
+		// Extrusion series
+		ToggleGroup seriesGroup = new ToggleGroup();
 		List<Extrusion> exts = controller.getExtrusionSeries();
-		//Create radio buttons for each extrusion
-		JRadioButton[] radioExt = new JRadioButton[exts.size()];
-		int i = 0;
-		for (Extrusion ext : exts) {
-			radioExt[i] = new JRadioButton(ext.getId());
-			radioExt[i].setName(ext.getId());
-			group.add(radioExt[i]);
-			radioExt[i].addActionListener(this);
-			add(radioExt[i]);
-
-			logger.warn("id={} d={}" , ext.getId(), ext.getAccessHole().getDiameter());
-			if (i==0) {
-				//select the first one - we could also save the last choice made and select it
-				radioExt[i].setSelected(true);
+		for (int i = 0; i < exts.size(); i++) {
+			Extrusion ext = exts.get(i);
+			RadioButton rb = new RadioButton(ext.getId());
+			rb.setToggleGroup(seriesGroup);
+			rb.setOnAction(e -> {
+				controller.selectSeries(ext.getId());
+				refresh(controller, middlePanel, rightPanel);
+			});
+			if (i == 0) {
+				rb.setSelected(true);
 				controller.selectSeries(ext.getId());
 			}
-
-			i++;
+			getChildren().add(rb);
 		}
 
+		getChildren().add(new Separator());
 
-		JRadioButton accessHoleRadio = new JRadioButton(HoleType.ACCESS_HOLE.getName());
-		accessHoleRadio.setSelected(true);
-		accessHoleRadio.setName(HoleType.ACCESS_HOLE.getName());
+		// Hole type
+		ToggleGroup holeGroup = new ToggleGroup();
+		RadioButton accessHoleRb = new RadioButton(HoleType.ACCESS_HOLE.getName());
+		accessHoleRb.setToggleGroup(holeGroup);
+		accessHoleRb.setSelected(true);
 		controller.selectHoleType(HoleType.ACCESS_HOLE);
 
-		accessHoleRadio.addActionListener(this);
-		JRadioButton counterboreRadio = new JRadioButton(HoleType.COUNTERBORE.getName());
-		counterboreRadio.addActionListener(this);
-		counterboreRadio.setName(HoleType.COUNTERBORE.getName());
+		RadioButton counterboreRb = new RadioButton(HoleType.COUNTERBORE.getName());
+		counterboreRb.setToggleGroup(holeGroup);
 
-		ButtonGroup holeGroup = new ButtonGroup();
-		holeGroup.add(accessHoleRadio);
-		holeGroup.add(counterboreRadio);
+		getChildren().addAll(accessHoleRb, counterboreRb);
+		getChildren().add(new Separator());
 
-		//
-		add(Box.createVerticalStrut(10));
-		add(accessHoleRadio);
-		add(counterboreRadio);
+		// Columns / Rows / Height Multiplier
+		ToggleGroup columnsGroup = new ToggleGroup();
+		HBox columnsBox = createIntChoiceBox("Columns:", new int[] {1,2,3,4}, 1,
+				value -> { controller.selectColumns(value); refresh(controller, middlePanel, rightPanel); },
+				columnsGroup);
 
-		add(Box.createVerticalStrut(10));
-		add(createIntChoicePanel("Columns:", new int[] {1,2,3,4}, 1,
-				value -> { controller.selectColumns(value); refreshDiagram(); }));
-		rowsPanel = createIntChoicePanel("Rows:", new int[] {1,2}, 1,
-				value -> { controller.selectRows(value); refreshDiagram(); });
-		add(rowsPanel);
+		rowsGroup = new ToggleGroup();
+		rowsBox = createIntChoiceBox("Rows:", new int[] {1,2}, 1,
+				value -> { controller.selectRows(value); refresh(controller, middlePanel, rightPanel); },
+				rowsGroup);
 
-		heightMultiplierPanel = createIntChoicePanel("Height Multiplier:", new int[] {1,2}, 1,
-				value -> { controller.selectHeightMultiplier(value); refreshDiagram(); });
-		add(heightMultiplierPanel);
-		//Height multiplier only applies to Access Hole - Counterbore is unaffected by stacked extrusions
-		setEnabledRecursively(heightMultiplierPanel, true);
+		ToggleGroup multiplierGroup = new ToggleGroup();
+		heightMultiplierBox = createIntChoiceBox("Height x:", new int[] {1,2}, 1,
+				value -> { controller.selectHeightMultiplier(value); refresh(controller, middlePanel, rightPanel); },
+				multiplierGroup);
 
-		JButton generateAllButton = new JButton("Generate all toolpaths");
-		generateAllButton.addActionListener(e -> {
-			try {
-				controller.generateAllToolpaths();
-				JOptionPane.showMessageDialog(this, "All toolpaths generated successfully.");
-			} catch (Exception ex) {
-				JOptionPane.showMessageDialog(this, "Generation failed: " + ex.getMessage(),
-						"Error", JOptionPane.ERROR_MESSAGE);
-			}
+		getChildren().addAll(columnsBox, rowsBox, heightMultiplierBox);
+		getChildren().add(new Separator());
+
+		// Wire hole type radio buttons after the panels they control are created
+		accessHoleRb.setOnAction(e -> {
+			controller.selectHoleType(HoleType.ACCESS_HOLE);
+			rowsBox.setDisable(false);
+			heightMultiplierBox.setDisable(false);
+			refresh(controller, middlePanel, rightPanel);
+		});
+		counterboreRb.setOnAction(e -> {
+			controller.selectHoleType(HoleType.COUNTERBORE);
+			selectInGroup(rowsGroup, 1);
+			controller.selectRows(1);
+			rowsBox.setDisable(true);
+			heightMultiplierBox.setDisable(true);
+			refresh(controller, middlePanel, rightPanel);
 		});
 
-		add(Box.createVerticalStrut(10));
-		add(generateAllButton);
-
-		refreshDiagram();
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() instanceof JRadioButton radioButton) {
-			if (radioButton.getName().equals(HoleType.ACCESS_HOLE.getName())) {
-				controller.selectHoleType(HoleType.ACCESS_HOLE);
-				setEnabledRecursively(rowsPanel, true);
-				setEnabledRecursively(heightMultiplierPanel, true);
-			} else if (radioButton.getName().equals(HoleType.COUNTERBORE.getName())) {
-				controller.selectHoleType(HoleType.COUNTERBORE);
-				setEnabledRecursively(rowsPanel, false);
-				setEnabledRecursively(heightMultiplierPanel, false);
-				selectInPanel(rowsPanel, "1");
-				controller.selectRows(1);
-			} else {
-				controller.selectSeries(radioButton.getName());
+		// Generate all toolpaths button
+		Button generateAllButton = new Button("Generate all toolpaths");
+		generateAllButton.setMaxWidth(Double.MAX_VALUE);
+		generateAllButton.setOnAction(e -> {
+			try {
+				controller.generateAllToolpaths();
+				new Alert(Alert.AlertType.INFORMATION, "All toolpaths generated successfully.").show();
+			} catch (Exception ex) {
+				new Alert(Alert.AlertType.ERROR, "Generation failed: " + ex.getMessage()).show();
 			}
-			refreshDiagram();
-		} else {
-			logger.warn("Ignoring action {} d={}" , e.getSource(), e.getActionCommand());
-		}
+		});
+		getChildren().add(generateAllButton);
+
+		refresh(controller, middlePanel, rightPanel);
 	}
 
-	private void refreshDiagram() {
+	private void refresh(MainController controller, MiddlePanel middlePanel, RightPanel rightPanel) {
 		middlePanel.updateDiagram(controller.getPartSelection());
-		middlePanel.repaint();
 		rightPanel.setFileName(controller.getRecommendedFileName());
 		rightPanel.setText(controller.generateGCode());
 	}
 
-	/**
-	 * Builds a labeled row of radio buttons for picking one of a small set of integer values.
-	 */
-	private JPanel createIntChoicePanel(String label, int[] options, int defaultValue, IntConsumer onSelect) {
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-		panel.add(new JLabel(label));
-
-		ButtonGroup choiceGroup = new ButtonGroup();
+	private HBox createIntChoiceBox(String label, int[] options, int defaultValue,
+			IntConsumer onSelect, ToggleGroup group) {
+		HBox box = new HBox(4);
+		box.getChildren().add(new Label(label));
 		for (int option : options) {
-			JRadioButton radio = new JRadioButton(String.valueOf(option));
-			radio.setSelected(option == defaultValue);
-			radio.addActionListener(e -> onSelect.accept(option));
-			choiceGroup.add(radio);
-			panel.add(radio);
+			RadioButton rb = new RadioButton(String.valueOf(option));
+			rb.setToggleGroup(group);
+			if (option == defaultValue) rb.setSelected(true);
+			rb.setOnAction(e -> onSelect.accept(option));
+			box.getChildren().add(rb);
 		}
-
 		onSelect.accept(defaultValue);
-		return panel;
+		return box;
 	}
 
-	private void setEnabledRecursively(Component component, boolean enabled) {
-		component.setEnabled(enabled);
-		if (component instanceof Container container) {
-			for (Component child : container.getComponents()) {
-				setEnabledRecursively(child, enabled);
-			}
-		}
-	}
-
-	private void selectInPanel(JPanel panel, String label) {
-		for (Component c : panel.getComponents()) {
-			if (c instanceof JRadioButton radio && radio.getText().equals(label)) {
-				radio.setSelected(true);
-				break;
-			}
-		}
+	private void selectInGroup(ToggleGroup group, int value) {
+		group.getToggles().stream()
+				.filter(t -> ((RadioButton) t).getText().equals(String.valueOf(value)))
+				.findFirst()
+				.ifPresent(group::selectToggle);
 	}
 
 }

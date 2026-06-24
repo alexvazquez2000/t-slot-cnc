@@ -1,56 +1,58 @@
 package com.t_slot_cnc.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.text.Font;
 
 /**
  * @author Alex Vazquez <vazqueza2000@gmail.com>
  */
-public class RightPanel extends JPanel {
+public class RightPanel extends BorderPane {
 
-	/** Serialize */
-	private static final long serialVersionUID = 2529204967880222630L;
-
-	private final JTextField fileNameField;
-	private final JTextArea textArea;
+	private final TextField fileNameField;
+	private final TextArea textArea;
 
 	public RightPanel(Runnable onSave) {
-		setLayout(new BorderLayout(0, 4));
-		setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+		setPadding(new Insets(4));
 
-		JPanel topPanel = new JPanel(new BorderLayout(4, 0));
-		fileNameField = new JTextField();
+		fileNameField = new TextField();
 		fileNameField.setEditable(false);
-		fileNameField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
+		fileNameField.setFont(Font.font("Monospaced", 11));
 
-		JButton saveButton = new JButton("Save");
-		saveButton.addActionListener(e -> {
+		Button saveButton = new Button("Save");
+		saveButton.setOnAction(e -> {
 			try {
 				onSave.run();
-				JOptionPane.showMessageDialog(this, "G-code saved to:\n" + fileNameField.getText());
+				Alert alert = new Alert(Alert.AlertType.INFORMATION, "G-code saved to:\n" + fileNameField.getText());
+				alert.showAndWait();
 			} catch (Exception ex) {
-				JOptionPane.showMessageDialog(this, "Save failed: " + ex.getMessage(),
-						"Error", JOptionPane.ERROR_MESSAGE);
+				Alert alert = new Alert(Alert.AlertType.ERROR, "Save failed: " + ex.getMessage());
+				alert.showAndWait();
 			}
 		});
 
-		topPanel.add(fileNameField, BorderLayout.CENTER);
-		topPanel.add(saveButton, BorderLayout.EAST);
-		add(topPanel, BorderLayout.NORTH);
+		HBox topPanel = new HBox(4, fileNameField, saveButton);
+		HBox.setHgrow(fileNameField, Priority.ALWAYS);
+		topPanel.setPadding(new Insets(0, 0, 4, 0));
 
-		textArea = new JTextArea();
+		textArea = new TextArea();
 		textArea.setEditable(false);
-		textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
-		textArea.setLineWrap(false);
-		add(new JScrollPane(textArea), BorderLayout.CENTER);
+		textArea.setFont(Font.font("Monospaced", 11));
+		textArea.setWrapText(false);
+
+		ScrollPane scrollPane = new ScrollPane(textArea);
+		scrollPane.setFitToWidth(true);
+		scrollPane.setFitToHeight(true);
+
+		setTop(topPanel);
+		setCenter(scrollPane);
 	}
 
 	public void setFileName(String fileName) {
@@ -59,7 +61,7 @@ public class RightPanel extends JPanel {
 
 	public void setText(String text) {
 		textArea.setText(text);
-		textArea.setCaretPosition(0);
+		textArea.positionCaret(0);
 	}
 
 }
