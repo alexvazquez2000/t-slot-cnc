@@ -119,19 +119,42 @@ public class ToolpathService {
 		path.append("G02 I0")
 		.append(" J").append(GCodeFormat.format(-radius,4))
 		.append(" Z").append(GCodeFormat.format( -depthOfBore,4))
-		.append("\n");
+		.append("; (Final spiral down to target depth)\n");
 
+		//Clear the bottom 
 		for(double rr=radius; rr > machine.getEndMillDiameter()/2; rr -= machine.getAccuracy()) {
 			//Counter clockwise full circle with center 10mm in the X direction
 			//G02 I-1.0 J0.0 F8.0; (Clockwise full circle with a center 1 inch in the negative X direction from the start point)
-			path.append("G01 Y").append(GCodeFormat.format(centerY + rr,4)).append("\n");
-
-			path.append("G03 I0")
-			.append(" J").append(GCodeFormat.format(-rr,4))
-			.append("\n");
+			//path.append("G01 Y").append(GCodeFormat.format(centerY + rr,4)).append("\n");
+			//path.append("G03 I0").append(" J").append(GCodeFormat.format(-rr,4)).append("\n");
+			path.append(makeCircleAt(centerX, centerY, rr, machine.getAccuracy())).append("; (circle)\n");
 		}
 
 		return path.toString();
+	}
+
+	private static Object makeCircleAt(double centerX, double centerY, double radius, double accuracy) {
+		StringBuilder path = new StringBuilder();
+
+		// Number of points to generate - circumference divided by the accuracy
+		final int numPoints = (int)((2 * radius * Math.PI ) / accuracy);
+		//path.append("; number of points = " + numPoints).append("\n"); 
+
+		for (int i = 0; i < numPoints; ++i) {
+			// Calculate angle in radians
+			double angle = Math.toRadians(((double) i / numPoints) * 360d + 90d);
+
+			// Calculate coordinates
+			double x = centerX + radius * Math.cos(angle);
+			double y = centerY + radius * Math.sin(angle);
+			path.append("G01 X").append(GCodeFormat.format(x,4))
+				.append(" Y").append(GCodeFormat.format(y,4))
+				.append("\n");
+		}
+
+		//path.append("; circle done").append("\n"); 
+
+		return path;
 	}
 
 	public String accessHole(MachineService machine, double boreLocationX, double boreLocationY,
