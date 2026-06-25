@@ -13,7 +13,6 @@ import com.t_slot_cnc.model.SelectionModel;
 import com.t_slot_cnc.service.BatchPartGenerationService;
 import com.t_slot_cnc.service.ExtrusionsService;
 import com.t_slot_cnc.service.FileNameService;
-import com.t_slot_cnc.service.GCodeGeneratorService;
 import com.t_slot_cnc.service.MachineSettingsService;
 import com.t_slot_cnc.service.PartProgramService;
 
@@ -23,18 +22,15 @@ import com.t_slot_cnc.service.PartProgramService;
 @Component
 public class MainController {
 	private final SelectionModel model;
-	private final GCodeGeneratorService gCodeService;
 	private final ExtrusionsService extrusionService;
 	private final MachineSettingsService machineSettingsService;
 	private final PartProgramService partProgramService;
 	private final BatchPartGenerationService batchPartGenerationService;
 
 
-	public MainController(ExtrusionsService extrusionService, GCodeGeneratorService gCodeService,
-			MachineSettingsService machineSettingsService, PartProgramService partProgramService,
+	public MainController(ExtrusionsService extrusionService, MachineSettingsService machineSettingsService, PartProgramService partProgramService,
 			BatchPartGenerationService batchPartGenerationService) {
 		this.extrusionService = extrusionService;
-		this.gCodeService = gCodeService;
 		this.machineSettingsService = machineSettingsService;
 		this.partProgramService = partProgramService;
 		this.batchPartGenerationService = batchPartGenerationService;
@@ -59,10 +55,6 @@ public class MainController {
 
 	public void selectHeightMultiplier(int heightMultiplier) {
 		model.setHeightMultiplier(heightMultiplier);
-	}
-
-	public String onOkPressed() {
-		return gCodeService.generateText(model.getSelectedSeries() + model.getHoleType().getName());
 	}
 
 	public List<Extrusion> getExtrusionSeries() {
