@@ -121,29 +121,43 @@ public class ToolpathService {
 		.append(" Z").append(GCodeFormat.format( -depthOfBore,4))
 		.append("; (Final spiral down to target depth)\n");
 
+		path.append("G02 I0").append(" J").append(GCodeFormat.format(-radius,4)).append("; (Full Circle at the target depth)\n");
+		
 		//Clear the bottom 
-		for(double rr=radius; rr > machine.getEndMillDiameter()/2; rr -= machine.getAccuracy()) {
+		for(double rr=radius; rr > machine.getEndMillDiameter()/2; rr -= machine.getCutDepthPerPass()) {
 			//Counter clockwise full circle with center 10mm in the X direction
 			//G02 I-1.0 J0.0 F8.0; (Clockwise full circle with a center 1 inch in the negative X direction from the start point)
 			//path.append("G01 Y").append(GCodeFormat.format(centerY + rr,4)).append("\n");
 			//path.append("G03 I0").append(" J").append(GCodeFormat.format(-rr,4)).append("\n");
-			path.append(makeCircleAt(centerX, centerY, rr, machine.getAccuracy())).append("; (circle)\n");
+			path.append(makeSpiralIn(centerX, centerY, rr, machine.getAccuracy(), machine.getCutDepthPerPass())).append("\n");
 		}
 
 		return path.toString();
 	}
 
-	private static Object makeCircleAt(double centerX, double centerY, double radius, double accuracy) {
+	/**
+	 * Makes a CCW spiral-in centerX,centerY - the end radius is equal to the original radius minus the spiralInSize 
+	 * @param centerX
+	 * @param centerY
+	 * @param radius - initial size
+	 * @param accuracy - directly proportional to the number of steps in the circle
+	 * @param spiralInSize - Step size to shrink the circle, could pass 0 to make a circle
+	 * @return
+	 */
+	private static Object makeSpiralIn(double centerX, double centerY, double radius, double accuracy, double spiralInSize) {
 		StringBuilder path = new StringBuilder();
 
 		// Number of points to generate - circumference divided by the accuracy
 		final int numPoints = (int)((2 * radius * Math.PI ) / accuracy);
 		//path.append("; number of points = " + numPoints).append("\n"); 
+		final double shrinkRadiusEachStep =  spiralInSize /numPoints; 
 
 		for (int i = 0; i < numPoints; ++i) {
 			// Calculate angle in radians
 			double angle = Math.toRadians(((double) i / numPoints) * 360d + 90d);
-
+			
+			radius -= shrinkRadiusEachStep;
+			
 			// Calculate coordinates
 			double x = centerX + radius * Math.cos(angle);
 			double y = centerY + radius * Math.sin(angle);
