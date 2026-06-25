@@ -67,12 +67,6 @@ public class PartProgramService {
 					depthOfBore - machine.getCutDepthPerPass() ));
 			response.append("G00 Z" + GCodeFormat.format(machine.getzGapAbove(), 4)).append("; (end of second rough pass)\n");
 
-//			//semi-final cut
-//			response.append(toolpathService.counterbore(machine, boreLocationX + (p *ext.getWidth()) , boreLocationY,
-//					boreDiameter - finishCut,
-//					depthOfBore - finishCut ));
-//			response.append("G00 Z" + GCodeFormat.format(machine.getzGapAbove(), 4)).append("; (end of semi-final pass)\n");
-
 			//final cut
 			response.append(toolpathService.counterbore(machine, boreLocationX + (p *ext.getWidth()), boreLocationY,
 					boreDiameter,
