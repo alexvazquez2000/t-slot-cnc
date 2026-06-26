@@ -109,7 +109,7 @@ public class MiddlePanel extends Region {
 
 		int lengthViewTop = contentTop + SECTION_LABEL_HEIGHT;
 		drawSectionLabel(gc, "Length View", contentTop);
-		drawLengthView(gc, columns, rows, unitWidth, yOffset, diameter, calloutText, lengthViewTop, lengthViewHeight);
+		drawLengthView(gc, selection, columns, rows, unitWidth, yOffset, diameter, calloutText, lengthViewTop, lengthViewHeight);
 
 		int endViewLabelTop = lengthViewTop + lengthViewHeight + SECTION_GAP;
 		int endViewTop = endViewLabelTop + SECTION_LABEL_HEIGHT;
@@ -117,8 +117,8 @@ public class MiddlePanel extends Region {
 		drawEndView(gc, columns, unitWidth, heightMultiplier, endViewTop, endViewHeight, diameter, depthOfHole);
 	}
 
-	private void drawLengthView(GraphicsContext gc, int columns, int rows, double unitWidth, double yOffset,
-			double diameter, String calloutText, int top, int availableHeight) {
+	private void drawLengthView(GraphicsContext gc, PartSelection sel, int columns, int rows, double unitWidth,
+			double yOffset, double diameter, String calloutText, int top, int availableHeight) {
 		double pieceWidthInches = columns * unitWidth;
 		double pieceLengthInches = yOffset * 3 + (rows - 1) * unitWidth;
 
@@ -143,17 +143,26 @@ public class MiddlePanel extends Region {
 
 			for (int c = 0; c < columns; c++) {
 				int holeX = barX + (int) Math.round((c + 0.5) * unitWidth * scale);
+				boolean selected = sel.isSelected(r, c);
 
-				gc.setStroke(Color.BLACK);
-				gc.setLineWidth(1.5);
+				if (selected) {
+					gc.setStroke(Color.BLACK);
+					gc.setLineWidth(1.5);
+					gc.setLineDashes(0);
+				} else {
+					gc.setStroke(Color.LIGHTGRAY);
+					gc.setLineWidth(1.0);
+					gc.setLineDashes(4, 3);
+				}
 				gc.strokeOval(holeX - holeDiameterPx / 2, holeY - holeDiameterPx / 2, holeDiameterPx, holeDiameterPx);
+				gc.setLineDashes(0);
 
 				if (r == 0 && c == 1) {
 					drawHorizontalDimension(gc, barX, barX + (int) Math.round(unitWidth * scale),
 							bottom + DIMENSION_OFFSET, unitWidth);
 				}
 
-				if (!calloutDrawn) {
+				if (!calloutDrawn && selected) {
 					drawCallout(gc, holeX + (int) (holeDiameterPx / 2), holeY, holeDiameterPx, calloutText);
 					calloutDrawn = true;
 				}

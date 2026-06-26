@@ -27,15 +27,16 @@ public class MainController {
 	private final PartProgramService partProgramService;
 	private final BatchPartGenerationService batchPartGenerationService;
 
-
-	public MainController(ExtrusionsService extrusionService, MachineSettingsService machineSettingsService, PartProgramService partProgramService,
-			BatchPartGenerationService batchPartGenerationService) {
+	public MainController(ExtrusionsService extrusionService, MachineSettingsService machineSettingsService,
+			PartProgramService partProgramService, BatchPartGenerationService batchPartGenerationService) {
 		this.extrusionService = extrusionService;
 		this.machineSettingsService = machineSettingsService;
 		this.partProgramService = partProgramService;
 		this.batchPartGenerationService = batchPartGenerationService;
 		this.model = new SelectionModel();
 	}
+
+	// ── Selection setters ────────────────────────────────────────────────────
 
 	public void selectSeries(String option) {
 		model.setSelectedSeries(option);
@@ -46,16 +47,28 @@ public class MainController {
 	}
 
 	public void selectColumns(int numColumns) {
-		model.setNumColumns(numColumns);
+		model.setNumColumns(numColumns); // also resets hole selection
 	}
 
 	public void selectRows(int numRows) {
-		model.setNumRows(numRows);
+		model.setNumRows(numRows); // also resets hole selection
 	}
 
 	public void selectHeightMultiplier(int heightMultiplier) {
 		model.setHeightMultiplier(heightMultiplier);
 	}
+
+	/** Toggle a specific hole on or off. row and col are zero-indexed. */
+	public void selectHole(int row, int col, boolean selected) {
+		model.setHoleSelected(row, col, selected);
+	}
+
+	/** Reset all holes to selected (called when columns/rows change from the UI). */
+	public void resetSelectedHoles() {
+		model.resetSelectedHoles();
+	}
+
+	// ── Queries ──────────────────────────────────────────────────────────────
 
 	public List<Extrusion> getExtrusionSeries() {
 		return extrusionService.getExtrusions().getExtrusionSeries();
@@ -64,7 +77,43 @@ public class MainController {
 	public PartSelection getPartSelection() {
 		Extrusion extrusion = extrusionService.findExtrusionByName(model.getSelectedSeries());
 		return new PartSelection(extrusion, model.getHoleType(), model.getNumColumns(), model.getNumRows(),
-				model.getHeightMultiplier());
+				model.getHeightMultiplier(), model.getSelectedHoles());
+	}
+
+	public String getRecommendedFileName() {
+		Extrusion ext = extrusionService.findExtrusionByName(model.getSelectedSeries());
+		if (ext == null) return "";
+		boolean[][] selected = model.getSelectedHoles();
+		if (model.getHoleType() == HoleType.COUNTERBORE) {
+			return FileNameService.nameCounterboreSelection(ext, selected);
+		}
+		return FileNameService.nameDrillHoleSelection(ext, selected, model.getHeightMultiplier());
+	}
+
+	public String generateGCode() {
+		Extrusion ext = extrusionService.findExtrusionByName(model.getSelectedSeries());
+		if (ext == null) return "";
+		boolean[][] selected = model.getSelectedHoles();
+		if (model.getHoleType() == HoleType.COUNTERBORE) {
+			return partProgramService.buildCounterboreText(ext, selected);
+		}
+		return partProgramService.buildDrillHoleText(ext, selected, model.getHeightMultiplier());
+	}
+
+	// ── Actions ──────────────────────────────────────────────────────────────
+
+	public void saveGCode() {
+		Extrusion ext = extrusionService.findExtrusionByName(model.getSelectedSeries());
+		if (ext == null) return;
+		boolean[][] selected = model.getSelectedHoles();
+		String gCode = model.getHoleType() == HoleType.COUNTERBORE
+				? partProgramService.buildCounterboreText(ext, selected)
+				: partProgramService.buildDrillHoleText(ext, selected, model.getHeightMultiplier());
+		try {
+			partProgramService.saveToFile(gCode, getRecommendedFileName());
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to save G-code", e);
+		}
 	}
 
 	public void generateAllToolpaths() {
@@ -75,46 +124,7 @@ public class MainController {
 		}
 	}
 
-	public String getRecommendedFileName() {
-		Extrusion ext = extrusionService.findExtrusionByName(model.getSelectedSeries());
-		if (ext == null) return "";
-		int[] pattern = buildPattern(model.getNumColumns());
-		if (model.getHoleType() == HoleType.COUNTERBORE) {
-			return FileNameService.nameCounterbore(ext, ext.getCounterbore(), pattern.length);
-		}
-		return FileNameService.nameDrillHole(ext, pattern.length, model.getNumRows(), model.getHeightMultiplier());
-	}
-
-	public String generateGCode() {
-		Extrusion ext = extrusionService.findExtrusionByName(model.getSelectedSeries());
-		if (ext == null) return "";
-		int[] pattern = buildPattern(model.getNumColumns());
-		if (model.getHoleType() == HoleType.COUNTERBORE) {
-			return partProgramService.buildCounterboreText(ext, pattern);
-		}
-		return partProgramService.buildDrillHoleText(ext, pattern, model.getNumRows(), model.getHeightMultiplier());
-	}
-
-	public void saveGCode() {
-		Extrusion ext = extrusionService.findExtrusionByName(model.getSelectedSeries());
-		if (ext == null) return;
-		int[] pattern = buildPattern(model.getNumColumns());
-		try {
-			if (model.getHoleType() == HoleType.COUNTERBORE) {
-				partProgramService.generateCounterbore(ext, pattern);
-			} else {
-				partProgramService.generateDrillHole(ext, pattern, model.getNumRows(), model.getHeightMultiplier());
-			}
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to save G-code", e);
-		}
-	}
-
-	private int[] buildPattern(int numColumns) {
-		int[] pattern = new int[numColumns];
-		for (int i = 0; i < numColumns; i++) pattern[i] = i;
-		return pattern;
-	}
+	// ── Machine settings ─────────────────────────────────────────────────────
 
 	public MachineSettings getMachineSettings() {
 		return machineSettingsService.load();
@@ -127,4 +137,5 @@ public class MainController {
 			throw new RuntimeException("Failed to save machine settings", e);
 		}
 	}
+
 }

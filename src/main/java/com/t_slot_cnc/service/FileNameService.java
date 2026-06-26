@@ -34,6 +34,26 @@ public class FileNameService {
 		return "output/" + ext.getId() + "/access_hole/"  + ext.getId().substring(0,2) + "X_ah" + columnPattern(numColumns) + rows + "_" + multipier +  fileExtension;
 	}
 
+	/**
+	 * Names a drill-hole file based on which specific holes are selected (GUI use).
+	 * Columns that are active in at least one selected row appear in the name;
+	 * the row count reflects how many rows have at least one selected hole.
+	 */
+	public static String nameDrillHoleSelection(Extrusion ext, boolean[][] selected, int multiplier) {
+		String series = ext.getId().substring(0, 2);
+		if (multiplier == 2) series = (Integer.valueOf(series) * 2) + "";
+		return "output/" + ext.getId() + "/drill_hole/" + series + "_dh" + columnLetters(selected)
+				+ activeRows(selected) + fileExtension;
+	}
+
+	/**
+	 * Names a counterbore file based on which specific holes are selected (GUI use).
+	 */
+	public static String nameCounterboreSelection(Extrusion ext, boolean[][] selected) {
+		return "output/" + ext.getId() + "/counterbore/" + ext.getId().substring(0, 2) + "X_cb"
+				+ columnLetters(selected) + fileExtension;
+	}
+
 	private static String columnPattern(int pattern) {
 		switch (pattern) {
 		case 1: return "_A_";
@@ -43,7 +63,31 @@ public class FileNameService {
 		default:
 			throw new RuntimeException("Unsupported number of columns = " + pattern);
 		}
-		
+	}
+
+	private static final char[] COL_LETTERS = {'A', 'B', 'C', 'D'};
+
+	/** Builds a "_A_C_" style string from columns active in at least one row. */
+	private static String columnLetters(boolean[][] selected) {
+		StringBuilder sb = new StringBuilder("_");
+		for (int col = 0; col < 4; col++) {
+			for (int row = 0; row < 2; row++) {
+				if (selected[row][col]) {
+					sb.append(COL_LETTERS[col]).append('_');
+					break;
+				}
+			}
+		}
+		return sb.toString();
+	}
+
+	/** Count of rows that have at least one selected hole. */
+	private static int activeRows(boolean[][] selected) {
+		int count = 0;
+		for (boolean[] row : selected)
+			for (boolean cell : row)
+				if (cell) { count++; break; }
+		return count;
 	}
 
 }
