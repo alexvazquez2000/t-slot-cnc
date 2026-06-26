@@ -35,7 +35,7 @@ public class PartProgramService {
 		return partDescriptionService.describe(ext, fileName, new MachineService(ext.getUnits()));
 	}
 
-	public String buildCounterboreText(Extrusion ext, int[] pattern) {
+	public String buildCounterboreText(Extrusion ext, int[] columns) {
 		StringBuilder response = new StringBuilder();
 		Counterbore counterbore = ext.getCounterbore();
 		if (counterbore == null) return "";
@@ -47,37 +47,42 @@ public class PartProgramService {
 		double depthOfBore = counterbore.getDepth();
 
 		response.append(toolpathService.header(ext.getUnits(), machine));
-		for (int p : pattern) {
+		for (int column : columns) {
 			if (ext.getId().startsWith("15-") || ext.getId().startsWith("40-")) {
 				//rough cut
-				response.append(toolpathService.counterbore(machine, boreLocationX + (p *ext.getWidth()) , boreLocationY,
+				response.append(toolpathService.counterbore(machine, boreLocationX + (column *ext.getWidth()) , boreLocationY,
 						boreDiameter - (machine.getCutDepthPerPass() * 4),
 						depthOfBore - (machine.getCutDepthPerPass() * 3) ));
 				response.append("G00 Z" + GCodeFormat.format(machine.getzGapAbove(), 4)).append("; (15X or 40X series end of first rough pass x3)\n");
 			}
 			//rough cut
-			response.append(toolpathService.counterbore(machine, boreLocationX + (p *ext.getWidth()) , boreLocationY,
+			response.append(toolpathService.counterbore(machine, boreLocationX + (column *ext.getWidth()) , boreLocationY,
 					boreDiameter - (machine.getCutDepthPerPass() * 2),
 					depthOfBore - (machine.getCutDepthPerPass() * 2) ));
 			response.append("G00 Z" + GCodeFormat.format(machine.getzGapAbove(), 4)).append("; (end of rough pass x2)\n");
 
 			//rough cut
-			response.append(toolpathService.counterbore(machine, boreLocationX + (p *ext.getWidth()) , boreLocationY,
+			response.append(toolpathService.counterbore(machine, boreLocationX + (column *ext.getWidth()) , boreLocationY,
 					boreDiameter - machine.getCutDepthPerPass(),
 					depthOfBore - machine.getCutDepthPerPass() ));
 			response.append("G00 Z" + GCodeFormat.format(machine.getzGapAbove(), 4)).append("; (end of second rough pass)\n");
 
 			//final cut
-			response.append(toolpathService.counterbore(machine, boreLocationX + (p *ext.getWidth()), boreLocationY,
+			response.append(toolpathService.counterbore(machine, boreLocationX + (column *ext.getWidth()), boreLocationY,
 					boreDiameter,
 					depthOfBore ));
+						
 			response.append("G00 Z" + GCodeFormat.format(machine.getzGapAbove(), 4)).append("; (end of finish pass at 0.008)\n");
 		}
 		response.append(toolpathService.tail(machine));
 		return response.toString();
 	}
 
-	public String generateAccessHole(Extrusion ext, int[] pattern, int rows) throws IOException {
+	/**
+	 * @Deprecated ("2026-06-25 - not tested - only using drill holes")
+	 */
+	@Deprecated
+	public String generateAccessHole(Extrusion ext, int[] columns, int rows, int multiplier) throws IOException {
 		StringBuilder response = new StringBuilder();
 
 		MachineService machine = new MachineService(ext.getUnits());
@@ -87,19 +92,18 @@ public class PartProgramService {
 		double boreLocationY = accessHole.getyOffset();
 		double accessHoleDiameter = accessHole.getDiameter();
 		double topOfSlot = ext.getDepthToTopOfSlot();
-		//FIXME: We need to add the parameter if we need the double height - hardcoded one for now
-		double depthOfAccessHole = computeHoleDepth(ext, machine, 1);
+		double depthOfAccessHole = computeHoleDepth(ext, machine, multiplier);
 
-		String fileName = FileNameService.nameAccessHole(ext, accessHole, pattern.length, rows);
+		String fileName = FileNameService.nameAccessHole(ext, accessHole, columns.length, rows, multiplier);
 		String description = partDescriptionService.describe(ext, fileName, machine);
 
 		response.append(toolpathService.header(ext.getUnits(), machine));
 		for (int row=0; row < rows; row++) {
-			for (int p : pattern) {
-				response.append("G00 X").append(GCodeFormat.format(boreLocationX +(p *ext.getWidth()), 4))
+			for (int column : columns) {
+				response.append("G00 X").append(GCodeFormat.format(boreLocationX +(column *ext.getWidth()), 4))
 				.append(" Y").append(GCodeFormat.format(boreLocationY + (row * ext.getWidth()), 4))
 				.append("\n");
-				response.append(toolpathService.accessHole(machine, boreLocationX + (p *ext.getWidth()),
+				response.append(toolpathService.accessHole(machine, boreLocationX + (column *ext.getWidth()),
 						boreLocationY + (row * ext.getWidth()), accessHoleDiameter, depthOfAccessHole, topOfSlot));
 				response.append("G00 Z").append(GCodeFormat.format(machine.getzGapAbove(), 4)).append("\n");
 			}

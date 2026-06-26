@@ -30,8 +30,8 @@ public class FileNameService {
 		return "output/" + ext.getId() + "/drill_hole/" + series + "_dh" + columnPattern(numColumns) + rows + fileExtension;
 	}
 
-	public static String nameAccessHole(Extrusion ext, AccessHole accessHole, int numColumns, int rows) {
-		return "output/" + ext.getId() + "/access_hole/"  + ext.getId().substring(0,2) + "X_ah" + columnPattern(numColumns) + rows +  fileExtension;
+	public static String nameAccessHole(Extrusion ext, AccessHole accessHole, int numColumns, int rows, int multipier) {
+		return "output/" + ext.getId() + "/access_hole/"  + ext.getId().substring(0,2) + "X_ah" + columnPattern(numColumns) + rows + "_" + multipier +  fileExtension;
 	}
 
 	private static String columnPattern(int pattern) {
