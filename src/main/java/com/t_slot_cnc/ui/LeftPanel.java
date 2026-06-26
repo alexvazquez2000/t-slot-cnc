@@ -26,6 +26,7 @@ import javafx.scene.layout.VBox;
 public class LeftPanel extends VBox {
 
 	private static final char[] COL_LABELS = {'A', 'B', 'C', 'D'};
+	private static final String HOLE_SELECTED_STYLE = "-fx-background-color: #90EE90; -fx-text-fill: black;";
 
 	private HBox rowsBox;
 	private HBox heightMultiplierBox;
@@ -155,14 +156,16 @@ public class LeftPanel extends VBox {
 				ToggleButton tb = new ToggleButton(label);
 				tb.setSelected(true);
 				tb.setPrefWidth(44);
+				tb.setStyle(HOLE_SELECTED_STYLE);
 
 				final int r = row, c = col;
 				tb.setOnAction(e -> {
+					tb.setStyle(tb.isSelected() ? HOLE_SELECTED_STYLE : "");
 					controller.selectHole(r, c, tb.isSelected());
 					refresh(controller, middlePanel, rightPanel);
 				});
 
-				GridPane.setConstraints(tb, col, row);
+				GridPane.setConstraints(tb, col, numRows - 1 - row);
 				holeGrid.getChildren().add(tb);
 			}
 		}
