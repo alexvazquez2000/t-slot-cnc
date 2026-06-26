@@ -100,10 +100,9 @@ public class ToolpathService {
 
 		//go initial location on middle of track, away from the home
 		path.append("G01 X").append(GCodeFormat.format(centerX,4))
-		.append(" Y").append(GCodeFormat.format(centerY + radius,4))
+			.append(" Y").append(GCodeFormat.format(centerY + radius,4))
+			.append(" F").append(GCodeFormat.format(machine.getFeedRate(),1)).append("; (initial position)\n");
 
-		.append(" Z").append(GCodeFormat.format(z,4))
-		.append(" F").append(GCodeFormat.format(machine.getFeedRate(),1)).append("\n");
 
 		while (z > -depthOfBore) {
 			//J=Y-offset and I=X-offset
@@ -129,7 +128,7 @@ public class ToolpathService {
 			//G02 I-1.0 J0.0 F8.0; (Clockwise full circle with a center 1 inch in the negative X direction from the start point)
 			//path.append("G01 Y").append(GCodeFormat.format(centerY + rr,4)).append("\n");
 			//path.append("G03 I0").append(" J").append(GCodeFormat.format(-rr,4)).append("\n");
-			path.append(makeSpiralIn(centerX, centerY, rr, machine.getAccuracy(), machine.getCutDepthPerPass())).append("\n");
+			path.append(makeSpiralIn(centerX, centerY, rr, machine.getAccuracy(), machine.getCutDepthPerPass()));
 		}
 
 		return path.toString();
