@@ -32,7 +32,7 @@ public class PartProgramService {
 
 	public String generateCounterbore(Extrusion ext, int[] pattern) throws IOException {
 		String fileName = FileNameService.nameCounterbore(ext, ext.getCounterbore(), pattern.length);
-		gCodeFileService.write(buildCounterboreText(ext, patternToGrid(pattern, 1)), fileName);
+		gCodeFileService.write(buildCounterboreText(ext, patternToGrid(pattern, 1), true), fileName);
 		if (ext.getCounterbore() == null) return null;
 		return partDescriptionService.describe(ext, fileName, new MachineService(ext.getUnits()));
 	}
@@ -80,9 +80,10 @@ public class PartProgramService {
 
 	/**
 	 * Builds counterbore G-code for the selected hole positions.
-	 * @param selected 2×4 grid: selected[row][col], both zero-indexed
+	 * @param selected   2×4 grid: selected[row][col], both zero-indexed
+	 * @param makeDivot  whether to add a small center divot at the bottom of the final pass
 	 */
-	public String buildCounterboreText(Extrusion ext, boolean[][] selected) {
+	public String buildCounterboreText(Extrusion ext, boolean[][] selected, boolean makeDivot) {
 		StringBuilder response = new StringBuilder();
 		Counterbore counterbore = ext.getCounterbore();
 		if (counterbore == null) return "";
@@ -123,7 +124,7 @@ public class PartProgramService {
 				//final cut
 				response.append(toolpathService.counterbore(machine, boreLocationX + (col * ext.getWidth()), boreLocationY,
 						boreDiameter, depthOfBore,
-						true));
+						makeDivot));
 				response.append("G00 Z" + GCodeFormat.format(machine.getzGapAbove(), 4)).append("; (end of finish pass at 0.008)\n");
 			}
 		}

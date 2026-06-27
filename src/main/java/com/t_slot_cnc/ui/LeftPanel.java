@@ -11,6 +11,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Separator;
@@ -71,7 +72,16 @@ public class LeftPanel extends VBox {
 		RadioButton counterboreRb = new RadioButton(HoleType.COUNTERBORE.getName());
 		counterboreRb.setToggleGroup(holeGroup);
 
-		getChildren().addAll(accessHoleRb, counterboreRb);
+		CheckBox makeDivotCb = new CheckBox("Divot at bottom of counterbore");
+		makeDivotCb.setSelected(true);
+		makeDivotCb.setVisible(false);
+		makeDivotCb.setManaged(false);
+		makeDivotCb.setOnAction(e -> {
+			controller.selectMakeDivot(makeDivotCb.isSelected());
+			refresh(controller, middlePanel, rightPanel);
+		});
+
+		getChildren().addAll(accessHoleRb, counterboreRb, makeDivotCb);
 		getChildren().add(new Separator());
 
 		// Initialize hole grid before creating the choice boxes that reference it
@@ -110,6 +120,8 @@ public class LeftPanel extends VBox {
 			controller.selectHoleType(HoleType.ACCESS_HOLE);
 			rowsBox.setDisable(false);
 			heightMultiplierBox.setDisable(false);
+			makeDivotCb.setVisible(false);
+			makeDivotCb.setManaged(false);
 			refresh(controller, middlePanel, rightPanel);
 		});
 		counterboreRb.setOnAction(e -> {
@@ -120,6 +132,8 @@ public class LeftPanel extends VBox {
 			rebuildHoleGrid(controller, middlePanel, rightPanel);
 			rowsBox.setDisable(true);
 			heightMultiplierBox.setDisable(true);
+			makeDivotCb.setVisible(true);
+			makeDivotCb.setManaged(true);
 			refresh(controller, middlePanel, rightPanel);
 		});
 

@@ -11,6 +11,7 @@ public class SelectionModel {
 	private int numColumns;
 	private int numRows;
 	private int heightMultiplier = 1;
+	private boolean makeDivot = true;
 	private boolean[][] selectedHoles = allSelected();
 
 	public String getSelectedSeries() {
@@ -71,6 +72,14 @@ public class SelectionModel {
 	 */
 	public void setHeightMultiplier(int heightMultiplier) {
 		this.heightMultiplier = heightMultiplier;
+	}
+
+	public boolean isMakeDivot() {
+		return makeDivot;
+	}
+
+	public void setMakeDivot(boolean makeDivot) {
+		this.makeDivot = makeDivot;
 	}
 
 	/**

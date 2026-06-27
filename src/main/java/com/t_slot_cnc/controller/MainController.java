@@ -58,6 +58,10 @@ public class MainController {
 		model.setHeightMultiplier(heightMultiplier);
 	}
 
+	public void selectMakeDivot(boolean makeDivot) {
+		model.setMakeDivot(makeDivot);
+	}
+
 	/** Toggle a specific hole on or off. row and col are zero-indexed. */
 	public void selectHole(int row, int col, boolean selected) {
 		model.setHoleSelected(row, col, selected);
@@ -95,7 +99,7 @@ public class MainController {
 		if (ext == null) return "";
 		boolean[][] selected = model.getSelectedHoles();
 		if (model.getHoleType() == HoleType.COUNTERBORE) {
-			return partProgramService.buildCounterboreText(ext, selected);
+			return partProgramService.buildCounterboreText(ext, selected, model.isMakeDivot());
 		}
 		return partProgramService.buildDrillHoleText(ext, selected, model.getHeightMultiplier());
 	}
@@ -107,7 +111,7 @@ public class MainController {
 		if (ext == null) return;
 		boolean[][] selected = model.getSelectedHoles();
 		String gCode = model.getHoleType() == HoleType.COUNTERBORE
-				? partProgramService.buildCounterboreText(ext, selected)
+				? partProgramService.buildCounterboreText(ext, selected, model.isMakeDivot())
 				: partProgramService.buildDrillHoleText(ext, selected, model.getHeightMultiplier());
 		try {
 			partProgramService.saveToFile(gCode, getRecommendedFileName());

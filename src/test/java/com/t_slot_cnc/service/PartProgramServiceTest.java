@@ -108,7 +108,7 @@ class PartProgramServiceTest {
     void buildCounterboreText_singleHole_containsG02Arc() {
         boolean[][] selected = new boolean[2][4];
         selected[0][0] = true;
-        String code = service.buildCounterboreText(ext, selected);
+        String code = service.buildCounterboreText(ext, selected, true);
         assertTrue(code.contains("G02"), "counterbore should use clockwise G02 arc");
     }
 
@@ -116,7 +116,7 @@ class PartProgramServiceTest {
     void buildCounterboreText_singleHole_containsHeaderAndTail() {
         boolean[][] selected = new boolean[2][4];
         selected[0][0] = true;
-        String code = service.buildCounterboreText(ext, selected);
+        String code = service.buildCounterboreText(ext, selected, true);
         assertTrue(code.contains("G20"));
         assertTrue(code.contains("M30"));
     }
@@ -126,6 +126,6 @@ class PartProgramServiceTest {
         ext.setCounterbore(null);
         boolean[][] selected = new boolean[2][4];
         selected[0][0] = true;
-        assertTrue(service.buildCounterboreText(ext, selected).isEmpty());
+        assertTrue(service.buildCounterboreText(ext, selected, true).isEmpty());
     }
 }
