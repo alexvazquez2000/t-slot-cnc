@@ -11,6 +11,7 @@ import com.t_slot_cnc.service.PartProgramService;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Region;
@@ -41,9 +42,26 @@ public class MiddlePanel extends Region {
 	private final Canvas canvas = new Canvas();
 	private PartSelection selection;
 
+	private double endMillHitCenterX = -1;
+	private double endMillHitCenterY = -1;
+	private double endMillHitRadius = 0;
+	private final Tooltip endMillTooltip = new Tooltip("End Mill");
+
 	public MiddlePanel() {
 		setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
 		getChildren().add(canvas);
+		canvas.setOnMouseMoved(e -> {
+			if (endMillHitRadius > 0) {
+				double dx = e.getX() - endMillHitCenterX;
+				double dy = e.getY() - endMillHitCenterY;
+				if (dx * dx + dy * dy <= endMillHitRadius * endMillHitRadius) {
+					endMillTooltip.show(canvas, e.getScreenX() + 12, e.getScreenY() + 12);
+				} else {
+					endMillTooltip.hide();
+				}
+			}
+		});
+		canvas.setOnMouseExited(e -> endMillTooltip.hide());
 	}
 
 	@Override
@@ -63,7 +81,10 @@ public class MiddlePanel extends Region {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		gc.setFill(Color.WHITE);
 		gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-		if (selection == null || selection.getExtrusion() == null) return;
+		if (selection == null || selection.getExtrusion() == null) {
+			endMillHitRadius = 0;
+			return;
+		}
 		draw(gc);
 	}
 
@@ -149,6 +170,9 @@ public class MiddlePanel extends Region {
 				endMillCenterX + endMillRadiusPx * 0.4, endMillCenterY);
 		gc.strokeLine(endMillCenterX, endMillCenterY - endMillRadiusPx * 0.4,
 				endMillCenterX, endMillCenterY + endMillRadiusPx * 0.4);
+		endMillHitCenterX = endMillCenterX;
+		endMillHitCenterY = endMillCenterY;
+		endMillHitRadius = endMillRadiusPx;
 
 		double holeDiameterPx = Math.max(4, diameter * scale);
 		boolean calloutDrawn = false;
