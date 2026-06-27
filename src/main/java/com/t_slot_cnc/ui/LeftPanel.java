@@ -105,8 +105,6 @@ public class LeftPanel extends VBox {
 		getChildren().addAll(columnsBox, rowsBox, heightMultiplierBox);
 		getChildren().add(holeGrid); // already populated by the lambdas fired above
 
-		getChildren().add(new Separator());
-
 		// Wire hole type radio buttons after the panels they control are created
 		accessHoleRb.setOnAction(e -> {
 			controller.selectHoleType(HoleType.ACCESS_HOLE);
@@ -125,6 +123,13 @@ public class LeftPanel extends VBox {
 			refresh(controller, middlePanel, rightPanel);
 		});
 
+		getChildren().add(new Separator());
+		getChildren().add(new Separator());
+
+		Label generateAllLabel = new Label("\nGenerates G-code files for every hole\ncombination across all loaded extrusions.");
+		generateAllLabel.setWrapText(true);
+		generateAllLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #555555;");
+
 		// Generate all toolpaths button
 		Button generateAllButton = new Button("Generate all toolpaths");
 		generateAllButton.setMaxWidth(Double.MAX_VALUE);
@@ -136,7 +141,7 @@ public class LeftPanel extends VBox {
 				new Alert(Alert.AlertType.ERROR, "Generation failed: " + ex.getMessage()).show();
 			}
 		});
-		getChildren().add(generateAllButton);
+		getChildren().addAll(generateAllLabel, generateAllButton);
 
 		refresh(controller, middlePanel, rightPanel);
 	}
