@@ -26,7 +26,7 @@ import javafx.scene.layout.VBox;
 public class LeftPanel extends VBox {
 
 	private static final char[] COL_LABELS = {'A', 'B', 'C', 'D'};
-	private static final String HOLE_SELECTED_STYLE = "-fx-background-color: #90EE90; -fx-text-fill: black;";
+	private static final String HOLE_SELECTED_STYLE = "-fx-background-color: #90EE90; -fx-background-radius: 15px; -fx-text-fill: black;";
 
 	private HBox rowsBox;
 	private HBox heightMultiplierBox;
