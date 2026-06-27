@@ -135,6 +135,21 @@ public class MiddlePanel extends Region {
 		gc.strokeRect(barX, top, pieceWidthPx, pieceHeightPx);
 		drawBreak(gc, barX, top, pieceWidthPx);
 
+		// End mill starting position: left edge at barX, top edge at bottom of rectangle
+		MachineService machine = new MachineService(sel.getExtrusion().getUnits());
+		double endMillRadiusPx = (machine.getEndMillDiameter() / 2.0) * scale;
+		double endMillCenterX = barX + endMillRadiusPx;
+		double endMillCenterY = bottom + endMillRadiusPx;
+		gc.setStroke(Color.DARKORANGE);
+		gc.setLineWidth(1.5);
+		gc.strokeOval(endMillCenterX - endMillRadiusPx, endMillCenterY - endMillRadiusPx,
+				endMillRadiusPx * 2, endMillRadiusPx * 2);
+		// crosshair at end mill center
+		gc.strokeLine(endMillCenterX - endMillRadiusPx * 0.4, endMillCenterY,
+				endMillCenterX + endMillRadiusPx * 0.4, endMillCenterY);
+		gc.strokeLine(endMillCenterX, endMillCenterY - endMillRadiusPx * 0.4,
+				endMillCenterX, endMillCenterY + endMillRadiusPx * 0.4);
+
 		double holeDiameterPx = Math.max(4, diameter * scale);
 		boolean calloutDrawn = false;
 
