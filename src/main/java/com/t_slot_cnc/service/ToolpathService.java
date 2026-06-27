@@ -87,7 +87,7 @@ public class ToolpathService {
 	}
 
 	public String counterbore(MachineService machine, double boreLocationX, double boreLocationY,
-			double boreDiameter, double depthOfBore) {
+			double boreDiameter, double depthOfBore, boolean makeDivotAtBottom) {
 		StringBuilder path = new StringBuilder();
 		double endMillRadius = machine.getEndMillDiameter() / 2.0;
 		//Start relative to the top of the Z=0 - the Z-axis moves down into negative numbers
@@ -113,6 +113,7 @@ public class ToolpathService {
 
 			z -= machine.getCutDepthPerPass();
 		}
+
 		//do a final spiral to the exact depth
 		z = -depthOfBore;
 		path.append("G02 I0")
@@ -120,6 +121,7 @@ public class ToolpathService {
 		.append(" Z").append(GCodeFormat.format( -depthOfBore,4))
 		.append("; (Final spiral down to target depth)\n");
 
+		//We spiraled into the target depth, but it needs a full circle at bottom
 		path.append("G02 I0").append(" J").append(GCodeFormat.format(-radius,4)).append("; (Full Circle at the target depth)\n");
 		
 		//Clear the bottom 
@@ -129,6 +131,16 @@ public class ToolpathService {
 			//path.append("G01 Y").append(GCodeFormat.format(centerY + rr,4)).append("\n");
 			//path.append("G03 I0").append(" J").append(GCodeFormat.format(-rr,4)).append("\n");
 			path.append(makeSpiralIn(centerX, centerY, rr, machine.getAccuracy(), machine.getCutDepthPerPass()));
+		}
+
+		if (makeDivotAtBottom) {
+			//Add a small divot at center of counterbore
+			path.append("G01 X").append(GCodeFormat.format(centerX,4))
+				.append(" Y").append(GCodeFormat.format(centerY,4))
+				.append("; (x/y divot location)\n");
+			
+			path.append("G01 Z").append(GCodeFormat.format(-depthOfBore - (machine.getCutDepthPerPass()/2),4))
+				.append("; (make a divot)\n");
 		}
 
 		return path.toString();

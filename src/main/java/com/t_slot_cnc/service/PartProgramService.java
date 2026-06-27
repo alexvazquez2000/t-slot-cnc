@@ -102,24 +102,28 @@ public class PartProgramService {
 					//rough cut
 					response.append(toolpathService.counterbore(machine, boreLocationX + (col * ext.getWidth()), boreLocationY,
 							boreDiameter - (machine.getCutDepthPerPass() * 4),
-							depthOfBore - (machine.getCutDepthPerPass() * 3)));
+							depthOfBore - (machine.getCutDepthPerPass() * 3),
+							false));
 					response.append("G00 Z" + GCodeFormat.format(machine.getzGapAbove(), 4)).append("; (15X or 40X series end of first rough pass x3)\n");
 				}
 				//rough cut
 				response.append(toolpathService.counterbore(machine, boreLocationX + (col * ext.getWidth()), boreLocationY,
 						boreDiameter - (machine.getCutDepthPerPass() * 2),
-						depthOfBore - (machine.getCutDepthPerPass() * 2)));
+						depthOfBore - (machine.getCutDepthPerPass() * 2),
+						false));
 				response.append("G00 Z" + GCodeFormat.format(machine.getzGapAbove(), 4)).append("; (end of rough pass x2)\n");
 
 				//rough cut
 				response.append(toolpathService.counterbore(machine, boreLocationX + (col * ext.getWidth()), boreLocationY,
 						boreDiameter - machine.getCutDepthPerPass(),
-						depthOfBore - machine.getCutDepthPerPass()));
+						depthOfBore - machine.getCutDepthPerPass(),
+						false));
 				response.append("G00 Z" + GCodeFormat.format(machine.getzGapAbove(), 4)).append("; (end of second rough pass)\n");
 
 				//final cut
 				response.append(toolpathService.counterbore(machine, boreLocationX + (col * ext.getWidth()), boreLocationY,
-						boreDiameter, depthOfBore));
+						boreDiameter, depthOfBore,
+						true));
 				response.append("G00 Z" + GCodeFormat.format(machine.getzGapAbove(), 4)).append("; (end of finish pass at 0.008)\n");
 			}
 		}
