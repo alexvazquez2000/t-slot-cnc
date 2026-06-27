@@ -73,7 +73,7 @@ class FileNameServiceTest {
     void nameDrillHoleSelection_columnAOnly() {
         boolean[][] selected = new boolean[2][4];
         selected[0][0] = true;
-        assertEquals("output/15-S/drill_hole/15_dh_A_1.nc",
+        assertEquals("output/15-S/drill_hole/SP_15_dh_A_1.nc",
                 FileNameService.nameDrillHoleSelection(ext, selected, 1));
     }
 
@@ -82,7 +82,7 @@ class FileNameServiceTest {
         boolean[][] selected = new boolean[2][4];
         selected[0][0] = true;
         selected[0][2] = true;
-        assertEquals("output/15-S/counterbore/15X_cb_A_C_.nc",
+        assertEquals("output/15-S/counterbore/SP_15X_cb_A_C_.nc",
                 FileNameService.nameCounterboreSelection(ext, selected));
     }
 
@@ -91,7 +91,7 @@ class FileNameServiceTest {
         boolean[][] selected = new boolean[2][4];
         selected[0][0] = true;
         selected[1][0] = true;
-        assertEquals("output/15-S/drill_hole/30_dh_A_2.nc",
+        assertEquals("output/15-S/drill_hole/SP_30_dh_A_2.nc",
                 FileNameService.nameDrillHoleSelection(ext, selected, 2));
     }
 }

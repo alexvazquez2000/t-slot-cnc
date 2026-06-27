@@ -42,7 +42,7 @@ public class FileNameService {
 	public static String nameDrillHoleSelection(Extrusion ext, boolean[][] selected, int multiplier) {
 		String series = ext.getId().substring(0, 2);
 		if (multiplier == 2) series = (Integer.valueOf(series) * 2) + "";
-		return "output/" + ext.getId() + "/drill_hole/" + series + "_dh" + columnLetters(selected)
+		return "output/" + ext.getId() + "/drill_hole/SP_" + series + "_dh" + columnLetters(selected)
 				+ activeRows(selected) + fileExtension;
 	}
 
@@ -50,7 +50,7 @@ public class FileNameService {
 	 * Names a counterbore file based on which specific holes are selected (GUI use).
 	 */
 	public static String nameCounterboreSelection(Extrusion ext, boolean[][] selected) {
-		return "output/" + ext.getId() + "/counterbore/" + ext.getId().substring(0, 2) + "X_cb"
+		return "output/" + ext.getId() + "/counterbore/SP_" + ext.getId().substring(0, 2) + "X_cb"
 				+ columnLetters(selected) + fileExtension;
 	}
 
