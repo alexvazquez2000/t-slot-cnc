@@ -86,16 +86,13 @@ public class ToolpathService {
 		return tail.toString();
 	}
 
-	public String counterbore(MachineService machine, double boreLocationX, double boreLocationY,
+	public String counterbore(MachineService machine, double centerX, double centerY,
 			double boreDiameter, double depthOfBore, boolean makeDivotAtBottom) {
 		StringBuilder path = new StringBuilder();
 		double endMillRadius = machine.getEndMillDiameter() / 2.0;
 		//Start relative to the top of the Z=0 - the Z-axis moves down into negative numbers
 		double z = 0.0;
 
-		//Adjust the center of the circle
-		double centerX = boreLocationX - endMillRadius;
-		double centerY = boreLocationY + endMillRadius;
 		double radius = (boreDiameter / 2.0) - endMillRadius;
 
 		//go initial location on middle of track, away from the home
@@ -182,15 +179,11 @@ public class ToolpathService {
 		return path;
 	}
 
-	public String accessHole(MachineService machine, double boreLocationX, double boreLocationY,
+	public String accessHole(MachineService machine, double centerX, double centerY,
 			double boreDiameter, double depthOfAccessHole, double startZ) {
 		StringBuilder path = new StringBuilder();
 		double endMillRadius = machine.getEndMillDiameter() / 2.0;
 		double z = - startZ - machine.getCutDepthPerPass();
-
-		//Adjust the center of the circle
-		double centerX = boreLocationX - endMillRadius;
-		double centerY = boreLocationY + endMillRadius;
 
 		double radius = boreDiameter / 2 - endMillRadius;
 
@@ -222,16 +215,19 @@ public class ToolpathService {
 		return path.toString();
 	}
 
-	public String drillHole(MachineService machine, double boreLocationX, double boreLocationY,
+	/**
+	 * @param machine
+	 * @param centerX
+	 * @param centerY
+	 * @param boreDiameter - not used
+	 * @param depthOfAccessHole
+	 * @return
+	 */
+	public String drillHole(MachineService machine, double centerX, double centerY,
 			double boreDiameter, double depthOfAccessHole) {
 		StringBuilder path = new StringBuilder();
-		double endMillRadius = 0.25 / 2.0;
 		//the final depth
 		double z = - depthOfAccessHole + machine.getCutDepthPerPass();
-
-		//Adjust the center of the circle
-		double centerX = boreLocationX - endMillRadius;
-		double centerY = boreLocationY + endMillRadius;
 
 		//go initial location on middle of track, away from the home
 		path.append("G01 X").append(GCodeFormat.format(centerX,4))

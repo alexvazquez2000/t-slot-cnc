@@ -50,8 +50,9 @@ public class PartProgramService {
 	public String generateAccessHole(Extrusion ext, int[] columns, int rows, int multiplier) throws IOException {
 		MachineService machine = new MachineService(ext.getUnits());
 		AccessHole accessHole = ext.getAccessHole();
-		double boreLocationX = ext.getWidth() / 2.0;
-		double boreLocationY = accessHole.getyOffset();
+		double endMillRadius = machine.getEndMillDiameter() / 2.0;
+		double boreLocationX = ext.getWidth() / 2.0 - endMillRadius;
+		double boreLocationY = accessHole.getyOffset() + endMillRadius;
 		double accessHoleDiameter = accessHole.getDiameter();
 		double topOfSlot = ext.getDepthToTopOfSlot();
 		double depthOfAccessHole = computeHoleDepth(ext, machine, multiplier);
@@ -89,8 +90,9 @@ public class PartProgramService {
 		if (counterbore == null) return "";
 
 		MachineService machine = new MachineService(ext.getUnits());
-		double boreLocationX = ext.getWidth() / 2.0;
-		double boreLocationY = counterbore.getyOffset();
+		double endMillRadius = machine.getEndMillDiameter() / 2.0;
+		double boreLocationX = ext.getWidth() / 2.0 - endMillRadius;
+		double boreLocationY = counterbore.getyOffset() + endMillRadius;
 		double boreDiameter = counterbore.getDiameter();
 		double depthOfBore = counterbore.getDepth();
 
@@ -142,8 +144,11 @@ public class PartProgramService {
 		StringBuilder response = new StringBuilder();
 		MachineService machine = new MachineService(ext.getUnits());
 		AccessHole accessHole = ext.getAccessHole();
-		double boreLocationX = ext.getWidth() / 2.0;
-		double boreLocationY = accessHole.getyOffset();
+		
+		double endMillRadius = machine.getEndMillDiameter() / 2.0;
+		
+		double boreLocationX = ext.getWidth() / 2.0 - endMillRadius;
+		double boreLocationY = accessHole.getyOffset() + endMillRadius;
 		double accessHoleDiameter = accessHole.getDiameter();
 		double depthOfAccessHole = computeHoleDepth(ext, machine, multiplier);
 
