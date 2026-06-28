@@ -4,8 +4,8 @@ G17; (XY plane)
 M3 S7; (M3 turns spindle on, S=speed being ignored)
 G00 Z2.54; (gap above the material=2.54)
 G00 X0.0 Y0.0; (start to user home)
-G00 X15.0000 Y15.0000
-G01 X14.8750 Y15.1250 F381.0
+G00 X11.8250 Y18.1750
+G01 X11.8250 Y18.1750 F381.0
 G01 Z-25.5000
 G00 Z2.5400
 G00 Z2.5400 ; (Move to safe clearance)

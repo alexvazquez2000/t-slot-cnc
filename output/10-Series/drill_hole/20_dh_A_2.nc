@@ -4,11 +4,11 @@ G17; (XY plane)
 M3 S7; (M3 turns spindle on, S=speed being ignored)
 G00 Z0.10; (gap above the material=0.1)
 G00 X0.0 Y0.0; (start to user home)
-G00 X0.5000 Y0.5000
+G00 X0.3750 Y0.6250
 G01 X0.3750 Y0.6250 F15.0
 G01 Z-1.8500
 G00 Z0.1000
-G00 X0.5000 Y1.5000
+G00 X0.3750 Y1.6250
 G01 X0.3750 Y1.6250 F15.0
 G01 Z-1.8500
 G00 Z0.1000
