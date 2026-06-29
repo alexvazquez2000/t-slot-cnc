@@ -60,10 +60,10 @@ public class BatchPartGenerationService {
 			}
 		}
 
-		excelService.save(partDescriptions, "output/parts.xlsx");
+		excelService.save(partDescriptions, FileNameService.outputRoot() + "parts.xlsx");
 
 		//return to origin - params in millimeters
 		String gCode = toolpathService.generateReturnToVice(124.245, 68.406);
-		gCodeFileService.write(gCode, "output/returnToVice.nc");
+		gCodeFileService.write(gCode, FileNameService.outputRoot() + "returnToVice.nc");
 	}
 }

@@ -9,17 +9,27 @@ import com.t_slot_cnc.model.Extrusion;
  */
 public class FileNameService {
 
-	private static String fileExtension = ".nc";
-	
+	private static final String FILE_EXTENSION = ".nc";
+
 	private FileNameService() {
 		//Don't instantiate - only static members
 	}
 
+	/**
+	 * Returns the root output directory. When running as a packaged EXE
+	 * (detected via -Dapp.packaged=true in jpackage --java-options), files go
+	 * to the user's Documents folder so the install directory stays read-only.
+	 * In development the path stays "output/" relative to the working directory.
+	 */
+	public static String outputRoot() {
+		if (System.getProperty("app.packaged") != null) {
+			return System.getProperty("user.home") + "/Documents/T-Slot CNC/output/";
+		}
+		return "output/";
+	}
+
 	public static String nameCounterbore(Extrusion ext, Counterbore counterbore, int numColumns) {
-		//fileName +=  "X_cb_A_" + counterbore.getPartNumber() + fileExtension
-		//fileName += "X_cb_A_B_C_D_" + counterbore.getPartNumber() + fileExtension
-		
-		return "output/" + ext.getId() + "/counterbore/" + ext.getId().substring(0,2) + "X_cb" + columnPattern(numColumns) + fileExtension;
+		return outputRoot() + ext.getId() + "/counterbore/" + ext.getId().substring(0,2) + "X_cb" + columnPattern(numColumns) + FILE_EXTENSION;
 	}
 
 	public static String nameDrillHole(Extrusion ext, int numColumns, int rows, int multipier) {
@@ -27,11 +37,11 @@ public class FileNameService {
 		if (multipier == 2) {
 			series = (Integer.valueOf(series) * 2 ) + "";
 		}
-		return "output/" + ext.getId() + "/drill_hole/" + series + "_dh" + columnPattern(numColumns) + rows + fileExtension;
+		return outputRoot() + ext.getId() + "/drill_hole/" + series + "_dh" + columnPattern(numColumns) + rows + FILE_EXTENSION;
 	}
 
 	public static String nameAccessHole(Extrusion ext, AccessHole accessHole, int numColumns, int rows, int multipier) {
-		return "output/" + ext.getId() + "/access_hole/"  + ext.getId().substring(0,2) + "X_ah" + columnPattern(numColumns) + rows + "_" + multipier +  fileExtension;
+		return outputRoot() + ext.getId() + "/access_hole/"  + ext.getId().substring(0,2) + "X_ah" + columnPattern(numColumns) + rows + "_" + multipier + FILE_EXTENSION;
 	}
 
 	/**
@@ -42,16 +52,16 @@ public class FileNameService {
 	public static String nameDrillHoleSelection(Extrusion ext, boolean[][] selected, int multiplier) {
 		String series = ext.getId().substring(0, 2);
 		if (multiplier == 2) series = (Integer.valueOf(series) * 2) + "";
-		return "output/" + ext.getId() + "/drill_hole/SP_" + series + "_dh" + columnLetters(selected)
-				+ activeRows(selected) + fileExtension;
+		return outputRoot() + ext.getId() + "/drill_hole/SP_" + series + "_dh" + columnLetters(selected)
+				+ activeRows(selected) + FILE_EXTENSION;
 	}
 
 	/**
 	 * Names a counterbore file based on which specific holes are selected (GUI use).
 	 */
 	public static String nameCounterboreSelection(Extrusion ext, boolean[][] selected) {
-		return "output/" + ext.getId() + "/counterbore/SP_" + ext.getId().substring(0, 2) + "X_cb"
-				+ columnLetters(selected) + fileExtension;
+		return outputRoot() + ext.getId() + "/counterbore/SP_" + ext.getId().substring(0, 2) + "X_cb"
+				+ columnLetters(selected) + FILE_EXTENSION;
 	}
 
 	private static String columnPattern(int pattern) {
