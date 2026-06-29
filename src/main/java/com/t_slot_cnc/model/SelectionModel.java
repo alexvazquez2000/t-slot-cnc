@@ -12,6 +12,12 @@ public class SelectionModel {
 	private int numRows;
 	private int heightMultiplier = 1;
 	private boolean makeDivot = true;
+	//true - we zero the CNC machine to align to the left of 
+	//the extrusion's left edge to meet the end of the end mill 
+	//and edge of extrusion to meet the top of the end mill.
+	// if false then there is no offset, all holes are relative to
+	// the current CNC position
+	private boolean useOffset = true;
 	private boolean[][] selectedHoles = allSelected();
 
 	public String getSelectedSeries() {
@@ -80,6 +86,14 @@ public class SelectionModel {
 
 	public void setMakeDivot(boolean makeDivot) {
 		this.makeDivot = makeDivot;
+	}
+
+	public boolean isUseOffset() {
+		return useOffset;
+	}
+
+	public void setUseOffset(boolean useOffset) {
+		this.useOffset = useOffset;
 	}
 
 	/**

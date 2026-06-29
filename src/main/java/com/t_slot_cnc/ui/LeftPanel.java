@@ -137,6 +137,14 @@ public class LeftPanel extends VBox {
 			refresh(controller, middlePanel, rightPanel);
 		});
 
+		CheckBox useOffsetCb = new CheckBox("Use offset");
+		useOffsetCb.setSelected(true);
+		useOffsetCb.setOnAction(e -> {
+			controller.selectUseOffset(useOffsetCb.isSelected());
+			refresh(controller, middlePanel, rightPanel);
+		});
+		getChildren().add(useOffsetCb);
+
 		getChildren().add(new Separator());
 		getChildren().add(new Separator());
 

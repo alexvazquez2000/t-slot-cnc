@@ -14,15 +14,17 @@ public class PartSelection {
 	private final int numRows;
 	private final int heightMultiplier;
 	private final boolean[][] selectedHoles;
+	private final boolean useOffset;
 
 	public PartSelection(Extrusion extrusion, HoleType holeType, int numColumns, int numRows,
-			int heightMultiplier, boolean[][] selectedHoles) {
+			int heightMultiplier, boolean[][] selectedHoles, boolean useOffset) {
 		this.extrusion = extrusion;
 		this.holeType = holeType;
 		this.numColumns = numColumns;
 		this.numRows = numRows;
 		this.heightMultiplier = heightMultiplier;
 		this.selectedHoles = selectedHoles;
+		this.useOffset = useOffset;
 	}
 
 	public Extrusion getExtrusion() {
@@ -50,6 +52,10 @@ public class PartSelection {
 	 */
 	public boolean[][] getSelectedHoles() {
 		return selectedHoles;
+	}
+
+	public boolean isUseOffset() {
+		return useOffset;
 	}
 
 	/** Convenience: is a specific position selected and within the active grid? */

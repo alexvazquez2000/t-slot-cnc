@@ -32,7 +32,7 @@ public class PartProgramService {
 
 	public String generateCounterbore(Extrusion ext, int[] pattern) throws IOException {
 		String fileName = FileNameService.nameCounterbore(ext, ext.getCounterbore(), pattern.length);
-		gCodeFileService.write(buildCounterboreText(ext, patternToGrid(pattern, 1), true), fileName);
+		gCodeFileService.write(buildCounterboreText(ext, patternToGrid(pattern, 1), true, true), fileName);
 		if (ext.getCounterbore() == null) return null;
 		return partDescriptionService.describe(ext, fileName, new MachineService(ext.getUnits()));
 	}
@@ -83,16 +83,18 @@ public class PartProgramService {
 	 * Builds counterbore G-code for the selected hole positions.
 	 * @param selected   2×4 grid: selected[row][col], both zero-indexed
 	 * @param makeDivot  whether to add a small center divot at the bottom of the final pass
+	 * @param useOffset  true = zero at left edge of end mill / end of extrusion (batch default);
+	 *                   false = zero at center of first slot
 	 */
-	public String buildCounterboreText(Extrusion ext, boolean[][] selected, boolean makeDivot) {
+	public String buildCounterboreText(Extrusion ext, boolean[][] selected, boolean makeDivot, boolean useOffset) {
 		StringBuilder response = new StringBuilder();
 		Counterbore counterbore = ext.getCounterbore();
 		if (counterbore == null) return "";
 
 		MachineService machine = new MachineService(ext.getUnits());
 		double endMillRadius = machine.getEndMillDiameter() / 2.0;
-		double boreLocationX = ext.getWidth() / 2.0 - endMillRadius;
-		double boreLocationY = counterbore.getyOffset() + endMillRadius;
+		double boreLocationX = useOffset ? ext.getWidth() / 2.0 - endMillRadius : 0;
+		double boreLocationY = useOffset ? counterbore.getyOffset() + endMillRadius : 0;
 		double boreDiameter = counterbore.getDiameter();
 		double depthOfBore = counterbore.getDepth();
 
@@ -134,21 +136,26 @@ public class PartProgramService {
 		return response.toString();
 	}
 
+	public String buildDrillHoleText(Extrusion ext, boolean[][] selected, int multiplier) {
+		return buildDrillHoleText(ext, selected, multiplier, true);
+	}
+
 	/**
 	 * Builds drill-hole G-code for the selected hole positions.
 	 *
 	 * @param selected   2×4 grid: selected[row][col], both zero-indexed
 	 * @param multiplier How tall is it? 1 or 2
+	 * @param useOffset  true = zero at left edge of end mill / end of extrusion (batch default);
+	 *                   false = zero at center of first slot
 	 */
-	public String buildDrillHoleText(Extrusion ext, boolean[][] selected, int multiplier) {
+	public String buildDrillHoleText(Extrusion ext, boolean[][] selected, int multiplier, boolean useOffset) {
 		StringBuilder response = new StringBuilder();
 		MachineService machine = new MachineService(ext.getUnits());
 		AccessHole accessHole = ext.getAccessHole();
-		
+
 		double endMillRadius = machine.getEndMillDiameter() / 2.0;
-		
-		double boreLocationX = ext.getWidth() / 2.0 - endMillRadius;
-		double boreLocationY = accessHole.getyOffset() + endMillRadius;
+		double boreLocationX = useOffset ? ext.getWidth() / 2.0 - endMillRadius : 0;
+		double boreLocationY = useOffset ? accessHole.getyOffset() + endMillRadius : 0;
 		double accessHoleDiameter = accessHole.getDiameter();
 		double depthOfAccessHole = computeHoleDepth(ext, machine, multiplier);
 

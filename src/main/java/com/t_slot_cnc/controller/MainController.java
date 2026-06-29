@@ -62,6 +62,10 @@ public class MainController {
 		model.setMakeDivot(makeDivot);
 	}
 
+	public void selectUseOffset(boolean useOffset) {
+		model.setUseOffset(useOffset);
+	}
+
 	/** Toggle a specific hole on or off. row and col are zero-indexed. */
 	public void selectHole(int row, int col, boolean selected) {
 		model.setHoleSelected(row, col, selected);
@@ -81,7 +85,7 @@ public class MainController {
 	public PartSelection getPartSelection() {
 		Extrusion extrusion = extrusionService.findExtrusionByName(model.getSelectedSeries());
 		return new PartSelection(extrusion, model.getHoleType(), model.getNumColumns(), model.getNumRows(),
-				model.getHeightMultiplier(), model.getSelectedHoles());
+				model.getHeightMultiplier(), model.getSelectedHoles(), model.isUseOffset());
 	}
 
 	public String getRecommendedFileName() {
@@ -99,9 +103,9 @@ public class MainController {
 		if (ext == null) return "";
 		boolean[][] selected = model.getSelectedHoles();
 		if (model.getHoleType() == HoleType.COUNTERBORE) {
-			return partProgramService.buildCounterboreText(ext, selected, model.isMakeDivot());
+			return partProgramService.buildCounterboreText(ext, selected, model.isMakeDivot(), model.isUseOffset());
 		}
-		return partProgramService.buildDrillHoleText(ext, selected, model.getHeightMultiplier());
+		return partProgramService.buildDrillHoleText(ext, selected, model.getHeightMultiplier(), model.isUseOffset());
 	}
 
 	// ── Actions ──────────────────────────────────────────────────────────────
@@ -111,8 +115,8 @@ public class MainController {
 		if (ext == null) return;
 		boolean[][] selected = model.getSelectedHoles();
 		String gCode = model.getHoleType() == HoleType.COUNTERBORE
-				? partProgramService.buildCounterboreText(ext, selected, model.isMakeDivot())
-				: partProgramService.buildDrillHoleText(ext, selected, model.getHeightMultiplier());
+				? partProgramService.buildCounterboreText(ext, selected, model.isMakeDivot(), model.isUseOffset())
+				: partProgramService.buildDrillHoleText(ext, selected, model.getHeightMultiplier(), model.isUseOffset());
 		try {
 			partProgramService.saveToFile(gCode, getRecommendedFileName());
 		} catch (IOException e) {

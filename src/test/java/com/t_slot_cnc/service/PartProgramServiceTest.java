@@ -72,7 +72,8 @@ class PartProgramServiceTest {
     void buildDrillHoleText_singleHole_containsHeaderAndTail() {
         boolean[][] selected = new boolean[2][4];
         selected[0][0] = true;
-        String code = service.buildDrillHoleText(ext, selected, 1);
+        boolean useOffset = true;
+        String code = service.buildDrillHoleText(ext, selected, 1, useOffset);
         assertTrue(code.contains("G20"), "inches program should declare G20");
         assertTrue(code.contains("M30"), "program should end with M30");
     }
@@ -81,14 +82,16 @@ class PartProgramServiceTest {
     void buildDrillHoleText_singleHole_containsDrillMove() {
         boolean[][] selected = new boolean[2][4];
         selected[0][0] = true;
-        String code = service.buildDrillHoleText(ext, selected, 1);
+        boolean useOffset = true;
+        String code = service.buildDrillHoleText(ext, selected, 1, useOffset);
         assertTrue(code.contains("G01"), "should contain a linear plunge move");
     }
 
     @Test
     void buildDrillHoleText_noHolesSelected_stillHasHeaderAndTail() {
         boolean[][] selected = new boolean[2][4]; // all false
-        String code = service.buildDrillHoleText(ext, selected, 1);
+        boolean useOffset = true;
+        String code = service.buildDrillHoleText(ext, selected, 1, useOffset);
         assertTrue(code.contains("G20"));
         assertTrue(code.contains("M30"));
     }
@@ -97,7 +100,8 @@ class PartProgramServiceTest {
     void buildDrillHoleText_multiplierTwo_producesDeeper() {
         boolean[][] selected = new boolean[2][4];
         selected[0][0] = true;
-        String code1 = service.buildDrillHoleText(ext, selected, 1);
+        boolean useOffset = true;
+        String code1 = service.buildDrillHoleText(ext, selected, 1, useOffset);
         String code2 = service.buildDrillHoleText(ext, selected, 2);
         assertFalse(code1.equals(code2), "multiplier=2 should produce different G-code");
     }
@@ -108,7 +112,7 @@ class PartProgramServiceTest {
     void buildCounterboreText_singleHole_containsG02Arc() {
         boolean[][] selected = new boolean[2][4];
         selected[0][0] = true;
-        String code = service.buildCounterboreText(ext, selected, true);
+        String code = service.buildCounterboreText(ext, selected, true, true);
         assertTrue(code.contains("G02"), "counterbore should use clockwise G02 arc");
     }
 
@@ -116,7 +120,8 @@ class PartProgramServiceTest {
     void buildCounterboreText_singleHole_containsHeaderAndTail() {
         boolean[][] selected = new boolean[2][4];
         selected[0][0] = true;
-        String code = service.buildCounterboreText(ext, selected, true);
+        boolean useOffset = true;
+        String code = service.buildCounterboreText(ext, selected, true, true);
         assertTrue(code.contains("G20"));
         assertTrue(code.contains("M30"));
     }
@@ -126,6 +131,7 @@ class PartProgramServiceTest {
         ext.setCounterbore(null);
         boolean[][] selected = new boolean[2][4];
         selected[0][0] = true;
-        assertTrue(service.buildCounterboreText(ext, selected, true).isEmpty());
+        boolean useOffset = true;
+        assertTrue(service.buildCounterboreText(ext, selected, true, useOffset).isEmpty());
     }
 }

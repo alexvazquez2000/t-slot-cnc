@@ -156,11 +156,16 @@ public class MiddlePanel extends Region {
 		gc.strokeRect(barX, top, pieceWidthPx, pieceHeightPx);
 		drawBreak(gc, barX, top, pieceWidthPx);
 
-		// End mill starting position: left edge at barX, top edge at bottom of rectangle
+		// End mill zero position: left-edge/end-face zeroing when useOffset=true,
+		// or center of first slot when useOffset=false
 		MachineService machine = new MachineService(sel.getExtrusion().getUnits());
 		double endMillRadiusPx = (machine.getEndMillDiameter() / 2.0) * scale;
-		double endMillCenterX = barX + endMillRadiusPx;
-		double endMillCenterY = bottom + endMillRadiusPx;
+		double endMillCenterX = sel.isUseOffset()
+				? barX + endMillRadiusPx
+				: barX + 0.5 * unitWidth * scale;
+		double endMillCenterY = sel.isUseOffset()
+				?bottom + endMillRadiusPx
+				:bottom - (int) Math.round((yOffset) * scale);
 		gc.setStroke(Color.DARKORANGE);
 		gc.setLineWidth(1.5);
 		gc.strokeOval(endMillCenterX - endMillRadiusPx, endMillCenterY - endMillRadiusPx,
