@@ -20,14 +20,36 @@ import com.t_slot_cnc.model.MachineSettings;
 @Service
 public class MachineSettingsService {
 
-	private static final Path PROPERTIES_FILE = Path.of("src/main/resources/specs/machine.properties");
+	private static final String CLASSPATH_RESOURCE = "/specs/machine.properties";
+	private static final Path DEV_PATH = Path.of("src/main/resources/specs/machine.properties");
+
+	private static Path propertiesPath() {
+		if (System.getProperty("app.packaged") != null) {
+			return Path.of(System.getProperty("user.home"), "T-Slot CNC", "specs", "machine.properties");
+		}
+		return DEV_PATH;
+	}
 
 	public MachineSettings load() {
+		Path path = propertiesPath();
+
+		if (System.getProperty("app.packaged") != null && !Files.exists(path)) {
+			try {
+				Files.createDirectories(path.getParent());
+				try (InputStream in = MachineSettingsService.class.getResourceAsStream(CLASSPATH_RESOURCE);
+					 OutputStream out = Files.newOutputStream(path)) {
+					in.transferTo(out);
+				}
+			} catch (IOException e) {
+				throw new RuntimeException("Failed to seed machine.properties to " + path, e);
+			}
+		}
+
 		Properties props = new Properties();
-		try (InputStream is = Files.newInputStream(PROPERTIES_FILE)) {
+		try (InputStream is = Files.newInputStream(path)) {
 			props.load(is);
 		} catch (IOException e) {
-			throw new RuntimeException("Failed to load machine properties from " + PROPERTIES_FILE, e);
+			throw new RuntimeException("Failed to load machine properties from " + path, e);
 		}
 
 		MachineSettings settings = new MachineSettings();
@@ -51,7 +73,9 @@ public class MachineSettingsService {
 		props.setProperty("accuracy", String.valueOf(settings.getAccuracy()));
 		props.setProperty("zGapAbove", String.valueOf(settings.getzGapAbove()));
 
-		try (OutputStream os = Files.newOutputStream(PROPERTIES_FILE)) {
+		Path path = propertiesPath();
+		Files.createDirectories(path.getParent());
+		try (OutputStream os = Files.newOutputStream(path)) {
 			props.store(os, "Machine cutting parameters (inches)");
 		}
 	}

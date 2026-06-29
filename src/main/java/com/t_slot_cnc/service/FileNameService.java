@@ -23,7 +23,7 @@ public class FileNameService {
 	 */
 	public static String outputRoot() {
 		if (System.getProperty("app.packaged") != null) {
-			return System.getProperty("user.home") + "/Documents/T-Slot CNC/output/";
+			return System.getProperty("user.home") + "/T-Slot CNC/output/";
 		}
 		return "output/";
 	}
