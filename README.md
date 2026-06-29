@@ -28,6 +28,14 @@ mvn spring-boot:run
 mvn compile exec:java -Dexec.mainClass="com.t_slot_cnc.Main"
 ```
 
+## Create EXE
+
+In Powershell run ```.\package.ps1```
+
+If PowerShell blocks it due to execution policy, prefix with: ```powershell -ExecutionPolicy Bypass -File .\package.ps1```
+ 
+When packaged, files go to C:\Users\<USER>\T-Slot CNC\output\. In Eclipse they continue writing to output/ in the project root.
+
 ## Machine Parameters (MachineService defaults)
 
 | Parameter        | Value              |
